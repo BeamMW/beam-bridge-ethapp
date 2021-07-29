@@ -5,4 +5,4 @@
 
 1. `npm install`
 2. `npm run serve`
-3. http://localhost:9998/bridge-front/
+3. http://localhost:9998/
