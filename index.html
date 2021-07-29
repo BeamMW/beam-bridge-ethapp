@@ -1,9 +1,8 @@
 <html>
 <head>
     <script src="./../node_modules/web3/dist/web3.min.js"></script>
-    <script src="./BeamToken.js"></script>
     <script src="./PipeUser.js"></script>
-    <script src="./index.js"></script>
+    <script src="./bundle.js"></script>
 </head>
 <body>
     <!-- <span id="resultBalance"></span>
@@ -27,7 +26,7 @@
           </select>
     </p>
     <p>
-        <button id="send" onclick="sendToken()">send to beam</button>
+        <button id="send">send to beam</button>
     </p>
     <p>
         <b>Receive Token from Beam</b>
@@ -37,7 +36,7 @@
         <input type="text" id="msgId" placeholder="waiting for message id...">
     </p>
     <p>
-        <button id="receive" onclick="receiveToken()">receive from beam</button>
+        <button id="receive">receive from beam</button>
     </p>
 </body>
 </html>

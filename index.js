@@ -1,29 +1,5 @@
 
-// web3 provider with fallback for old version
-window.addEventListener('load', async () => {
-    // New web3 provider
-    if (window.ethereum) {
-        window.web3 = new Web3(window.ethereum);
-        try {
-            // ask user for permission
-            await window.ethereum.enable();
-            // user approved permission
-        } catch (error) {
-            // user rejected permission
-            console.log('user rejected permission');
-        }
-    }
-    // Old web3 provider
-    else if (window.web3) {
-        window.web3 = new Web3(web3.currentProvider);
-        // no need to ask for permission
-    }
-    // No web3 provider
-    else {
-        console.log('No web3 provider detected');
-    }
-});
-
+let abi = require("human-standard-token-abi");
 const ethTokenContract = '0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0';
 const ethPipeUserContract = '0x345cA3e014Aaf5dcA488057592ee47305D9B3e10';
 
@@ -49,7 +25,7 @@ async function getBalance() {
     console.log('balance = ', balance);
 
     const tokenContract = new window.web3.eth.Contract(
-        BeamTokenContract.abi,
+        abi,
         ethTokenContract
     );
 
@@ -74,7 +50,7 @@ const requestToContract = async (sender, receiver, abi) => {
 
 async function sendToken() {
     const tokenContract = new window.web3.eth.Contract(
-        BeamTokenContract.abi,
+        abi,
         ethTokenContract
     );
     const pipeUserContract = new window.web3.eth.Contract(
@@ -115,4 +91,31 @@ async function receiveToken() {
         receiveTx.encodeABI());
 
     console.log('receive receipt: ', receiveTxReceipt);
+}
+
+window.onload = async () => {
+    // New web3 provider
+    if (window.ethereum) {
+        window.web3 = new Web3(window.ethereum);
+        try {
+            // ask user for permission
+            await window.ethereum.enable();
+            // user approved permission
+        } catch (error) {
+            // user rejected permission
+            console.log('user rejected permission');
+        }
+    }
+    // Old web3 provider
+    else if (window.web3) {
+        window.web3 = new Web3(web3.currentProvider);
+        // no need to ask for permission
+    }
+    // No web3 provider
+    else {
+        console.log('No web3 provider detected');
+    }
+
+    document.getElementById("send").onclick = sendToken;
+    document.getElementById("receive").onclick = receiveToken;
 }

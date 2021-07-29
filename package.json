@@ -5,12 +5,16 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "http-server --port 9998"
+    "serve": "http-server --port 9998",
+    "build": "browserify index.js -o bundle.js"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "browserify": "^17.0.0",
+    "erc-20-abi": "^1.0.0",
     "http-server": "^0.12.3",
+    "human-standard-token-abi": "^2.0.0",
     "web3": "^1.4.0"
   }
 }
