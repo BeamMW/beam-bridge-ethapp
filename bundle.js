@@ -9,7 +9,7 @@ async function getBalance() {
 
     let balance = await window.web3.eth.getBalance(accounts[0]);
 
-    // let tokenInst  =  new web3.eth.Contract(BeamTokenContract.abi,
+    // let tokenInst  =  new web3.eth.Contract(abi,
     //     ethTokenContract);
 
 
