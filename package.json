@@ -5,8 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "serve": "http-server --port 9998",
-    "build": "browserify index.js -o bundle.js"
+    "server": "browserify index.js -o bundle.js && http-server --port 9998"
   },
   "author": "",
   "license": "ISC",
