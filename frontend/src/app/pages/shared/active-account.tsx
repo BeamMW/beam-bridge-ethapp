@@ -1,12 +1,11 @@
 import React from 'react';
 import { styled } from '@linaria/react';
 
-interface ButtonProps {
-  type?: 'submit' | 'reset' | 'button';
-  color?: 'primary' | 'ghost';
+interface ActiveAccountProps {
+  text: string;
 }
 
-const AccountStyled = styled.div<ButtonProps>`
+const AccountStyled = styled.div`
   padding: 11px 30px;
   border-radius: 22.5px;
   border: solid 1px #fff;
@@ -15,12 +14,12 @@ const AccountStyled = styled.div<ButtonProps>`
   margin 80px 80px 0 0;
 `;
 
-const ActiveAccount = () => {
-  return (
-    <AccountStyled>
-      1Cs4wu…uzbg9t
-    </AccountStyled>
-  );
-};
+const ActiveAccount: React.FC<ActiveAccountProps> = ({
+  text
+}) => (
+  <AccountStyled>
+    {text}
+  </AccountStyled>
+);
 
 export default ActiveAccount;

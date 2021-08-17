@@ -2,18 +2,17 @@ import React, { useEffect } from 'react';
 import { useStore } from 'effector-react';
 import { css } from '@linaria/core';
 
-import { Connect, Balance, Send } from '@pages/main';
 import { $view, View } from '@state/shared';
+import { getCurrentView } from '@core/router';
 import { initApp } from '@state/init';
-
-const ViewCompomentMap = {
-  [View.CONNECT]: Connect,
-  [View.BALANCE]: Balance,
-  [View.SEND]: Send
-};
 
 css`
   :global() {
+    :root {
+      --color-send: #da68f5;
+      --color-receive: #0bccf7;
+    }
+
     @font-face {
       font-family: 'ProximaNova';
       src: url('assets/fonts/ProximaNova-Regular.ttf');
@@ -70,6 +69,10 @@ css`
     h1,h2 {
       margin: 0;
     }
+
+    p {
+      margin: 0;
+    }
   }
 `;
 
@@ -83,7 +86,7 @@ const App = () => {
   }, []);
 
   const view = useStore($view);
-  const ViewComponent = ViewCompomentMap[view];
+  const ViewComponent = getCurrentView(view);
 
   return (
     <div className={background}>

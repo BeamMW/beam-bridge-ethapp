@@ -9,5 +9,5 @@ export enum View {
 export const setView = createEvent<View>();
 export const $view = restore(setView, View.CONNECT);
 
-export const setAccounts = createEvent<boolean>();
+export const setAccounts = createEvent<string[]>();
 export const $accounts = restore(setAccounts, null);

@@ -3,50 +3,39 @@ let abi = require("human-standard-token-abi");
 const ethTokenContract = '0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0';
 const ethPipeUserContract = '0x345cA3e014Aaf5dcA488057592ee47305D9B3e10';
 
-async function getBalance() {
-    let accounts = await window.web3.eth.getAccounts();
+// async function getBalance() {
+//     let accounts = await window.web3.eth.getAccounts();
 
-    let balance = await window.web3.eth.getBalance(accounts[0]);
+//     let balance = await window.web3.eth.getBalance(accounts[0]);
 
-    // let tokenInst  =  new web3.eth.Contract(abi,
-    //     ethTokenContract);
+//     // let tokenInst  =  new web3.eth.Contract(abi,
+//     //     ethTokenContract);
 
 
-    //     tokenInst.methods.decimals().call(function(error,d){
-    //         console.log("decimals:",error,d);
+//     //     tokenInst.methods.decimals().call(function(error,d){
+//     //         console.log("decimals:",error,d);
             
-    //         //calculate actual tokens amounts based on decimals in token
-    //         let tokens=web3.utils.toBN("0x"+(amount*10**d).toString(16));
+//     //         //calculate actual tokens amounts based on decimals in token
+//     //         let tokens=web3.utils.toBN("0x"+(amount*10**d).toString(16));
         
-    //     });
-    document.getElementById("resultBalance").innerHTML = "balance: " + balance;
+//     //     });
+//     document.getElementById("resultBalance").innerHTML = "balance: " + balance;
 
-    console.log('account = ', accounts[0]);
-    console.log('balance = ', balance);
+//     console.log('account = ', accounts[0]);
+//     console.log('balance = ', balance);
 
-    const tokenContract = new window.web3.eth.Contract(
-        abi,
-        ethTokenContract
-    );
+//     const tokenContract = new window.web3.eth.Contract(
+//         abi,
+//         ethTokenContract
+//     );
 
-    let tokenBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
-    document.getElementById("resultBalance").innerHTML = "Ethereum balance: " + balance + "<br/>Token balance: " + tokenBalance;
+//     let tokenBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
+//     document.getElementById("resultBalance").innerHTML = "Ethereum balance: " + balance + "<br/>Token balance: " + tokenBalance;
 
-    console.log("token balance: ", tokenBalance);
-}
+//     console.log("token balance: ", tokenBalance);
+// }
 
-const requestToContract = async (sender, receiver, abi) => {
-    let nonce = await window.web3.eth.getTransactionCount(sender);
-    let hashTx = await window.web3.eth.sendTransaction({
-        from: sender,
-        to: receiver,
-        data: abi,
-        gas: 2000000,
-        nonce: nonce,
-    });
 
-    console.log('hash tx: ', hashTx);
-}
 
 async function sendToken() {
     const tokenContract = new window.web3.eth.Contract(

@@ -9,8 +9,8 @@ const Card: React.FC = ({
   children,
   ...rest
 }) => (
-  <CardStyled {...rest}>
-    {children}
+  <CardStyled>
+    
   </CardStyled>
 );
 

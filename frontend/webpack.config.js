@@ -39,7 +39,11 @@ module.exports = {
             options: { url: false },
           },
         ],
-      },
+      }, {
+        test: /\.json$/,
+        loader: 'json-loader',
+        include: '/build/contracts/'
+      }
     ],
   },
   plugins: [
@@ -51,6 +55,11 @@ module.exports = {
         {
           from: path.join(__dirname, 'src/assets'),
           to: path.join(__dirname, 'dist/assets'),
+          context: 'public',
+        },
+        {
+          from: path.join(__dirname, 'src/contract-pipes'),
+          to: path.join(__dirname, 'dist/contract-pipes'),
           context: 'public',
         },
         {
