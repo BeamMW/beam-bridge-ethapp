@@ -11,3 +11,9 @@ export const $view = restore(setView, View.CONNECT);
 
 export const setAccounts = createEvent<string[]>();
 export const $accounts = restore(setAccounts, null);
+
+export const setEthBalance = createEvent<number>();
+export const $ethBalance = restore(setEthBalance, null);
+
+export const setUsdtBalance = createEvent<number>();
+export const $usdtBalance = restore(setUsdtBalance, null);

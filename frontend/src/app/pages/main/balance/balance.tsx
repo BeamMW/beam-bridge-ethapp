@@ -3,8 +3,12 @@ import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { setView, View, $accounts } from '@state/shared';
-import { ActiveAccount, Button } from '@pages/shared';
+import { 
+  setView, View, 
+  $accounts, $ethBalance,
+  $usdtBalance
+} from '@state/shared';
+import { ActiveAccount, BalanceCard, Button } from '@pages/shared';
 import { formatActiveAddressString } from '@core/utils';
 import { getBalance } from '@state/init';
 
@@ -17,6 +21,7 @@ const Container = styled.div`
 const Title = styled.h1`
   font-size: 56px;
   font-weight: 900;
+  margin-bottom: 50px;
 `;
 
 const Content = styled.div`
@@ -48,6 +53,8 @@ const handleSendClick: React.MouseEventHandler = () => {
 
 const Balance = () => {
   const account = useStore($accounts);
+  const ethBalance = useStore($ethBalance) / Math.pow(10, 18);
+  const usdtBalance = useStore($usdtBalance) / Math.pow(10, 8);
 
   return (
     <Container>
@@ -55,6 +62,8 @@ const Balance = () => {
         <Title>ETH to BEAM Bridge</Title>
         <Content>
             <ContentHeader>Balance</ContentHeader>
+            <BalanceCard type="usdt" balanceValue={usdtBalance}></BalanceCard>
+            <BalanceCard type="eth" balanceValue={ethBalance}></BalanceCard>
             <StyledControls>
               <Button color="send" onClick={handleSendClick}>send</Button>
               {/* <Button color="receive">receive</Button> */}

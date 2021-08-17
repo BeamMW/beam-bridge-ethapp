@@ -1,8 +1,14 @@
 import React, { useState } from 'react';
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { View, setView, setAccounts, $accounts } from './../state/shared';
+import { 
+  View, setView, 
+  setAccounts, $accounts,
+  setEthBalance, $ethBalance,
+  setUsdtBalance, $usdtBalance
+} from './../state/shared';
 let abi = require("human-standard-token-abi");
 import PipeUserContract from './../../contract-pipes/eth-pipe/PipeUser.json';
+import BeamTokenContract from './../../contract-pipes/eth-pipe/PipeBeam.json';
 
 declare global {
     interface Window {
@@ -85,6 +91,7 @@ export default class MetaMaskController {
           }
       });
       this.web3 = new Web3(window.ethereum);
+      this.getBalance();
     }
   }
 
@@ -92,6 +99,7 @@ export default class MetaMaskController {
     if(MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
         .request({ method: 'eth_requestAccounts' });
+      window.ethereum.on('accountsChanged', this.handleAccounts);
     } else {
       this.onboarding.startOnboarding();
     }
@@ -152,16 +160,16 @@ export default class MetaMaskController {
       console.log('receive receipt: ', receiveTxReceipt);
   }
 
-  async getBalance() {
-    const tokenContract = new this.web3.eth.Contract(
-        abi,
-        ethTokenContract
-    );
-    let accounts = await this.web3.eth.getAccounts();
-    let balance = await this.web3.eth.getBalance(accounts[0]);
-    //let tokenBalance = await tokenContract.methods.balanceOf(accounts[0]).call();
-    //console.log(tokenBalance);
-    console.log(balance)
-    //return balance;
+  
+  private async getBalance() {
+    const accounts = await this.web3.eth.getAccounts();
+    const balance: number = await this.web3.eth.getBalance(accounts[0]);
+    setEthBalance(balance);
+
+    const contractAddress = "0x53d84F758276357DA72bF18Cc5b33D31AEc0BACD";
+
+    const token = new this.web3.eth.Contract(abi, contractAddress);
+    const tokenBalance = await token.methods.balanceOf(accounts[0]).call();
+    setUsdtBalance(tokenBalance);
   }
 }

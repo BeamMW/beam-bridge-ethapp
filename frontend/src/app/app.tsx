@@ -11,6 +11,8 @@ css`
     :root {
       --color-send: #da68f5;
       --color-receive: #0bccf7;
+      --color-usdt-from: rgba(255, 116, 107, .3);
+      --color-eth-from: rgba(115, 255, 124, .3);
     }
 
     @font-face {
