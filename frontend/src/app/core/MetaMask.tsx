@@ -33,47 +33,8 @@ export default class MetaMaskController {
     this.instance = new MetaMaskController();
     return this.instance;
   }
-  
-//   React.useEffect(() => {
-    
-//   }, []);
 
-//   React.useEffect(() => {
-//     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-//       if (accounts.length > 0) {
-//         setView(View.BALANCE);
-//         setButtonText(CONNECTED_TEXT);
-//         setDisabled(true);
-//         onboarding.current.stopOnboarding();
-//       } else {
-//         setButtonText(CONNECT_TEXT);
-//         setDisabled(false);
-//       }
-//     }
-//   }, [accounts]);
-
-//   React.useEffect(() => {
-//     function handleNewAccounts(newAccounts) {
-//       setAccounts(newAccounts);
-//     }
-//     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-//       window.ethereum
-//         .request({ method: 'eth_requestAccounts' })
-//         .then(handleNewAccounts);
-//       window.ethereum.on('accountsChanged', handleNewAccounts);
-//       return () => {
-//         if (window.ethereum.off !== undefined) {
-//           window.ethereum.off('accountsChanged', handleNewAccounts);
-//         }
-//       };
-//     }
-//   }, []);
-
-  constructor() {
-    // if (!this.onboarding.current) {
-    //     this.onboarding.current = new MetaMaskOnboarding();
-    // }
-  }
+  constructor() {}
 
   handleAccounts(accounts) {
     setAccounts(accounts);

@@ -2,7 +2,6 @@ import React, { useState, useRef } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
 import { ActiveAccount, Button, Input } from '@pages/shared';
-import { formatActiveAddressString } from '@core/utils';
 import { setView, View, $accounts } from '@state/shared';
 import { send } from '@state/init';
 
@@ -78,7 +77,7 @@ const Send = () => {
 
   return (
     <Container>
-      <ActiveAccount text={formatActiveAddressString(account[0])}></ActiveAccount>
+      <ActiveAccount text={account[0]}></ActiveAccount>
       <Title>ETH to BEAM Bridge</Title>
       <ControlStyled>
         <BackControl onClick={handleBackClick}>back</BackControl>

@@ -9,7 +9,6 @@ import {
   $usdtBalance
 } from '@state/shared';
 import { ActiveAccount, BalanceCard, Button } from '@pages/shared';
-import { formatActiveAddressString } from '@core/utils';
 import { getBalance } from '@state/init';
 
 const Container = styled.div`
@@ -58,7 +57,7 @@ const Balance = () => {
 
   return (
     <Container>
-        <ActiveAccount text={formatActiveAddressString(account[0])}></ActiveAccount>
+        <ActiveAccount text={account[0]}></ActiveAccount>
         <Title>ETH to BEAM Bridge</Title>
         <Content>
             <ContentHeader>Balance</ContentHeader>
