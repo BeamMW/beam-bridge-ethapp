@@ -118,7 +118,7 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
         ))}
       </tbody>
     </StyledTable>
-  ) : (<div></div>);
+  ) : (<></>);
 };
 
 export default Table;

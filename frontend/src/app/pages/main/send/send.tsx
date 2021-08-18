@@ -4,6 +4,7 @@ import { styled } from '@linaria/react';
 import { ActiveAccount, Button, Input } from '@pages/shared';
 import { setView, View, $accounts } from '@state/shared';
 import { send } from '@state/init';
+import { $selectedCurrency } from '@state/send';
 
 const Container = styled.div`
   display: flex;
@@ -63,8 +64,9 @@ const handleBackClick: React.MouseEventHandler = () => {
 const Send = () => {
   const addressInputRef = useRef<HTMLInputElement>();
   const amountInputRef = useRef<HTMLInputElement>();
-
+  
   const account = useStore($accounts);
+  const currency = useStore($selectedCurrency);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async event => {
     event.preventDefault();
@@ -72,6 +74,7 @@ const Send = () => {
     const data = new FormData(event.currentTarget);
     const address = data.get('address') as string;
     const amount = parseInt(data.get('amount') as string);
+    
     send(address, amount)
   }
 
@@ -84,10 +87,10 @@ const Send = () => {
       </ControlStyled>
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Send token to Beam</FormTitle>
-        <FormSubtitle>BEAM WALLET ADDRESS</FormSubtitle>
-        <Input ref={addressInputRef} name="address"></Input>
+        <FormSubtitle>BEAM BRIDGE CONTRACT ADDRESS</FormSubtitle>
+        <Input type='common' ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
-        <Input ref={amountInputRef} name="amount"></Input>
+        <Input type='amount' ref={amountInputRef} name="amount"></Input>
         <SendStyled>
           <Button color="send">send to beam</Button>
         </SendStyled>
