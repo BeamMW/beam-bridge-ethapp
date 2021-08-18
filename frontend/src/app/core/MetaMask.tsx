@@ -141,8 +141,8 @@ export default class MetaMaskController {
         PipeUserContractIncome.abi,
         '0x81a9405EeecDACd5EB328E5C79bcA280eDb61cc1'
     );
-
-    const result = await pipeUserContract.methods.viewIncoming().call();
+    const accounts = await this.web3.eth.getAccounts();
+    const result = await pipeUserContract.methods.viewIncoming().call({from: accounts[0]});
     
     let formattedResult = [];
     if (result) {
