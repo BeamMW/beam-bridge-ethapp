@@ -15,16 +15,32 @@ interface TableProps {
   config: CellConfig[];
 }
 
+const StyledTable = styled.table`
+  width: 600px;
+`;
+
+const StyledThead = styled.thead`
+  height: 40px;
+  border-radius: 10px;
+  background-color: rgba(15, 77, 130, .6);
+`;
+
 const isPositive = (value: number) => 1 / value > 0;
 
 const Header = styled.th<{ active: boolean }>`
   text-align: left;
   color: ${({ active }) => {
     if (isNil(active)) {
-      return 'black';
+      return '#8da1ad';
     }
-    return active ? 'red' : 'blue';
+    return active ? '#ffffff' : '#8da1ad';
   }};
+  padding: 15px 30px;
+`;
+
+const Column = styled.td`
+  padding: 20px 30px;
+  background-color: rgba(13, 77, 118, .9);
 `;
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
@@ -48,9 +64,9 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
     setFilterBy(index === filterBy ? -filterBy : index);
   };
 
-  return (
-    <table>
-      <thead>
+  return data.length > 0 ? (
+    <StyledTable>
+      <StyledThead>
         <tr>
           {config.map(({ title }, index) => (
             <Header
@@ -65,19 +81,19 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
             </Header>
           ))}
         </tr>
-      </thead>
+      </StyledThead>
       <tbody>
         {data.sort(sortFn).map(item => (
           <tr key={item[keyBy]}>
             {config.map(({ name, fn }, index) => {
               const value = item[name];
-              return <td key={index}>{isNil(fn) ? value : fn(value, item)}</td>;
+              return <Column key={index}>{isNil(fn) ? value : fn(value, item)}</Column>;
             })}
           </tr>
         ))}
       </tbody>
-    </table>
-  );
+    </StyledTable>
+  ) : (<div></div>);
 };
 
 export default Table;

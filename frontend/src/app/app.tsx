@@ -75,6 +75,14 @@ css`
     p {
       margin: 0;
     }
+
+    tr, th, table {
+      border: none;
+      border-spacing: 0;
+      padding: 0;
+      margin: 0;
+      border-collapse: inherit;
+    }
   }
 `;
 

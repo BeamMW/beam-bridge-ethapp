@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
   View, setView, 
-  setAccounts, $accounts,
-  setEthBalance, $ethBalance,
-  setUsdtBalance, $usdtBalance
+  setAccounts,
+  setEthBalance,
+  setUsdtBalance, setIncome
 } from './../state/shared';
 let abi = require("human-standard-token-abi");
 import PipeUserContract from './../../contract-pipes/eth-pipe/PipeUser.json';
 import BeamTokenContract from './../../contract-pipes/eth-pipe/PipeBeam.json';
+import PipeUserContractIncome from './../../contract-pipes/eth-pipe/PipeUserIncome.json';
 
 declare global {
     interface Window {
@@ -53,6 +54,7 @@ export default class MetaMaskController {
       });
       this.web3 = new Web3(window.ethereum);
       this.getBalance();
+      this.loadIncoming();
     }
   }
 
@@ -132,5 +134,22 @@ export default class MetaMaskController {
     const token = new this.web3.eth.Contract(abi, contractAddress);
     const tokenBalance = await token.methods.balanceOf(accounts[0]).call();
     setUsdtBalance(tokenBalance);
+  }
+
+  private async loadIncoming() {
+    const pipeUserContract = new this.web3.eth.Contract(
+        PipeUserContractIncome.abi,
+        '0x81a9405EeecDACd5EB328E5C79bcA280eDb61cc1'
+    );
+
+    const result = await pipeUserContract.methods.viewIncoming().call();
+    
+    let formattedResult = [];
+    if (result) {
+      for (let i = 0; i < result[0].length; i++) {
+        formattedResult.push({pid: i, id: result[0][i], amount: result[1][i], status: ''}); 
+      }
+    }
+    setIncome(formattedResult);
   }
 }

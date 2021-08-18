@@ -84,7 +84,7 @@ const Send = () => {
       </ControlStyled>
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Send token to Beam</FormTitle>
-        <FormSubtitle>ETH WALLET ADDRESS</FormSubtitle>
+        <FormSubtitle>BEAM WALLET ADDRESS</FormSubtitle>
         <Input ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
         <Input ref={amountInputRef} name="amount"></Input>

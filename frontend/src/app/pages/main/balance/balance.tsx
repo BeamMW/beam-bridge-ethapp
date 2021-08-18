@@ -6,15 +6,17 @@ import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
   setView, View, 
   $accounts, $ethBalance,
-  $usdtBalance
+  $usdtBalance,
+  $income
 } from '@state/shared';
-import { ActiveAccount, BalanceCard, Button } from '@pages/shared';
-import { getBalance } from '@state/init';
+import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
+import { isNil } from '@core/utils';
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin-bottom: 50px;
 `;
 
 const Title = styled.h1`
@@ -46,6 +48,10 @@ const StyledControls = styled.div`
   flex-direction: row;
 `;
 
+const StyledTable = styled.div`
+  margin-top: 30px;
+`;
+
 const handleSendClick: React.MouseEventHandler = () => {
   setView(View.SEND);
 };
@@ -54,6 +60,23 @@ const Balance = () => {
   const account = useStore($accounts);
   const ethBalance = useStore($ethBalance) / Math.pow(10, 18);
   const usdtBalance = useStore($usdtBalance) / Math.pow(10, 8);
+  let data = [];
+  $income.watch(value => {
+    if (!isNil(value) && value.length > 0) {
+      data = value;
+    }
+  });
+
+  const TABLE_CONFIG = [
+    {
+      name: 'amount',
+      title: 'Amount',
+    },
+    {
+      name: 'status',
+      title: 'Status'
+    }
+  ];
 
   return (
     <Container>
@@ -65,9 +88,11 @@ const Balance = () => {
             <BalanceCard type="eth" balanceValue={ethBalance}></BalanceCard>
             <StyledControls>
               <Button color="send" onClick={handleSendClick}>send</Button>
-              {/* <Button color="receive">receive</Button> */}
             </StyledControls>
         </Content>
+        <StyledTable>
+          <Table config={TABLE_CONFIG} data={data} keyBy='pid'/>
+        </StyledTable>
     </Container>
   );
 };
