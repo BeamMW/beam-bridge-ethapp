@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 
 import { isNil } from '@core/utils';
+import { receive } from '@state/init';
 
 interface CellConfig {
   name: string;
@@ -43,6 +44,19 @@ const Column = styled.td`
   background-color: rgba(13, 77, 118, .9);
 `;
 
+const ConfirmReceive = styled.div`
+  width: 157px;
+  height: 32px;
+  padding: 8px 16px;
+  border-radius: 17.5px;
+  border: solid 1px #0bccf7;
+  background-color: rgba(11, 204, 247, 0.1);
+  color: #0bccf7;
+  text-align: center;
+  font-size: 14px;
+  cursor: pointer;
+`;
+
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
   const [filterBy, setFilterBy] = useState(0);
 
@@ -62,6 +76,10 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
   const handleSortClick: React.MouseEventHandler<HTMLElement> = event => {
     const index = parseInt(event.currentTarget.dataset.index);
     setFilterBy(index === filterBy ? -filterBy : index);
+  };
+
+  const handleReceiveClick = (id: string) => {
+    receive(parseInt(id));
   };
 
   return data.length > 0 ? (
@@ -87,7 +105,14 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
           <tr key={item[keyBy]}>
             {config.map(({ name, fn }, index) => {
               const value = item[name];
-              return <Column key={index}>{isNil(fn) ? value : fn(value, item)}</Column>;
+              return name === 'status' 
+                ? (
+                <Column key={index}>
+                  <ConfirmReceive onClick={() => handleReceiveClick(item['id'])}>
+                    Confirm receive
+                  </ConfirmReceive>
+                </Column>) 
+                : (<Column key={index}>{isNil(fn) ? value : fn(value, item)}</Column>);
             })}
           </tr>
         ))}

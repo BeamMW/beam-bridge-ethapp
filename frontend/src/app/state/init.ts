@@ -32,3 +32,7 @@ export async function getBalance() {
 export async function send(address: string, amount: number) {
     metaMaskController.sendToken(amount, address);
 }
+
+export async function receive(id: number) {
+    metaMaskController.receiveToken(id);
+}

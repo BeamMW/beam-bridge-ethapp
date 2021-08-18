@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
-import { css } from '@linaria/core';
-import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
   setView, View, 
   $accounts, $ethBalance,
