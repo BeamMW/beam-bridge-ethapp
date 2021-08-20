@@ -45,7 +45,7 @@ const Column = styled.td`
 `;
 
 const ConfirmReceive = styled.div`
-  width: 157px;
+  width: 167px;
   height: 32px;
   padding: 8px 16px;
   border-radius: 17.5px;
@@ -55,6 +55,13 @@ const ConfirmReceive = styled.div`
   text-align: center;
   font-size: 14px;
   cursor: pointer;
+  display: flex;
+  flex-direction: row;
+`;
+
+const ConfirmIcon = styled.object`
+  display: block;
+  margin-right: 15px;
 `;
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
@@ -109,6 +116,13 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
                 ? (
                 <Column key={index}>
                   <ConfirmReceive onClick={() => handleReceiveClick(item['id'])}>
+                    <ConfirmIcon
+                      type="image/svg+xml"
+                      data={'./assets/icon-send-blue.svg'}
+                      width="16"
+                      height="16"
+                    ></ConfirmIcon>
+                    
                     Confirm receive
                   </ConfirmReceive>
                 </Column>) 

@@ -82,6 +82,7 @@ export default class MetaMaskController {
   }
 
   async sendToken(amount: number, pKey: string) {
+    const finalAmount = amount * Math.pow(10, 8);
     const tokenContract = new this.web3.eth.Contract(
         abi,
         ethTokenContract
@@ -90,8 +91,8 @@ export default class MetaMaskController {
         PipeUserContract.abi,
         ethPipeUserContract
     );
-    const approveTx = tokenContract.methods.approve(ethPipeUserContract, amount);
-    const lockTx = pipeUserContract.methods.sendFunds(amount, pKey);
+    const approveTx = tokenContract.methods.approve(ethPipeUserContract, finalAmount);
+    const lockTx = pipeUserContract.methods.sendFunds(finalAmount, pKey);
     let accounts = await this.web3.eth.getAccounts();
     
 

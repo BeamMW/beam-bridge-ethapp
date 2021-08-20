@@ -20,13 +20,25 @@ const Title = styled.h1`
 const ControlStyled = styled.div`
   width: 600px;
   margin: 20px auto;
+  flex-direction: row;
+  display: flex;
 `;
 
 const BackControl = styled.div`
+  cursor: pointer;
+  display: flex;
+  flex-direction: row;
+`;
+
+const BackControlIcon = styled.object`
+  display: block;
+  margin-right: 15px;
+`;
+
+const BackControlText = styled.p`
+  opacity: .3;
   font-size: 14px;
   font-weight: bold;
-  cursor: pointer;
-  opacity: .3;
 `;
 
 const FormStyled = styled.form`
@@ -73,7 +85,7 @@ const Send = () => {
 
     const data = new FormData(event.currentTarget);
     const address = data.get('address') as string;
-    const amount = parseInt(data.get('amount') as string);
+    const amount = parseFloat(data.get('amount') as string);
     
     send(address, amount)
   }
@@ -83,7 +95,17 @@ const Send = () => {
       <ActiveAccount text={account[0]}></ActiveAccount>
       <Title>ETH to BEAM Bridge</Title>
       <ControlStyled>
-        <BackControl onClick={handleBackClick}>back</BackControl>
+        <BackControl onClick={handleBackClick}>
+          <BackControlIcon
+            type="image/svg+xml"
+            data={'./assets/icon-back.svg'}
+            width="16"
+            height="16"
+          ></BackControlIcon>
+          <BackControlText>
+            back
+          </BackControlText>
+        </BackControl>
       </ControlStyled>
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Send token to Beam</FormTitle>
