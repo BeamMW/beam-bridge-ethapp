@@ -17,7 +17,7 @@ declare global {
     }
 }
 
-const ethTokenContract = '0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0';
+const ethTokenContract = '0x53d84F758276357DA72bF18Cc5b33D31AEc0BACD';
 const ethPipeUserContract = '0x81a9405EeecDACd5EB328E5C79bcA280eDb61cc1';
 
 export default class MetaMaskController {
@@ -52,8 +52,7 @@ export default class MetaMaskController {
           }
       });
       this.web3 = new Web3(window.ethereum);
-      this.getBalance();
-      this.loadIncoming();
+      this.refresh();
     }
   }
 
@@ -65,6 +64,11 @@ export default class MetaMaskController {
     } else {
       this.onboarding.startOnboarding();
     }
+  }
+
+  private async refresh() {
+    this.getBalance();
+    this.loadIncoming();
   }
 
   requestToContract = async (sender, receiver, abi) => {
@@ -91,6 +95,9 @@ export default class MetaMaskController {
         ethPipeUserContract
     );
     const approveTx = tokenContract.methods.approve(ethPipeUserContract, finalAmount);
+    if (pKey.slice(0, 2) !== '0x') {
+      pKey = '0x' + pKey;
+    }
     const lockTx = pipeUserContract.methods.sendFunds(finalAmount, pKey);
     let accounts = await this.web3.eth.getAccounts();
     
@@ -105,6 +112,9 @@ export default class MetaMaskController {
         lockTx.encodeABI());
 
     console.log('receipt: ', lockTxReceipt);
+
+    this.refresh();
+    setView(View.BALANCE);
   }
 
   async receiveToken(msgId: number) {
@@ -129,9 +139,7 @@ export default class MetaMaskController {
     const balance: number = await this.web3.eth.getBalance(accounts[0]);
     setEthBalance(balance);
 
-    const contractAddress = "0x53d84F758276357DA72bF18Cc5b33D31AEc0BACD";
-
-    const token = new this.web3.eth.Contract(abi, contractAddress);
+    const token = new this.web3.eth.Contract(abi, ethTokenContract);
     const tokenBalance = await token.methods.balanceOf(accounts[0]).call();
     setUsdtBalance(tokenBalance);
   }
