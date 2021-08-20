@@ -17,9 +17,8 @@ declare global {
     }
 }
 
-
 const ethTokenContract = '0x8CdaF0CD259887258Bc13a92C0a6dA92698644C0';
-const ethPipeUserContract = '0x345cA3e014Aaf5dcA488057592ee47305D9B3e10';
+const ethPipeUserContract = '0x81a9405EeecDACd5EB328E5C79bcA280eDb61cc1';
 
 export default class MetaMaskController {
   private onboarding = new MetaMaskOnboarding();
@@ -140,7 +139,7 @@ export default class MetaMaskController {
   private async loadIncoming() {
     const pipeUserContract = new this.web3.eth.Contract(
         PipeUserContractIncome.abi,
-        '0x81a9405EeecDACd5EB328E5C79bcA280eDb61cc1'
+        ethPipeUserContract
     );
     const accounts = await this.web3.eth.getAccounts();
     const result = await pipeUserContract.methods.viewIncoming().call({from: accounts[0]});
