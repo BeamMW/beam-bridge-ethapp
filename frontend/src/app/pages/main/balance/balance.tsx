@@ -48,6 +48,8 @@ const StyledControls = styled.div`
 
 const StyledTable = styled.div`
   margin-top: 30px;
+  overflow: hidden;
+  border-radius: 10px;
 `;
 
 const handleSendClick: React.MouseEventHandler = () => {
