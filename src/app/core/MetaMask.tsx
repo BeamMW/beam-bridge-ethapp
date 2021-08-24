@@ -151,13 +151,8 @@ export default class MetaMaskController {
       );
       const userSigner = pipeUserContract.connect(this.signer);
       const receiveTx = await userSigner.receiveFunds(msgId);
-      
-      let receiveTxReceipt = await this.requestToContract(
-          this.accounts[0], 
-          ethPipeUserContract,
-          receiveTx.encodeABI());
-
-      console.log('receive receipt: ', receiveTxReceipt);
+      await receiveTx.wait();
+      this.refresh();
   }
 
   private async loadIncoming() {
