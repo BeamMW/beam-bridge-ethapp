@@ -89,7 +89,7 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
     receive(parseInt(id));
   };
 
-  return data.length > 0 ? (
+  return !isNil(data) && data.length > 0 ? (
     <StyledTable>
       <StyledThead>
         <tr>

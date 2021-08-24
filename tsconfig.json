@@ -3,6 +3,7 @@
     "jsx": "react",
     "target": "es5",
     "esModuleInterop": true,
+    "resolveJsonModule": true,
     "typeRoots": [
       "node_modules/@types",
       "node_modules/web-ext-types"

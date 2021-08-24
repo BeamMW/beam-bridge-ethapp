@@ -1,4 +1,3 @@
-import React, { useState } from 'react';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
   View, setView,
@@ -8,7 +7,6 @@ import {
 } from './../state/shared';
 import { ethers } from 'ethers';
 import PipeUserContract from './../../contract-pipes/eth-pipe/PipeUser.json';
-import BeamTokenContract from './../../contract-pipes/eth-pipe/PipeBeam.json';
 import PipeUserContractIncome from './../../contract-pipes/eth-pipe/PipeUserIncome.json';
 
 let abi = require("human-standard-token-abi");
@@ -78,7 +76,7 @@ export default class MetaMaskController {
     setEthBalance(parseFloat(formattedEthBalance));
 
     const token = new ethers.Contract(ethTokenContract, abi, this.ethers);
-    console.log('decimals:',await token.decimals())
+    console.log('decimals:', await token.decimals())
     const usdtBalance = await token.balanceOf(this.accounts[0]);
     setUsdtBalance(parseFloat(ethers.utils.formatUnits(usdtBalance, 8)));
     
@@ -161,11 +159,11 @@ export default class MetaMaskController {
       this.ethers  
     );
     const result = await pipeUserContract.functions.viewIncoming({from: this.accounts[0]});
-    
     let formattedResult = [];
     if (result) {
       for (let i = 0; i < result[0].length; i++) {
-        formattedResult.push({pid: i, id: result[0][i], amount: result[1][i], status: ''}); 
+        const amount = parseFloat(ethers.utils.formatUnits(result[1][i], 8));
+        formattedResult.push({pid: i, id: result[0][i], amount: amount, status: ''}); 
       }
     }
     setIncome(formattedResult);

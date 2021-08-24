@@ -60,19 +60,14 @@ const Balance = () => {
   const account = useStore($accounts);
   const ethBalance = useStore($ethBalance);
   const usdtBalance = useStore($usdtBalance);
-  let data = [];
-  $income.watch(value => {
-    if (!isNil(value) && value.length > 0) {
-      data = value;
-    }
-  });
+  const data = useStore($income);
 
   const TABLE_CONFIG = [
     {
       name: 'amount',
       title: 'Amount',
       fn: (value: string) => {
-        return parseInt(value) / Math.pow(10, 8) + ' USDT';
+        return value + ' USDT';
       }
     },
     {

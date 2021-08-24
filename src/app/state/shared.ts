@@ -18,5 +18,5 @@ export const $ethBalance = restore(setEthBalance, null);
 export const setUsdtBalance = createEvent<number>();
 export const $usdtBalance = restore(setUsdtBalance, null);
 
-export const setIncome = createEvent<{id: string, amount: string}[]>();
+export const setIncome = createEvent<{id: number, amount: number}[]>();
 export const $income = restore(setIncome, null);
