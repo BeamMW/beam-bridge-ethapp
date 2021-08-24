@@ -19,11 +19,12 @@ export async function initApp() {
             setView(View.CONNECT);
         }
     });
-    //setInterval(metaMaskController.refresh, 3000);
+    setInterval(() => { metaMaskController.refresh() }, 3000);
 }
 
 export function connectToMetaMask() {
-    metaMaskController.connect(); 
+    metaMaskController.connect();
+    setInterval(() => { metaMaskController.refresh() }, 3000);
 }
 
 export async function getBalance() {

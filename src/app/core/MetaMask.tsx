@@ -8,6 +8,7 @@ import {
 import { ethers } from 'ethers';
 import PipeUserContract from './../../contract-pipes/eth-pipe/PipeUser.json';
 import PipeUserContractIncome from './../../contract-pipes/eth-pipe/PipeUserIncome.json';
+import { isNil } from './utils';
 
 let abi = require("human-standard-token-abi");
 
@@ -25,7 +26,7 @@ export default class MetaMaskController {
 
   private static instance: MetaMaskController;
   private accounts = [];
-  private ethers : any;
+  private ethers = null;
   private signer = null;
 
   static getInstance() {
@@ -40,47 +41,43 @@ export default class MetaMaskController {
 
   handleAccounts(accounts) {
     setAccounts(accounts);
+    if (accounts.length > 0) {
+      this.accounts = accounts;
+    }
+  }
+
+  private loadAccounts() {
+    console.log('loadAccounts called')
+    window.ethereum
+      .request({ method: 'eth_accounts' })
+      .then((accounts) => {
+        if (accounts.length > 0) {
+          this.handleAccounts(accounts);
+          this.refresh();
+        } else {
+          this.handleAccounts([]);
+        }
+    });
   }
 
   init() {
+    console.log('init called')
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-      window.ethereum
-        .request({ method: 'eth_accounts' })
-        .then((accounts) => {
-          if (accounts.length > 0) {
-            this.handleAccounts(accounts);
-            this.accounts = accounts;
-            this.ethers = new ethers.providers.Web3Provider(window.ethereum);
-            this.signer = this.ethers.getSigner();
-            this.refresh();
-          } else {
-            this.handleAccounts([]);
-          }
-      });
+      this.ethers = new ethers.providers.Web3Provider(window.ethereum);
+      this.signer = this.ethers.getSigner();
+      window.ethereum.on('accountsChanged', ()=>{this.loadAccounts()});
+      this.loadAccounts();
     }
   }
 
   connect() {
+    console.log('connect called')
     if(MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
         .request({ method: 'eth_requestAccounts' });
-      window.ethereum.on('accountsChanged', this.handleAccounts);
     } else {
       this.onboarding.startOnboarding();
     }
-  }
-
-  public async refresh() {    
-    const ethBalance = await this.ethers.getBalance(this.accounts[0]);
-    const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
-    setEthBalance(parseFloat(formattedEthBalance));
-
-    const token = new ethers.Contract(ethTokenContract, abi, this.ethers);
-    console.log('decimals:', await token.decimals())
-    const usdtBalance = await token.balanceOf(this.accounts[0]);
-    setUsdtBalance(parseFloat(ethers.utils.formatUnits(usdtBalance, 8)));
-    
-    this.loadIncoming();
   }
 
   requestToContract = async (sender, receiver, abi) => {
@@ -94,6 +91,25 @@ export default class MetaMaskController {
     });
 
     console.log('hash tx: ', hashTx);
+  }
+
+  async refresh() {
+    const isUnlocked = await window.ethereum._metamask.isUnlocked();
+
+    if (isUnlocked && this.accounts.length > 0) {
+      const ethBalance = await this.ethers.getBalance(this.accounts[0]);
+      const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
+      setEthBalance(parseFloat(formattedEthBalance));
+
+      const token = new ethers.Contract(ethTokenContract, abi, this.ethers);
+      console.log('decimals:', await token.decimals())
+      const usdtBalance = await token.balanceOf(this.accounts[0]);
+      setUsdtBalance(parseFloat(ethers.utils.formatUnits(usdtBalance, 8)));
+      
+      this.loadIncoming();
+    } else {
+      //setTimeout(() => {this.loadAccounts()}, 3000);
+    }
   }
 
   async sendToken(amount: number, pKey: string) {
