@@ -111,7 +111,7 @@ export default class MetaMaskController {
 
     const ethSigner = tokenContract.connect(this.signer);
     const approveTx = await ethSigner.approve(ethPipeUserContract, finalAmount);
-
+    await approveTx.wait();
     // tokenContract.functions;
     if (pKey.slice(0, 2) !== '0x') {
       pKey = '0x' + pKey;
@@ -119,17 +119,9 @@ export default class MetaMaskController {
 
     const userSigner = pipeUserContract.connect(this.signer);
     const lockTx = await userSigner.sendFunds(finalAmount, pKey);
-    
-    await this.requestToContract(
-        this.accounts[0], 
-        ethTokenContract, 
-        approveTx.encodeABI());
-    let lockTxReceipt = await this.requestToContract(
-        this.accounts[0], 
-        ethPipeUserContract,
-        lockTx.encodeABI());
+    const receipt = await lockTx.wait();
 
-    console.log('receipt: ', lockTxReceipt);
+    console.log('receipt: ', receipt);
 
     this.refresh();
     setView(View.BALANCE);
