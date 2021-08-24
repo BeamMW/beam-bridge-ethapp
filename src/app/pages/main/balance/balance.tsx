@@ -58,8 +58,8 @@ const handleSendClick: React.MouseEventHandler = () => {
 
 const Balance = () => {
   const account = useStore($accounts);
-  const ethBalance = useStore($ethBalance) / Math.pow(10, 18);
-  const usdtBalance = useStore($usdtBalance) / Math.pow(10, 8);
+  const ethBalance = useStore($ethBalance);
+  const usdtBalance = useStore($usdtBalance);
   let data = [];
   $income.watch(value => {
     if (!isNil(value) && value.length > 0) {

@@ -1,15 +1,17 @@
 import React, { useState } from 'react';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
-  View, setView, 
+  View, setView,
   setAccounts,
   setEthBalance,
   setUsdtBalance, setIncome
 } from './../state/shared';
-let abi = require("human-standard-token-abi");
+import { ethers } from 'ethers';
 import PipeUserContract from './../../contract-pipes/eth-pipe/PipeUser.json';
 import BeamTokenContract from './../../contract-pipes/eth-pipe/PipeBeam.json';
 import PipeUserContractIncome from './../../contract-pipes/eth-pipe/PipeUserIncome.json';
+
+let abi = require("human-standard-token-abi");
 
 declare global {
     interface Window {
@@ -24,7 +26,9 @@ export default class MetaMaskController {
   private onboarding = new MetaMaskOnboarding();
 
   private static instance: MetaMaskController;
-  private web3: Web3;
+  private accounts = [];
+  private ethers : any;
+  private signer = null;
 
   static getInstance() {
     if (this.instance != null) {
@@ -46,13 +50,15 @@ export default class MetaMaskController {
         .request({ method: 'eth_accounts' })
         .then((accounts) => {
           if (accounts.length > 0) {
-            this.handleAccounts(accounts); 
+            this.handleAccounts(accounts);
+            this.accounts = accounts;
+            this.ethers = new ethers.providers.Web3Provider(window.ethereum);
+            this.signer = this.ethers.getSigner();
+            this.refresh();
           } else {
             this.handleAccounts([]);
           }
       });
-      this.web3 = new Web3(window.ethereum);
-      this.refresh();
     }
   }
 
@@ -66,14 +72,22 @@ export default class MetaMaskController {
     }
   }
 
-  private async refresh() {
-    this.getBalance();
+  public async refresh() {    
+    const ethBalance = await this.ethers.getBalance(this.accounts[0]);
+    const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
+    setEthBalance(parseFloat(formattedEthBalance));
+
+    const token = new ethers.Contract(ethTokenContract, abi, this.ethers);
+    console.log('decimals:',await token.decimals())
+    const usdtBalance = await token.balanceOf(this.accounts[0]);
+    setUsdtBalance(parseFloat(ethers.utils.formatUnits(usdtBalance, 8)));
+    
     this.loadIncoming();
   }
 
   requestToContract = async (sender, receiver, abi) => {
-    let nonce = await this.web3.eth.getTransactionCount(sender);
-    let hashTx = await this.web3.eth.sendTransaction({
+    let nonce = await this.ethers.getTransactionCount(sender);
+    let hashTx = await this.ethers.sendTransaction({
         from: sender,
         to: receiver,
         data: abi,
@@ -86,28 +100,34 @@ export default class MetaMaskController {
 
   async sendToken(amount: number, pKey: string) {
     const finalAmount = amount * Math.pow(10, 8);
-    const tokenContract = new this.web3.eth.Contract(
-        abi,
-        ethTokenContract
+    const tokenContract = new ethers.Contract(
+      ethTokenContract,  
+      abi,
+      this.ethers
     );
-    const pipeUserContract = new this.web3.eth.Contract(
-        PipeUserContract.abi,
-        ethPipeUserContract
+    const pipeUserContract = new ethers.Contract(
+      ethPipeUserContract,  
+      PipeUserContract.abi,
+      this.ethers
     );
-    const approveTx = tokenContract.methods.approve(ethPipeUserContract, finalAmount);
+
+    const ethSigner = tokenContract.connect(this.signer);
+    const approveTx = await ethSigner.approve(ethPipeUserContract, finalAmount);
+
+    // tokenContract.functions;
     if (pKey.slice(0, 2) !== '0x') {
       pKey = '0x' + pKey;
     }
-    const lockTx = pipeUserContract.methods.sendFunds(finalAmount, pKey);
-    let accounts = await this.web3.eth.getAccounts();
-    
 
+    const userSigner = pipeUserContract.connect(this.signer);
+    const lockTx = await userSigner.sendFunds(finalAmount, pKey);
+    
     await this.requestToContract(
-        accounts[0], 
+        this.accounts[0], 
         ethTokenContract, 
         approveTx.encodeABI());
     let lockTxReceipt = await this.requestToContract(
-        accounts[0], 
+        this.accounts[0], 
         ethPipeUserContract,
         lockTx.encodeABI());
 
@@ -118,39 +138,29 @@ export default class MetaMaskController {
   }
 
   async receiveToken(msgId: number) {
-      const pipeUserContract = new this.web3.eth.Contract(
-          PipeUserContract.abi,
-          ethPipeUserContract
+      const pipeUserContract = new ethers.Contract(
+        ethPipeUserContract,
+        PipeUserContract.abi,
+        this.ethers
       );
-      const receiveTx = pipeUserContract.methods.receiveFunds(msgId);
-      const accounts = await this.web3.eth.getAccounts();
-
+      const userSigner = pipeUserContract.connect(this.signer);
+      const receiveTx = await userSigner.receiveFunds(msgId);
+      
       let receiveTxReceipt = await this.requestToContract(
-          accounts[0], 
+          this.accounts[0], 
           ethPipeUserContract,
           receiveTx.encodeABI());
 
       console.log('receive receipt: ', receiveTxReceipt);
   }
 
-  
-  private async getBalance() {
-    const accounts = await this.web3.eth.getAccounts();
-    const balance: number = await this.web3.eth.getBalance(accounts[0]);
-    setEthBalance(balance);
-
-    const token = new this.web3.eth.Contract(abi, ethTokenContract);
-    const tokenBalance = await token.methods.balanceOf(accounts[0]).call();
-    setUsdtBalance(tokenBalance);
-  }
-
   private async loadIncoming() {
-    const pipeUserContract = new this.web3.eth.Contract(
-        PipeUserContractIncome.abi,
-        ethPipeUserContract
+    const pipeUserContract = new ethers.Contract(
+      ethPipeUserContract,
+      PipeUserContractIncome.abi,
+      this.ethers  
     );
-    const accounts = await this.web3.eth.getAccounts();
-    const result = await pipeUserContract.methods.viewIncoming().call({from: accounts[0]});
+    const result = await pipeUserContract.functions.viewIncoming({from: this.accounts[0]});
     
     let formattedResult = [];
     if (result) {

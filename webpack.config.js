@@ -4,11 +4,16 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const TsconfigPathsPlugin = require('tsconfig-paths-webpack-plugin');
 
 module.exports = {
-  target: 'node',
+  target: 'web',
   mode: 'development',
   devtool: 'eval-source-map',
   devServer: {
-    contentBase: './dist',
+    historyApiFallback: true,
+    static: path.resolve(__dirname, './dist'),
+    open: true,
+    compress: true,
+    hot: true,
+    port: 8080,
   },
   entry: {
     index: path.join(__dirname, './src/index.tsx'),

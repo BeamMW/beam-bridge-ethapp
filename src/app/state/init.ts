@@ -19,6 +19,7 @@ export async function initApp() {
             setView(View.CONNECT);
         }
     });
+    //setInterval(metaMaskController.refresh, 3000);
 }
 
 export function connectToMetaMask() {
