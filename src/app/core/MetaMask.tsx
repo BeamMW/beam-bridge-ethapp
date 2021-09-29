@@ -6,8 +6,7 @@ import {
   setUsdtBalance, setIncome
 } from './../state/shared';
 import { ethers } from 'ethers';
-import PipeUserContract from './../../contract-pipes/eth-pipe/PipeUser.json';
-import PipeUserContractIncome from './../../contract-pipes/eth-pipe/PipeUserIncome.json';
+import PipeContract from './../../contract-pipes/eth-pipe/Pipe.json';
 import { isNil } from './utils';
 
 let abi = require("human-standard-token-abi");
@@ -18,8 +17,8 @@ declare global {
     }
 }
 
-const ethTokenContract = '0x53d84F758276357DA72bF18Cc5b33D31AEc0BACD';
-const ethPipeUserContract = '0x81a9405EeecDACd5EB328E5C79bcA280eDb61cc1';
+const ethTokenContract = '0x6110971432e2A27386F92A7a6c0fa9be9B7DbD65';
+const ethPipeContract = '0xB346d832724f4991cEE31c0C43982DA24C6C5214';
 
 export default class MetaMaskController {
   private onboarding = new MetaMaskOnboarding();
@@ -119,21 +118,21 @@ export default class MetaMaskController {
       abi,
       this.ethers
     );
-    const pipeUserContract = new ethers.Contract(
-      ethPipeUserContract,  
-      PipeUserContract.abi,
+    const pipeContract = new ethers.Contract(
+      ethPipeContract,  
+      PipeContract.abi,
       this.ethers
     );
 
     const ethSigner = tokenContract.connect(this.signer);
-    const approveTx = await ethSigner.approve(ethPipeUserContract, finalAmount);
+    const approveTx = await ethSigner.approve(ethPipeContract, finalAmount);
     await approveTx.wait();
     // tokenContract.functions;
     if (pKey.slice(0, 2) !== '0x') {
       pKey = '0x' + pKey;
     }
 
-    const userSigner = pipeUserContract.connect(this.signer);
+    const userSigner = pipeContract.connect(this.signer);
     const lockTx = await userSigner.sendFunds(finalAmount, pKey);
     const receipt = await lockTx.wait();
 
@@ -144,24 +143,24 @@ export default class MetaMaskController {
   }
 
   async receiveToken(msgId: number) {
-      const pipeUserContract = new ethers.Contract(
-        ethPipeUserContract,
-        PipeUserContract.abi,
+      const pipeContract = new ethers.Contract(
+        ethPipeContract,
+        PipeContract.abi,
         this.ethers
       );
-      const userSigner = pipeUserContract.connect(this.signer);
+      const userSigner = pipeContract.connect(this.signer);
       const receiveTx = await userSigner.receiveFunds(msgId);
       await receiveTx.wait();
       this.refresh();
   }
 
   private async loadIncoming() {
-    const pipeUserContract = new ethers.Contract(
-      ethPipeUserContract,
-      PipeUserContractIncome.abi,
+    const pipeContract = new ethers.Contract(
+      ethPipeContract,
+      PipeContract.abi,
       this.ethers  
     );
-    const result = await pipeUserContract.functions.viewIncoming({from: this.accounts[0]});
+    const result = await pipeContract.functions.viewIncoming({from: this.accounts[0]});
     let formattedResult = [];
     if (result) {
       for (let i = 0; i < result[0].length; i++) {
