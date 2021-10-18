@@ -104,8 +104,6 @@ export default class MetaMaskController {
       console.log('decimals:', await token.decimals())
       const usdtBalance = await token.balanceOf(this.accounts[0]);
       setUsdtBalance(parseFloat(ethers.utils.formatUnits(usdtBalance, 8)));
-      
-      this.loadIncoming();
     } else {
       //setTimeout(() => {this.loadAccounts()}, 3000);
     }
@@ -113,6 +111,10 @@ export default class MetaMaskController {
 
   async sendToken(amount: number, pKey: string) {
     const finalAmount = amount * Math.pow(10, 8);
+    // TODO: remove this temporary solution
+    const relayerFee = amount * Math.pow(10, 7);
+
+    const totalAmount = finalAmount + relayerFee;
     const tokenContract = new ethers.Contract(
       ethTokenContract,  
       abi,
@@ -125,7 +127,7 @@ export default class MetaMaskController {
     );
 
     const ethSigner = tokenContract.connect(this.signer);
-    const approveTx = await ethSigner.approve(ethPipeContract, finalAmount);
+    const approveTx = await ethSigner.approve(ethPipeContract, totalAmount);
     await approveTx.wait();
     // tokenContract.functions;
     if (pKey.slice(0, 2) !== '0x') {
@@ -133,7 +135,7 @@ export default class MetaMaskController {
     }
 
     const userSigner = pipeContract.connect(this.signer);
-    const lockTx = await userSigner.sendFunds(finalAmount, pKey);
+    const lockTx = await userSigner.sendFunds(finalAmount, relayerFee, pKey);
     const receipt = await lockTx.wait();
 
     console.log('receipt: ', receipt);
@@ -143,31 +145,6 @@ export default class MetaMaskController {
   }
 
   async receiveToken(msgId: number) {
-      const pipeContract = new ethers.Contract(
-        ethPipeContract,
-        PipeContract.abi,
-        this.ethers
-      );
-      const userSigner = pipeContract.connect(this.signer);
-      const receiveTx = await userSigner.receiveFunds(msgId);
-      await receiveTx.wait();
-      this.refresh();
-  }
-
-  private async loadIncoming() {
-    const pipeContract = new ethers.Contract(
-      ethPipeContract,
-      PipeContract.abi,
-      this.ethers  
-    );
-    const result = await pipeContract.functions.viewIncoming({from: this.accounts[0]});
-    let formattedResult = [];
-    if (result) {
-      for (let i = 0; i < result[0].length; i++) {
-        const amount = parseFloat(ethers.utils.formatUnits(result[1][i], 8));
-        formattedResult.push({pid: i, id: result[0][i], amount: amount, status: ''}); 
-      }
-    }
-    setIncome(formattedResult);
+    // TODO: remove all mentions of the 'receiveToken'
   }
 }
