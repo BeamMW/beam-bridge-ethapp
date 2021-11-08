@@ -10,6 +10,7 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
+  padding-bottom: 50px;
 `;
 
 const Title = styled.h1`
@@ -76,6 +77,7 @@ const handleBackClick: React.MouseEventHandler = () => {
 const Send = () => {
   const addressInputRef = useRef<HTMLInputElement>();
   const amountInputRef = useRef<HTMLInputElement>();
+  const feeInputRef = useRef<HTMLInputElement>();
   
   const account = useStore($accounts);
   const currency = useStore($selectedCurrency);
@@ -86,8 +88,9 @@ const Send = () => {
     const data = new FormData(event.currentTarget);
     const address = data.get('address') as string;
     const amount = parseFloat(data.get('amount') as string);
+    const fee = parseFloat(data.get('fee') as string);
     
-    send(address, amount)
+    send(address, amount, fee);
   }
 
   return (
@@ -113,6 +116,8 @@ const Send = () => {
         <Input type='common' ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
         <Input type='amount' ref={amountInputRef} name="amount"></Input>
+        <FormSubtitle>FEE</FormSubtitle>
+        <Input type='fee' ref={feeInputRef} name="fee"></Input>
         <SendStyled>
           <Button color="send">send to beam</Button>
         </SendStyled>

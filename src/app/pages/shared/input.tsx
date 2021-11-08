@@ -5,7 +5,7 @@ import { setCurrency, currencies } from '@state/send';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
-  type: 'amount' | 'common'
+  type: 'amount' | 'common' | 'fee'
 }
 
 interface DropdownProps {
@@ -117,7 +117,11 @@ const Selector = (data: {type: string}) => {
         ))}
       </DropdownBody>
     </StyledDropdown>
-  ) : (<></>);
+  ) : (data.type === 'fee' ? <StyledDropdown>
+    <DropdownElem>
+      USDT
+    </DropdownElem>
+  </StyledDropdown> : <></>);
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(

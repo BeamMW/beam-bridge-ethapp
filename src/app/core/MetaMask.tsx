@@ -109,10 +109,9 @@ export default class MetaMaskController {
     }
   }
 
-  async sendToken(amount: number, pKey: string) {
+  async sendToken(amount: number, pKey: string, fee: number) {
     const finalAmount = amount * Math.pow(10, 8);
-    // TODO: remove this temporary solution
-    const relayerFee = amount * Math.pow(10, 7);
+    const relayerFee = fee * Math.pow(10, 7);
 
     const totalAmount = finalAmount + relayerFee;
     const tokenContract = new ethers.Contract(
