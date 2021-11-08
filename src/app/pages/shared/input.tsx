@@ -1,7 +1,8 @@
 import React, { useState, useRef, HTMLAttributes } from 'react';
 import { styled } from '@linaria/react';
 import { isNil } from '@core/utils';
-import { setCurrency, currencies } from '@state/send';
+import { setCurrency, currencies, $selectedCurrency } from '@state/send';
+import { useStore } from 'effector-react';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
@@ -57,6 +58,8 @@ const Selector = (data: {type: string}) => {
   const [isOpen, setOpen] = useState(false);
   const [items, setItem] = useState(currencies);
   const [selectedItem, setSelectedItem] = useState(items[0]);
+
+  const selectedCurrency = useStore($selectedCurrency);
   
   const toggleDropdown = () => setOpen(!isOpen);
 
@@ -88,7 +91,8 @@ const Selector = (data: {type: string}) => {
 
   const DropdownBody = styled.div<DropdownProps>`
     position: absolute;
-    background-color: rgba(11, 204, 247, 0.5);
+    background-color: rgba(11, 204, 247);
+    z-index: 100;
     display: ${({ isVisible }) => `${isVisible ? 'block' : 'none'}`};
   `;
 
@@ -105,7 +109,7 @@ const Selector = (data: {type: string}) => {
   return data.type === 'amount' ? (
     <StyledDropdown>
       <DropdownElem onClick={toggleDropdown}>
-        {selectedItem ? items.find(item => item.id == selectedItem.id).name : ""}
+        {selectedCurrency.name}
         <Triangle></Triangle>
       </DropdownElem>
       <DropdownBody isVisible={isOpen} className={`dropdown-body ${isOpen && 'open'}`}>
@@ -119,7 +123,7 @@ const Selector = (data: {type: string}) => {
     </StyledDropdown>
   ) : (data.type === 'fee' ? <StyledDropdown>
     <DropdownElem>
-      USDT
+      {selectedCurrency.name}
     </DropdownElem>
   </StyledDropdown> : <></>);
 }
