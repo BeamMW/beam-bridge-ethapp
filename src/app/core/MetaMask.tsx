@@ -110,8 +110,9 @@ export default class MetaMaskController {
   }
 
   async sendToken(amount: number, pKey: string, fee: number) {
-    const finalAmount = amount * Math.pow(10, 8);
-    const relayerFee = fee * Math.pow(10, 7);
+    const decimals = await this.getTokenDecimals();
+    const finalAmount = amount * Math.pow(10, decimals);
+    const relayerFee = fee * Math.pow(10, decimals);
 
     const totalAmount = finalAmount + relayerFee;
     const tokenContract = new ethers.Contract(
@@ -145,5 +146,10 @@ export default class MetaMaskController {
 
   async receiveToken(msgId: number) {
     // TODO: remove all mentions of the 'receiveToken'
+  }
+
+  // TODO: implement depending on the type of token
+  async getTokenDecimals() {
+    return 8;
   }
 }
