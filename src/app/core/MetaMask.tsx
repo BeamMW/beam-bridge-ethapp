@@ -150,4 +150,9 @@ export default class MetaMaskController {
   async receiveToken(msgId: number) {
     // TODO: remove all mentions of the 'receiveToken'
   }
+
+  // TODO: implement depending on the type of token
+  async getTokenDecimals() {
+    return 8;
+  }
 }
