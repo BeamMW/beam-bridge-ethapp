@@ -1,8 +1,9 @@
 import React, { useState, useRef, HTMLAttributes } from 'react';
 import { styled } from '@linaria/react';
 import { isNil } from '@core/utils';
-import { setCurrency, currencies, $selectedCurrency } from '@state/send';
+import { setCurrency, $selectedCurrency } from '@state/send';
 import { useStore } from 'effector-react';
+import { currencies } from '@core/types';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;

@@ -94,7 +94,8 @@ const Send = () => {
       address,
       amount,
       fee,
-      decimals: selectedCurrency.decimals
+      selectedCurrency,
+      account: account[0]
     });
   }
 
