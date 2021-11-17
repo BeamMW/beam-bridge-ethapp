@@ -7,6 +7,7 @@ import {
 } from './shared';
 import MetaMaskController  from '@core/MetaMask';
 import { isNil } from '@core/utils';
+import { SendParams } from '@core/types';
 
 const metaMaskController = MetaMaskController.getInstance();
 let interval = null;
@@ -35,8 +36,8 @@ export async function getBalance() {
     //return metaMaskController.getBalance();
 }
 
-export async function send(address: string, amount: number, fee: number) {
-    metaMaskController.sendToken(amount, address, fee);
+export async function send(params: SendParams) {
+    metaMaskController.sendToken(params);
 }
 
 export async function receive(id: number) {

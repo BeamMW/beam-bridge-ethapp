@@ -8,6 +8,7 @@ import {
 import { ethers } from 'ethers';
 import PipeContract from './../../contract-pipes/eth-pipe/Pipe.json';
 import { isNil } from './utils';
+import { SendParams } from '@core/types';
 
 let abi = require("human-standard-token-abi");
 
@@ -109,9 +110,11 @@ export default class MetaMaskController {
     }
   }
 
-  async sendToken(amount: number, pKey: string, fee: number) {
-    const finalAmount = amount * Math.pow(10, 8);
-    const relayerFee = fee * Math.pow(10, 7);
+  async sendToken(params: SendParams) {  //: number, pKey: string, fee: number) {
+    const { amount, fee, address, decimals } = params;
+
+    const finalAmount = amount * Math.pow(10, decimals);
+    const relayerFee = fee * Math.pow(10, decimals);
 
     const totalAmount = finalAmount + relayerFee;
     const tokenContract = new ethers.Contract(
@@ -128,13 +131,14 @@ export default class MetaMaskController {
     const ethSigner = tokenContract.connect(this.signer);
     const approveTx = await ethSigner.approve(ethPipeContract, totalAmount);
     await approveTx.wait();
-    // tokenContract.functions;
-    if (pKey.slice(0, 2) !== '0x') {
-      pKey = '0x' + pKey;
-    }
 
+    // tokenContract.functions;
     const userSigner = pipeContract.connect(this.signer);
-    const lockTx = await userSigner.sendFunds(finalAmount, relayerFee, pKey);
+    const lockTx = await userSigner.sendFunds(
+      finalAmount,
+      relayerFee,
+      address.slice(0, 2) !== '0x' ? ('0x' + address) : address
+    );
     const receipt = await lockTx.wait();
 
     console.log('receipt: ', receipt);

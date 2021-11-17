@@ -80,7 +80,7 @@ const Send = () => {
   const feeInputRef = useRef<HTMLInputElement>();
   
   const account = useStore($accounts);
-  const currency = useStore($selectedCurrency);
+  const selectedCurrency = useStore($selectedCurrency);
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async event => {
     event.preventDefault();
@@ -90,7 +90,12 @@ const Send = () => {
     const amount = parseFloat(data.get('amount') as string);
     const fee = parseFloat(data.get('fee') as string);
     
-    send(address, amount, fee);
+    send({
+      address,
+      amount,
+      fee,
+      decimals: selectedCurrency.decimals
+    });
   }
 
   return (
