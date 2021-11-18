@@ -19,7 +19,7 @@ declare global {
 }
 
 const ethTokenContract = '0x6110971432e2A27386F92A7a6c0fa9be9B7DbD65';
-const ethPipeContract = '0xB346d832724f4991cEE31c0C43982DA24C6C5214';
+//const ethPipeContract = '0xB346d832724f4991cEE31c0C43982DA24C6C5214';
 
 export default class MetaMaskController {
   private onboarding = new MetaMaskOnboarding();
@@ -101,6 +101,7 @@ export default class MetaMaskController {
       const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
       setEthBalance(parseFloat(formattedEthBalance));
 
+      // TODO: change to multiple contracts
       const token = new ethers.Contract(ethTokenContract, abi, this.ethers);
       console.log('decimals:', await token.decimals())
       const usdtBalance = await token.balanceOf(this.accounts[0]);
@@ -120,7 +121,7 @@ export default class MetaMaskController {
     if (selectedCurrency.id === ethId) {
       //send for eth
       const pipeContract = new ethers.Contract(
-        ethPipeContract,
+        selectedCurrency.ethPipeContract,
         PipeContract.abi,
         this.ethers
       );
@@ -139,18 +140,18 @@ export default class MetaMaskController {
       console.log('receipt: ', receipt);
     } else {
       const tokenContract = new ethers.Contract(
-        ethTokenContract,  
+        selectedCurrency.ethTokenContract,  
         abi,
         this.ethers
       );
       const pipeContract = new ethers.Contract(
-        ethPipeContract,  
+        selectedCurrency.ethPipeContract,  
         PipeContract.abi,
         this.ethers
       );
 
       const ethSigner = tokenContract.connect(this.signer);
-      const approveTx = await ethSigner.approve(ethPipeContract, totalAmount);
+      const approveTx = await ethSigner.approve(selectedCurrency.ethPipeContract, totalAmount);
       await approveTx.wait();
 
       // tokenContract.functions;
