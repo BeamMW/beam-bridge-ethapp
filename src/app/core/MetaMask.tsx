@@ -6,7 +6,8 @@ import {
   setUsdtBalance, setIncome
 } from './../state/shared';
 import { ethers } from 'ethers';
-import PipeContract from './../../contract-pipes/eth-pipe/Pipe.json';
+import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
+import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
 import { isNil } from './utils';
 import { SendParams, ethId } from '@core/types';
 
@@ -122,7 +123,7 @@ export default class MetaMaskController {
       //send for eth
       const pipeContract = new ethers.Contract(
         selectedCurrency.ethPipeContract,
-        PipeContract.abi,
+        EthPipe.abi,
         this.ethers
       );
 
@@ -146,7 +147,7 @@ export default class MetaMaskController {
       );
       const pipeContract = new ethers.Contract(
         selectedCurrency.ethPipeContract,  
-        PipeContract.abi,
+        EthERC20Pipe.abi,
         this.ethers
       );
 
