@@ -41,7 +41,7 @@ export const currencies : Currency[] = [
     {
         name: 'ETH',
         id: ethId,
-        decimals: 18,
+        decimals: 8,
         ethTokenContract: '0x6110971432e2A27386F92A7a6c0fa9be9B7DbD65',
         ethPipeContract: '0xB346d832724f4991cEE31c0C43982DA24C6C5214'
     }
