@@ -127,6 +127,8 @@ export default class MetaMaskController {
         this.ethers
       );
 
+      const ethTotal = BigInt(totalAmount) * BigInt(Math.pow(10, 10));
+
       const userSigner = pipeContract.connect(this.signer);
       const lockTx = await userSigner.sendFunds(
         finalAmount,
@@ -134,7 +136,7 @@ export default class MetaMaskController {
         address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
         {
           from: account,
-          value: totalAmount
+          value: ethTotal
         }
       );
       const receipt = await lockTx.wait();
