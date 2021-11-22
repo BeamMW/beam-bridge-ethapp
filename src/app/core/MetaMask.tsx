@@ -19,7 +19,7 @@ declare global {
     }
 }
 
-const ethTokenContract = '0x6110971432e2A27386F92A7a6c0fa9be9B7DbD65';
+const ethTokenContract = '0xe0a55f2c08125b7dac7132e02b043ED30359034E';
 //const ethPipeContract = '0xB346d832724f4991cEE31c0C43982DA24C6C5214';
 
 export default class MetaMaskController {
@@ -114,9 +114,9 @@ export default class MetaMaskController {
 
   async sendToken(params: SendParams) {  //: number, pKey: string, fee: number) {
     const { amount, fee, address, selectedCurrency, account } = params;
-
-    const finalAmount = amount * Math.pow(10, selectedCurrency.decimals);
-    const relayerFee = fee * Math.pow(10, selectedCurrency.decimals);
+    const multiplier = BigInt(Math.pow(10, selectedCurrency.decimals));
+    const finalAmount = BigInt(amount) * multiplier;
+    const relayerFee = BigInt(fee) * multiplier;
     const totalAmount = finalAmount + relayerFee;
 
     if (selectedCurrency.id === ethId) {
@@ -127,8 +127,6 @@ export default class MetaMaskController {
         this.ethers
       );
 
-      const ethTotal = BigInt(totalAmount) * BigInt(Math.pow(10, 10));
-
       const userSigner = pipeContract.connect(this.signer);
       const lockTx = await userSigner.sendFunds(
         finalAmount,
@@ -136,7 +134,7 @@ export default class MetaMaskController {
         address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
         {
           from: account,
-          value: ethTotal
+          value: totalAmount
         }
       );
       const receipt = await lockTx.wait();
