@@ -97,6 +97,7 @@ const Send = () => {
       selectedCurrency,
       account: account[0]
     });
+    setView(View.BALANCE);
   }
 
   return (

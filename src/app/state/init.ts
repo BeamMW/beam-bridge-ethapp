@@ -13,6 +13,9 @@ const metaMaskController = MetaMaskController.getInstance();
 let interval = null;
 export async function initApp() {
     metaMaskController.init();
+    if (isNil(interval)) {
+        interval = setInterval(() => { metaMaskController.refresh() }, 3000);
+    }
     $accounts.watch(value => {
         if (!isNil(value) && value.length > 0) {
             setView(View.BALANCE);
@@ -20,14 +23,11 @@ export async function initApp() {
             setView(View.CONNECT);
         }
     });
-    if (interval !== null) {
-        interval = setInterval(() => { metaMaskController.refresh() }, 3000);
-    }
 }
 
 export function connectToMetaMask() {
     metaMaskController.connect();
-    if (interval !== null) {
+    if (isNil(interval)) {
         interval = setInterval(() => { metaMaskController.refresh() }, 3000);
     }
 }
