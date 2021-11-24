@@ -4,7 +4,7 @@ import { styled } from '@linaria/react';
 import { 
   setView, View, 
   $accounts, $ethBalance,
-  $usdtBalance,
+  $balance,
   $income
 } from '@state/shared';
 import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
@@ -58,8 +58,7 @@ const handleSendClick: React.MouseEventHandler = () => {
 
 const Balance = () => {
   const account = useStore($accounts);
-  const ethBalance = useStore($ethBalance);
-  const usdtBalance = useStore($usdtBalance);
+  const balance = useStore($balance);
   const data = useStore($income);
 
   const TABLE_CONFIG = [
@@ -82,8 +81,9 @@ const Balance = () => {
         <Title>ETH to BEAM Bridge</Title>
         <Content>
             <ContentHeader>Balance</ContentHeader>
-            <BalanceCard type="usdt" balanceValue={usdtBalance}></BalanceCard>
-            <BalanceCard type="eth" balanceValue={ethBalance}></BalanceCard>
+            { balance.map(({ curr_id, value, icon }) => (
+              <BalanceCard key={curr_id} type={icon} balanceValue={value}></BalanceCard>
+            ))}
             <StyledControls>
               <Button color="send" onClick={handleSendClick}>send</Button>
             </StyledControls>

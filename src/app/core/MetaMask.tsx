@@ -3,13 +3,13 @@ import {
   View, setView,
   setAccounts,
   setEthBalance,
-  setUsdtBalance, setIncome
+  setUsdtBalance, setBalance
 } from './../state/shared';
 import { ethers } from 'ethers';
 import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
 import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
 import { isNil } from './utils';
-import { SendParams, ethId } from '@core/types';
+import { SendParams, ethId, currencies, Currency, Balance } from '@core/types';
 
 let abi = require("human-standard-token-abi");
 
@@ -18,9 +18,6 @@ declare global {
         ethereum: any;
     }
 }
-
-const ethTokenContract = '0xe0a55f2c08125b7dac7132e02b043ED30359034E';
-//const ethPipeContract = '0xB346d832724f4991cEE31c0C43982DA24C6C5214';
 
 export default class MetaMaskController {
   private onboarding = new MetaMaskOnboarding();
@@ -98,21 +95,36 @@ export default class MetaMaskController {
     const isUnlocked = await window.ethereum._metamask.isUnlocked();
 
     if (isUnlocked && this.accounts.length > 0) {
-      const ethBalance = await this.ethers.getBalance(this.accounts[0]);
-      const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
-      setEthBalance(parseFloat(formattedEthBalance));
+      let balances: Balance[] = [];
+      for(let curr of currencies) {
+        if (curr.id === ethId) {
+          const ethBalance = await this.ethers.getBalance(this.accounts[0]);
+          const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
+          balances.push({
+            curr_id: ethId,
+            icon: curr.name,
+            value: parseFloat(formattedEthBalance)
+          });
+        } else {
+          try {
+            const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
+            const usdtBalance = await token.balanceOf(this.accounts[0]);
+            balances.push({
+              curr_id: curr.id,
+              icon: curr.name,
+              value: parseFloat(ethers.utils.formatUnits(usdtBalance, curr.decimals))
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        }
+      }
 
-      // TODO: change to multiple contracts
-      const token = new ethers.Contract(ethTokenContract, abi, this.ethers);
-      console.log('decimals:', await token.decimals())
-      const usdtBalance = await token.balanceOf(this.accounts[0]);
-      setUsdtBalance(parseFloat(ethers.utils.formatUnits(usdtBalance, 8)));
-    } else {
-      //setTimeout(() => {this.loadAccounts()}, 3000);
+      setBalance(balances);
     }
   }
 
-  async sendToken(params: SendParams) {  //: number, pKey: string, fee: number) {
+  async sendToken(params: SendParams) {
     const { amount, fee, address, selectedCurrency, account } = params;
     const multiplier = BigInt(Math.pow(10, selectedCurrency.decimals));
     const finalAmount = BigInt(amount) * multiplier;

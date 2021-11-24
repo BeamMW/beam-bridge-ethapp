@@ -14,6 +14,12 @@ export interface Currency {
     ethTokenContract: string
 }
 
+export interface Balance {
+    value: number,
+    curr_id: number,
+    icon: string
+}
+
 export const ethId = 4;
 
 export const currencies : Currency[] = [
@@ -21,8 +27,8 @@ export const currencies : Currency[] = [
         name: "USDT",
         id: 1,
         decimals: 6,
-        ethTokenContract: '0xC9A07C43f05eA5ad147d5cC4176DF6481287e3AD',
-        ethPipeContract: '0x950eedbEa0A4267028EAceAAb229633E5A9cC226'
+        ethTokenContract: '0x7Ee66bc8BA7F38fe34E404c3399f9E221e4B8b0D',
+        ethPipeContract: '0xeb0BA1544f4175c34C884c2CfD684e83e033B7ED'
     },
     {
         name:'WBTC',

@@ -1,4 +1,5 @@
 import { createEvent, restore } from 'effector';
+import { Balance } from '@core/types';
 
 export enum View {
   CONNECT,
@@ -11,6 +12,11 @@ export const $view = restore(setView, View.CONNECT);
 
 export const setAccounts = createEvent<string[]>();
 export const $accounts = restore(setAccounts, null);
+
+export const setBalance = createEvent<Balance[]>();
+export const $balance = restore(setBalance, []);
+
+
 
 export const setEthBalance = createEvent<number>();
 export const $ethBalance = restore(setEthBalance, null);

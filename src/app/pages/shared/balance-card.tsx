@@ -3,7 +3,7 @@ import { styled } from '@linaria/react';
 
 interface CardProps {
   balanceValue?: number,
-  type?: 'eth' | 'usdt'
+  type?: string
 }
 const CardStyled = styled.div<CardProps>`
   width: 100%;
@@ -12,7 +12,7 @@ const CardStyled = styled.div<CardProps>`
   padding: 20px;
   border-radius: 10px;
   background-image: linear-gradient(99deg, 
-    ${({ type }) => `var(--color-${type}-from)`} 2%, rgb(0, 69, 143, .3) 99%);
+    ${({ type }) => `var(--color-${type.toLowerCase()}-from)`} 2%, rgb(0, 69, 143, .3) 99%);
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -34,7 +34,7 @@ const Card: React.FC<CardProps> = ({
   ...rest
 }) => {
 
-const data = './assets/icon-balance-' + type + '.svg';
+const data = './assets/icon-balance-' + type.toLowerCase() + '.svg';
 const currency = type.toUpperCase();
 return (<CardStyled type={type} {...rest}>
     <LogoStyled

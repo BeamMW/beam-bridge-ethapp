@@ -13,6 +13,8 @@ css`
       --color-receive: #0bccf7;
       --color-usdt-from: rgba(255, 116, 107, .3);
       --color-eth-from: rgba(115, 255, 124, .3);
+      --color-wbtc-from: rgba(15, 25, 224, .3);
+      --color-dai-from: rgba(2, 111, 24, .3);
     }
 
     @font-face {
