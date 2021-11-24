@@ -16,6 +16,9 @@ export const $accounts = restore(setAccounts, null);
 export const setBalance = createEvent<Balance[]>();
 export const $balance = restore(setBalance, []);
 
+export const setIsInProgress = createEvent<boolean>();
+export const $isInProgress = restore(setIsInProgress, false);
+
 
 
 export const setEthBalance = createEvent<number>();

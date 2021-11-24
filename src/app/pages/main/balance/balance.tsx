@@ -5,7 +5,8 @@ import {
   setView, View, 
   $accounts, $ethBalance,
   $balance,
-  $income
+  $income,
+  $isInProgress
 } from '@state/shared';
 import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
 import { isNil } from '@core/utils';
@@ -61,6 +62,8 @@ const Balance = () => {
   const balance = useStore($balance);
   const data = useStore($income);
 
+  const isInProgress = useStore($isInProgress);
+
   const TABLE_CONFIG = [
     {
       name: 'amount',
@@ -85,7 +88,7 @@ const Balance = () => {
               <BalanceCard key={curr_id} type={icon} balanceValue={value}></BalanceCard>
             ))}
             <StyledControls>
-              <Button color="send" onClick={handleSendClick}>send</Button>
+              <Button disabled={isInProgress} color="send" onClick={handleSendClick}>send</Button>
             </StyledControls>
         </Content>
         <StyledTable>

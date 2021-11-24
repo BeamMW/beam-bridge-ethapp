@@ -5,6 +5,7 @@ interface ButtonProps {
   color?: 'send' | 'receive';
   icon?: string;
   onClick?: (param: any) => void;
+  disabled?: boolean;
 }
 
 const ButtonStyled = styled.button<ButtonProps>`
@@ -17,11 +18,12 @@ const ButtonStyled = styled.button<ButtonProps>`
   font-weight: bold;
   font-size: 14px;
   color: #032e49;
-  cursor: pointer;
+  cursor: ${({ disabled }) => {console.log(disabled); return disabled ? "not-allowed" : "pointer"}};
+  opacity: ${({ disabled }) => disabled ? "0.5" : ""};
 
   &:hover,
   &:active {
-    box-shadow: 0 0 8px white;
+    box-shadow: ${({ disabled }) => disabled ? "none" : "0 0 8px white"};
   }
 `;
 
@@ -29,9 +31,10 @@ const Button: React.FC<ButtonProps> = ({
   color,
   icon,
   children,
+  disabled,
   ...rest
 }) => (
-  <ButtonStyled color={color} {...rest}>
+  <ButtonStyled disabled={disabled} color={color} {...rest}>
     {children}
   </ButtonStyled>
 );

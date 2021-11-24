@@ -2,8 +2,7 @@ import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
   View, setView,
   setAccounts,
-  setEthBalance,
-  setUsdtBalance, setBalance
+  setIsInProgress, setBalance
 } from './../state/shared';
 import { ethers } from 'ethers';
 import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
@@ -115,7 +114,7 @@ export default class MetaMaskController {
               value: parseFloat(ethers.utils.formatUnits(usdtBalance, curr.decimals))
             });
           } catch (e) {
-            console.log(e);
+            //console.log(e);
           }
         }
       }
@@ -131,51 +130,64 @@ export default class MetaMaskController {
     const relayerFee = BigInt(fee) * multiplier;
     const totalAmount = finalAmount + relayerFee;
 
-    if (selectedCurrency.id === ethId) {
-      //send for eth
-      const pipeContract = new ethers.Contract(
-        selectedCurrency.ethPipeContract,
-        EthPipe.abi,
-        this.ethers
-      );
+    setIsInProgress(true);
 
-      const userSigner = pipeContract.connect(this.signer);
-      const lockTx = await userSigner.sendFunds(
-        finalAmount,
-        relayerFee,
-        address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
-        {
-          from: account,
-          value: totalAmount
-        }
-      );
-      const receipt = await lockTx.wait();
-      console.log('receipt: ', receipt);
-    } else {
-      const tokenContract = new ethers.Contract(
-        selectedCurrency.ethTokenContract,  
-        abi,
-        this.ethers
-      );
-      const pipeContract = new ethers.Contract(
-        selectedCurrency.ethPipeContract,  
-        EthERC20Pipe.abi,
-        this.ethers
-      );
+    try {
+      if (selectedCurrency.id === ethId) {
+        //send for eth
+        const pipeContract = new ethers.Contract(
+          selectedCurrency.ethPipeContract,
+          EthPipe.abi,
+          this.ethers
+        );
 
-      const ethSigner = tokenContract.connect(this.signer);
-      const approveTx = await ethSigner.approve(selectedCurrency.ethPipeContract, totalAmount);
-      await approveTx.wait();
+        const userSigner = pipeContract.connect(this.signer);
+        const lockTx = await userSigner.sendFunds(
+          finalAmount,
+          relayerFee,
+          address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
+          {
+            from: account,
+            value: totalAmount
+          }
+        );
+        
+        await lockTx.wait().then((receipt)=> {
+          setIsInProgress(false);
+          console.log('receipt: ', receipt);
+        });
+      } else {
+        const tokenContract = new ethers.Contract(
+          selectedCurrency.ethTokenContract,  
+          abi,
+          this.ethers
+        );
+        const pipeContract = new ethers.Contract(
+          selectedCurrency.ethPipeContract,  
+          EthERC20Pipe.abi,
+          this.ethers
+        );
 
-      // tokenContract.functions;
-      const userSigner = pipeContract.connect(this.signer);
-      const lockTx = await userSigner.sendFunds(
-        finalAmount,
-        relayerFee,
-        address.slice(0, 2) !== '0x' ? ('0x' + address) : address
-      );
-      const receipt = await lockTx.wait();
-      console.log('receipt: ', receipt);
+        const ethSigner = tokenContract.connect(this.signer);
+        const approveTx = await ethSigner.approve(selectedCurrency.ethPipeContract, totalAmount);
+        await approveTx.wait();
+
+        // tokenContract.functions;
+        const userSigner = pipeContract.connect(this.signer);
+        const lockTx = await userSigner.sendFunds(
+          finalAmount,
+          relayerFee,
+          address.slice(0, 2) !== '0x' ? ('0x' + address) : address
+        );
+
+        await lockTx.wait().then((receipt)=> {
+          setIsInProgress(false);
+          console.log('receipt: ', receipt);
+        });
+      }
+    } catch (e) {
+      console.log('send transaction error: ', e);
+      setIsInProgress(false);
     }
 
     this.refresh();
