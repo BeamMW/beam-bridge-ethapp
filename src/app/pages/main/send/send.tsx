@@ -126,7 +126,7 @@ const Send = () => {
         <FormSubtitle>FEE</FormSubtitle>
         <Input type='fee' ref={feeInputRef} name="fee"></Input>
         <SendStyled>
-          <Button color="send">send to beam</Button>
+          <Button color="send" >send to beam</Button>
         </SendStyled>
       </FormStyled>
     </Container>

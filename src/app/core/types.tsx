@@ -27,28 +27,28 @@ export const currencies : Currency[] = [
         name: "USDT",
         id: 1,
         decimals: 6,
-        ethTokenContract: '0x7Ee66bc8BA7F38fe34E404c3399f9E221e4B8b0D',
-        ethPipeContract: '0xeb0BA1544f4175c34C884c2CfD684e83e033B7ED'
+        ethTokenContract: '0xfdb6ba93e0b3A760bCD36140C20F96eE4A636f7B',
+        ethPipeContract: '0x25E613875ea1143005411D8808faed9bEE94cD7B'
     },
     {
         name:'WBTC',
         id: 2,
         decimals: 8,
-        ethTokenContract: '',
-        ethPipeContract: ''
+        ethTokenContract: '0x9acDE598dd6e8D29eCCe8FbE58e3190Ab7302179',
+        ethPipeContract: '0xB9b49dd981d01F4433c551100FFe64a6FcFd1049'
     },
     {
         name:'DAI',
         id: 3,
         decimals: 18,
-        ethTokenContract: '0x373e337F18977237fB2e33E028F51dfDfA576B20',
-        ethPipeContract: '0xFF8713638b73b371D6a28C7C7852Aa57a0C9A3D2'
+        ethTokenContract: '0xB786c676A626D0abB616beF59056291fC84F4Bc4',
+        ethPipeContract: '0xE4eCDDdF9fB032eEBa2f022a48ed41F5c96781bE'
     },
     {
         name: 'ETH',
         id: ethId,
         decimals: 18,
         ethTokenContract: '',
-        ethPipeContract: '0x2eCD75b34d4732FE9e991132085D829A7D8c3dE7'
+        ethPipeContract: '0x0994E43993b04Fe60F10d03fa4F3BdDa2bbB6f00'
     }
 ];

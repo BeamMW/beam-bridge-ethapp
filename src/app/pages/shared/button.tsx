@@ -18,7 +18,7 @@ const ButtonStyled = styled.button<ButtonProps>`
   font-weight: bold;
   font-size: 14px;
   color: #032e49;
-  cursor: ${({ disabled }) => {console.log(disabled); return disabled ? "not-allowed" : "pointer"}};
+  cursor: ${({ disabled }) => disabled ? "not-allowed" : "pointer"};
   opacity: ${({ disabled }) => disabled ? "0.5" : ""};
 
   &:hover,

@@ -106,36 +106,74 @@ const Selector = (data: {type: string}) => {
     margin-left: 5px;
   `;
 
+  return (data.type === 'fee' || data.type === 'amount' ? <StyledDropdown>
+  <DropdownElem>
+    {selectedCurrency !== null ? selectedCurrency.name : ''}
+  </DropdownElem>
+</StyledDropdown> : <></>);
 
-  return data.type === 'amount' ? (
-    <StyledDropdown>
-      <DropdownElem onClick={toggleDropdown}>
-        {selectedCurrency.name}
-        <Triangle></Triangle>
-      </DropdownElem>
-      <DropdownBody isVisible={isOpen} className={`dropdown-body ${isOpen && 'open'}`}>
-        {items.map(item => (
-          <DropdownElemOption key={item.id} onClick={e => handleItemClick(item)}>
-            {/* <span className={`${item.id == selectedItem.id && 'selected'}`}>• </span> */}
-            {item.name}
-          </DropdownElemOption>
-        ))}
-      </DropdownBody>
-    </StyledDropdown>
-  ) : (data.type === 'fee' ? <StyledDropdown>
-    <DropdownElem>
-      {selectedCurrency.name}
-    </DropdownElem>
-  </StyledDropdown> : <></>);
+
+  // return data.type === 'amount' ? (
+  //   <StyledDropdown>
+  //     <DropdownElem onClick={toggleDropdown}>
+  //       {selectedCurrency.name}
+  //       <Triangle></Triangle>
+  //     </DropdownElem>
+  //     <DropdownBody isVisible={isOpen} className={`dropdown-body ${isOpen && 'open'}`}>
+  //       {items.map(item => (
+  //         <DropdownElemOption key={item.id} onClick={e => handleItemClick(item)}>
+  //           {/* <span className={`${item.id == selectedItem.id && 'selected'}`}>• </span> */}
+  //           {item.name}
+  //         </DropdownElemOption>
+  //       ))}
+  //     </DropdownBody>
+  //   </StyledDropdown>
+  // ) : (data.type === 'fee' ? 
+  // <StyledDropdown>
+  //   <DropdownElem>
+  //     {selectedCurrency.name}
+  //   </DropdownElem>
+  // </StyledDropdown> : <></>);
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ type, error, ...rest }, ref) => (
-    <ContainerStyled>
-      <InputStyled type={type} ref={ref} error={error} {...rest} />
-      <Selector type={type}/>
-    </ContainerStyled>
-  ),
+  ({ type, error, ...rest }, ref) => {
+    
+    const inputChange = (event) => {
+      let value = event.target.value;
+      console.log(value);
+
+      const key = value.slice(-66);
+      let currName = null;
+      let curr = null;
+      if (key.length === 66) {
+        currName = value.slice(1, value.length - 66);
+        console.log(currName)
+      }
+
+      if (currName !== null) {
+        curr = currencies.find((item) => {
+          return item.name.toLowerCase() === currName;
+        });
+
+        if (curr) {
+          setCurrency(curr);
+          event.target.value = key;
+        }
+      }
+    };
+
+
+    return (
+      <ContainerStyled>
+        <InputStyled 
+          onChange={ 'common' ? inputChange : null }
+          type={type} ref={ref} 
+          error={error} {...rest} />
+        <Selector type={type}/>
+      </ContainerStyled>
+    )
+  },
 );
 
 export default Input;
