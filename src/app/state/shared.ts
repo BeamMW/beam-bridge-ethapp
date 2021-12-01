@@ -1,5 +1,5 @@
-import { createEvent, restore } from 'effector';
-import { Balance } from '@core/types';
+import { createEvent, restore, createEffect } from 'effector';
+import { Balance, currencies, ethId } from '@core/types';
 
 export enum View {
   CONNECT,
@@ -19,13 +19,23 @@ export const $balance = restore(setBalance, []);
 export const setIsInProgress = createEvent<boolean>();
 export const $isInProgress = restore(setIsInProgress, false);
 
-
-
-export const setEthBalance = createEvent<number>();
-export const $ethBalance = restore(setEthBalance, null);
-
-export const setUsdtBalance = createEvent<number>();
-export const $usdtBalance = restore(setUsdtBalance, null);
-
 export const setIncome = createEvent<{id: number, amount: number}[]>();
 export const $income = restore(setIncome, null);
+
+
+export const getTransactionsListFx = createEffect(async (address) => {
+  let result = [];
+  for (var item of currencies) {
+    if (item.id !== ethId) {
+      const trs = await fetch(`https://masternet-explorer.beam.mw/bridges/tokens_transfer/${address}/${item.ethTokenContract}`)
+      result = result.concat(await trs.json());
+    }
+  }
+  return result;
+});
+
+export const $transactionsList = restore(
+  getTransactionsListFx.doneData.map((data) => {
+    return data;
+  }), null,
+);

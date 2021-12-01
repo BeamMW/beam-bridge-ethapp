@@ -18,8 +18,9 @@ const Title = styled.h1`
 `;
 
 const Subtitle = styled.h2`
-  margin-top: 32px;
+  margin-top: 30px;
   font-size: 24px;
+  text-align: center;
 `;
 
 const connectButton = css`
@@ -50,7 +51,10 @@ const Connect = () => {
   return (
     <Container>
       <Title>ETH to BEAM Bridge</Title>
-      <Subtitle>Send funds through BEAM Smart Contract</Subtitle>
+      <Subtitle>
+        Transfer ETH, BTC, DAI and USDT.<br/>
+        More tokens coming soon!
+      </Subtitle>
       <button className={connectButton} disabled={isDisabled} onClick={onClick}>
         <span className={connectButtonText}>{buttonText}</span>
       </button>

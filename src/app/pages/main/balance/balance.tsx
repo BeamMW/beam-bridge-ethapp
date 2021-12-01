@@ -3,7 +3,7 @@ import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
 import { 
   setView, View, 
-  $accounts, $ethBalance,
+  $accounts,
   $balance,
   $income,
   $isInProgress

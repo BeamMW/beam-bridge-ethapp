@@ -107,11 +107,11 @@ export default class MetaMaskController {
         } else {
           try {
             const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
-            const usdtBalance = await token.balanceOf(this.accounts[0]);
+            const tokenBalance = await token.balanceOf(this.accounts[0]);
             balances.push({
               curr_id: curr.id,
               icon: curr.name,
-              value: parseFloat(ethers.utils.formatUnits(usdtBalance, curr.decimals))
+              value: parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals))
             });
           } catch (e) {
             //console.log(e);
