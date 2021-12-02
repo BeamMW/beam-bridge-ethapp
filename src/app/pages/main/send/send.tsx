@@ -4,7 +4,11 @@ import { styled } from '@linaria/react';
 import { ActiveAccount, Button, Input } from '@pages/shared';
 import { setView, View, $accounts } from '@state/shared';
 import { send } from '@state/init';
-import { $selectedCurrency } from '@state/send';
+import { currencies } from '@core/types';
+import { $selectedCurrency, setCurrency } from '@state/send';
+import MetaMaskController  from '@core/MetaMask';
+
+const metaMaskController = MetaMaskController.getInstance();
 
 const Container = styled.div`
   display: flex;
@@ -82,6 +86,40 @@ const Send = () => {
   const account = useStore($accounts);
   const selectedCurrency = useStore($selectedCurrency);
 
+  const [feeVal, setFeeVal] = useState(0);
+
+  const inputChange = (event) => {
+    let value = event.target.value;
+    console.log(value);
+  
+    const key = value.slice(-66);
+    let currName = null;
+    let curr = null;
+    if (key.length === 66) {
+      currName = value.slice(1, value.length - 66);
+      console.log(currName)
+    }
+  
+    if (currName !== null) {
+      curr = currencies.find((item) => {
+        return item.name.toLowerCase() === currName;
+      });
+  
+      if (curr) {
+        setCurrency(curr);
+        event.target.value = key;
+  
+        getFee(curr).then((data) => {
+          setFeeVal(data);
+        });
+      }
+    }
+  };
+
+  const getFee = async (curr) => {
+    return await metaMaskController.calcSomeFee(curr.rate_id);
+  }
+
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async event => {
     event.preventDefault();
 
@@ -90,14 +128,22 @@ const Send = () => {
     const amount = parseFloat(data.get('amount') as string);
     const fee = parseFloat(data.get('fee') as string);
     
-    send({
+    const sendData = {
       address,
       amount,
       fee,
       selectedCurrency,
       account: account[0]
-    });
+    };
+
+    console.log('Send data: ', sendData);
+    send(sendData);
     setView(View.BALANCE);
+  }
+
+  const inputChangedHandler = (event) => {
+    const updatedKeyword = event.target.value;
+    // May be call for search result
   }
 
   return (
@@ -120,11 +166,11 @@ const Send = () => {
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Send token to Beam</FormTitle>
         <FormSubtitle>BEAM BRIDGE CONTRACT ADDRESS</FormSubtitle>
-        <Input type='common' ref={addressInputRef} name="address"></Input>
+        <Input onChange={ inputChange } type='common' ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
         <Input type='amount' ref={amountInputRef} name="amount"></Input>
         <FormSubtitle>FEE</FormSubtitle>
-        <Input type='fee' ref={feeInputRef} name="fee"></Input>
+        <Input type='fee' ref={feeInputRef} onChange={(event)=>inputChangedHandler(event)}  value={feeVal} name="fee"></Input>
         <SendStyled>
           <Button color="send" >send to beam</Button>
         </SendStyled>

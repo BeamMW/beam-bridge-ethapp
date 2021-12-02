@@ -10,6 +10,8 @@ import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
 import { isNil } from './utils';
 import { SendParams, ethId, currencies, Currency, Balance } from '@core/types';
 
+const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
+
 let abi = require("human-standard-token-abi");
 
 declare global {
@@ -201,5 +203,35 @@ export default class MetaMaskController {
   // TODO: implement depending on the type of token
   async getTokenDecimals() {
     return 8;
+  }
+
+  async loadGasPrice () {
+    const gasPrice = ethers.utils.formatUnits(await this.ethers.getGasPrice(), 'gwei');
+    console.log('gas price:', gasPrice);
+    return gasPrice;
+  }
+
+  async loadRate (rate_id: string) {
+    const response = await fetch(`${API_URL}?ids=${rate_id}&vs_currencies=usd`, {
+      mode: 'cors',
+      headers: {
+        'Access-Control-Allow-Origin':'*'
+      }
+    });
+    const promise: Promise<any> = response.json();
+    return promise;
+  }
+
+  async calcSomeFee (rate_id: string) {
+    const RELAY_COSTS_IN_GAS = 120000;
+    const ETH_RATE_ID = 'ethereum';
+
+    const gasPrice = await this.loadGasPrice();
+    const ethRate = await this.loadRate(ETH_RATE_ID)
+    const relayCosts = RELAY_COSTS_IN_GAS * parseFloat(gasPrice) * parseFloat(ethRate[ETH_RATE_ID]['usd']) / Math.pow(10, 9);
+    const currRate = await this.loadRate(rate_id);
+
+    const RELAY_SAFETY_COEFF = 1.1;
+    return RELAY_SAFETY_COEFF * relayCosts / parseFloat(currRate[rate_id]['usd']);
   }
 }

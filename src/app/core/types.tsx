@@ -8,6 +8,7 @@ export interface SendParams {
 
 export interface Currency {
     id: number,
+    rate_id: string,
     decimals: number,
     name: string,
     ethPipeContract: string,
@@ -25,6 +26,7 @@ export const ethId = 4;
 export const currencies : Currency[] = [
     {
         name: "USDT",
+        rate_id: 'tether',
         id: 1,
         decimals: 6,
         ethTokenContract: '0xfdb6ba93e0b3A760bCD36140C20F96eE4A636f7B',
@@ -32,6 +34,7 @@ export const currencies : Currency[] = [
     },
     {
         name:'WBTC',
+        rate_id: 'wrapped-bitcoin',
         id: 2,
         decimals: 8,
         ethTokenContract: '0x9acDE598dd6e8D29eCCe8FbE58e3190Ab7302179',
@@ -39,6 +42,7 @@ export const currencies : Currency[] = [
     },
     {
         name:'DAI',
+        rate_id: 'dai',
         id: 3,
         decimals: 18,
         ethTokenContract: '0xB786c676A626D0abB616beF59056291fC84F4Bc4',
@@ -46,6 +50,7 @@ export const currencies : Currency[] = [
     },
     {
         name: 'ETH',
+        rate_id: 'ethereum',
         id: ethId,
         decimals: 18,
         ethTokenContract: '',
