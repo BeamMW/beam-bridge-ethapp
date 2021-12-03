@@ -125,7 +125,7 @@ export default class MetaMaskController {
     }
   }
 
-  static amountToBigInt(amount: number, decimals: number) : BigInt {
+  static amountToBigInt(amount: number, decimals: number) : bigint {
     const multiplier = Math.pow(10, decimals);
     let result = BigInt(Math.trunc(amount)) * BigInt(multiplier);
     let other = Math.trunc((amount - Math.trunc(amount)) * multiplier);
