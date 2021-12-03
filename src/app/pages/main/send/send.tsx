@@ -166,11 +166,11 @@ const Send = () => {
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Send token to Beam</FormTitle>
         <FormSubtitle>BEAM BRIDGE CONTRACT ADDRESS</FormSubtitle>
-        <Input onChange={ inputChange } type='common' ref={addressInputRef} name="address"></Input>
+        <Input onChange={ inputChange } variant='common' ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
-        <Input type='amount' ref={amountInputRef} name="amount"></Input>
+        <Input variant='amount' ref={amountInputRef} name="amount"></Input>
         <FormSubtitle>FEE</FormSubtitle>
-        <Input type='fee' ref={feeInputRef} onChange={(event)=>inputChangedHandler(event)}  value={feeVal} name="fee"></Input>
+        <Input variant='fee' ref={feeInputRef} onChange={(event)=>inputChangedHandler(event)}  value={feeVal} name="fee"></Input>
         <SendStyled>
           <Button color="send" >send to beam</Button>
         </SendStyled>
