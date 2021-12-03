@@ -125,11 +125,17 @@ export default class MetaMaskController {
     }
   }
 
+  static amountToBigInt(amount: number, decimals: number) : BigInt {
+    const multiplier = Math.pow(10, decimals);
+    let result = BigInt(Math.trunc(amount)) * BigInt(multiplier);
+    let other = Math.trunc((amount - Math.trunc(amount)) * multiplier);
+    return result + BigInt(other);
+  }
+
   async sendToken(params: SendParams) {
     const { amount, fee, address, selectedCurrency, account } = params;
-    const multiplier = BigInt(Math.pow(10, selectedCurrency.decimals));
-    const finalAmount = BigInt(amount) * multiplier;
-    const relayerFee = BigInt(fee) * multiplier;
+    const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals);
+    const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals);
     const totalAmount = finalAmount + relayerFee;
 
     setIsInProgress(true);
