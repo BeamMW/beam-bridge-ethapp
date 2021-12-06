@@ -11,10 +11,10 @@ css`
     :root {
       --color-send: #da68f5;
       --color-receive: #0bccf7;
-      --color-usdt-from: rgba(255, 116, 107, .3);
-      --color-eth-from: rgba(115, 255, 124, .3);
-      --color-wbtc-from: rgba(15, 25, 224, .3);
-      --color-dai-from: rgba(2, 111, 24, .3);
+      --color-usdt-from: rgba(80, 175, 149, .3);
+      --color-eth-from: rgba(94, 123, 242, .3);
+      --color-wbtc-from: rgba(247, 147, 26, .3);
+      --color-dai-from: rgba(245, 172, 55, .3);
     }
 
     @font-face {

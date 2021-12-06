@@ -8,6 +8,7 @@ import {
   $income,
   $isInProgress
 } from '@state/shared';
+import { css } from '@linaria/core';
 import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
 import { isNil } from '@core/utils';
 
@@ -30,7 +31,7 @@ const Content = styled.div`
   padding: 45px 75px;
   border-radius: 10px;
   backdrop-filter: blur(10px);
-  background-color: #0d4d76;
+  background-color: rgba(13, 77, 118, .4);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -39,6 +40,7 @@ const Content = styled.div`
 const ContentHeader = styled.p`
   font-size: 24px;
   font-weight: bold;
+  margin-bottom: 40px;
 `;
 
 const StyledControls = styled.div`
@@ -53,9 +55,17 @@ const StyledTable = styled.div`
   border-radius: 10px;
 `;
 
+const ReceiveButtonClass = css`
+  margin-left: 20px;
+`;
+
 const handleSendClick: React.MouseEventHandler = () => {
   setView(View.SEND);
 };
+
+const handleReceiveClick: React.MouseEventHandler = () => {
+  
+}
 
 const Balance = () => {
   const account = useStore($accounts);
@@ -89,6 +99,7 @@ const Balance = () => {
             ))}
             <StyledControls>
               <Button disabled={isInProgress} color="send" onClick={handleSendClick}>send</Button>
+              <Button className={ReceiveButtonClass} color="receive" onClick={handleReceiveClick}>receive</Button>
             </StyledControls>
         </Content>
         <StyledTable>

@@ -34,7 +34,7 @@ const Card: React.FC<CardProps> = ({
   ...rest
 }) => {
 
-const data = './assets/icon-balance-' + type.toLowerCase() + '.svg';
+const data = './assets/icon-' + type.toLowerCase() + '.svg';
 const currency = type.toUpperCase();
 return (<CardStyled type={type} {...rest}>
     <LogoStyled

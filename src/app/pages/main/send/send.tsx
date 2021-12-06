@@ -110,7 +110,10 @@ const Send = () => {
         event.target.value = key;
   
         getFee(curr).then((data) => {
-          setFeeVal(data);
+          console.log(data);
+          const fixed = data.toFixed(curr.validator_dec);
+          feeInputRef.current.value = fixed;
+          //setFeeVal(parseFloat(fixed));
         });
       }
     }
@@ -170,7 +173,7 @@ const Send = () => {
         <FormSubtitle>AMOUNT</FormSubtitle>
         <Input variant='amount' ref={amountInputRef} name="amount"></Input>
         <FormSubtitle>FEE</FormSubtitle>
-        <Input variant='fee' ref={feeInputRef} onChange={(event)=>inputChangedHandler(event)}  value={feeVal} name="fee"></Input>
+        <Input variant='fee' ref={feeInputRef} name="fee"></Input>
         <SendStyled>
           <Button color="send" >send to beam</Button>
         </SendStyled>
