@@ -125,18 +125,21 @@ export default class MetaMaskController {
     }
   }
 
-  static amountToBigInt(amount: number, decimals: number) : bigint {
-    const multiplier = Math.pow(10, decimals);
-    let result = BigInt(Math.trunc(amount)) * BigInt(multiplier);
-    let other = Math.trunc((amount - Math.trunc(amount)) * multiplier);
-    return result + BigInt(other);
+  static amountToBigInt(amount, decimals, validDecimals: number) : bigint {
+    let result = BigInt(Math.round(amount * Math.pow(10, validDecimals)));
+
+    return result * BigInt(Math.pow(10, decimals - validDecimals));
   }
 
   async sendToken(params: SendParams) {
     const { amount, fee, address, selectedCurrency, account } = params;
-    const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals);
-    const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals);
+    const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals, selectedCurrency.validator_dec);
+    const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals, selectedCurrency.validator_dec);
     const totalAmount = finalAmount + relayerFee;
+
+    // TODO should delete this code. it's only for debug
+    console.log('amount = ', amount, ' fee = ', fee);
+    console.log('finalAmount = ', finalAmount, ' relayerFee = ', relayerFee, ' totalAmount = ', totalAmount);
 
     setIsInProgress(true);
 
