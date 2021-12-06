@@ -4,9 +4,11 @@ import { styled } from '@linaria/react';
 import { ActiveAccount, Button, Input } from '@pages/shared';
 import { setView, View, $accounts } from '@state/shared';
 import { send } from '@state/init';
-import { currencies } from '@core/types';
+import { currencies } from '@consts/common';
 import { $selectedCurrency, setCurrency } from '@state/send';
 import MetaMaskController  from '@core/MetaMask';
+
+import { IconBack } from '@app/icons';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -35,22 +37,18 @@ const BackControl = styled.div`
   flex-direction: row;
 `;
 
-const BackControlIcon = styled.object`
-  display: block;
-  margin-right: 15px;
-`;
-
 const BackControlText = styled.p`
   opacity: .3;
   font-size: 14px;
   font-weight: bold;
+  margin-left: 15px;
 `;
 
 const FormStyled = styled.form`
   width: 600px;
-  backdrop-filter: blur(10px);
   border-radius: 10px;
-  background-color: rgba(13, 77, 118, .9);
+  backdrop-filter: blur(10px);
+  background-color: rgba(13, 77, 118, .4);
   padding: 40px 30px;
   display: flex;
   flex-direction: column;
@@ -66,6 +64,7 @@ const FormSubtitle = styled.p`
   font-size: 14px;
   font-weight: bold;
   margin-top: 30px;
+  letter-spacing: 2.63px;
 `;
 
 const SendStyled = styled.div`
@@ -152,23 +151,18 @@ const Send = () => {
   return (
     <Container>
       <ActiveAccount text={account[0]}></ActiveAccount>
-      <Title>ETH to BEAM Bridge</Title>
+      <Title>Ethereum to Beam Bridge</Title>
       <ControlStyled>
         <BackControl onClick={handleBackClick}>
-          <BackControlIcon
-            type="image/svg+xml"
-            data={'./assets/icon-back.svg'}
-            width="16"
-            height="16"
-          ></BackControlIcon>
+          <IconBack/>
           <BackControlText>
             back
           </BackControlText>
         </BackControl>
       </ControlStyled>
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
-        <FormTitle>Send token to Beam</FormTitle>
-        <FormSubtitle>BEAM BRIDGE CONTRACT ADDRESS</FormSubtitle>
+        <FormTitle>Ethereum to Beam</FormTitle>
+        <FormSubtitle>BEAM WALLET ADDRESS</FormSubtitle>
         <Input onChange={ inputChange } variant='common' ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
         <Input variant='amount' ref={amountInputRef} name="amount"></Input>

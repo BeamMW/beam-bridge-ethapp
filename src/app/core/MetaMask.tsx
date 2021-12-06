@@ -8,7 +8,8 @@ import { ethers } from 'ethers';
 import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
 import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
 import { isNil } from './utils';
-import { SendParams, ethId, currencies, Currency, Balance } from '@core/types';
+import { SendParams, Balance } from '@core/types';
+import { currencies, ethId } from '@consts/common';
 
 const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 

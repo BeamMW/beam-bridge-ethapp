@@ -1,10 +1,12 @@
 import { createEvent, restore, createEffect } from 'effector';
-import { Balance, currencies, ethId } from '@core/types';
+import { Balance } from '@core/types';
+import { currencies, ethId } from '@consts/common';
 
 export enum View {
   CONNECT,
   BALANCE,
   SEND,
+  RECEIVE
 }
 
 export const setView = createEvent<View>();

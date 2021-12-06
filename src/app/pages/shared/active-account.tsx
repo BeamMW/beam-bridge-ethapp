@@ -14,7 +14,7 @@ const AccountStyled = styled.div`
   border: solid 1px #fff;
   background-color: rgba(255, 255, 255, 0.1);
   align-self: flex-end;
-  margin 80px 80px 0 0;
+  margin 60px 80px 0 0;
   cursor: pointer
 `;
 

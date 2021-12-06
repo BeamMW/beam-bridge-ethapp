@@ -34,6 +34,10 @@ module.exports = {
         exclude: /node_modules/,
       },
       {
+        test: /\.svg$/,
+        use: ['@svgr/webpack', 'svgo-loader'],
+      },
+      {
         test: /\.css$/,
         use: [
           {

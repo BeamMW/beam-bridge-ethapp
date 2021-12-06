@@ -6,7 +6,8 @@
     "resolveJsonModule": true,
     "typeRoots": [
       "node_modules/@types",
-      "node_modules/web-ext-types"
+      "node_modules/web-ext-types",
+      "./src/@types"
     ],
     "types": ["node"],
     "baseUrl": "src/app",
@@ -15,7 +16,8 @@
       "@core/*": ["core/*"],
       "@pages/*": ["pages/*"],
       "@state/*": ["state/*"],
-      "@assets/*": ["assets/*"]
+      "@assets/*": ["assets/*"],
+      "@consts/*": ["shared/consts/*"]
     }
   },
   "include": ["**/*"],

@@ -3,7 +3,8 @@ import { styled } from '@linaria/react';
 import { isNil } from '@core/utils';
 import { setCurrency, $selectedCurrency } from '@state/send';
 import { useStore } from 'effector-react';
-import { currencies } from '@core/types';
+import { currencies } from '@consts/common';
+import { css } from '@linaria/core';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
@@ -14,13 +15,20 @@ interface DropdownProps {
   isVisible: boolean
 }
 
+const NumberInputClass = css`
+  height: 59px;
+`;
+
+const AddressInputClass = css`
+  height: 44px;
+`;
+
 const ContainerStyled = styled.div`
   margin-top: 20px;
   position: relative;
   background-color: rgba(255, 255, 255, .05);
   border-radius: 10px;
   width: 100%;
-  height: 59px;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -157,7 +165,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     }
 
     return (
-      <ContainerStyled>
+      <ContainerStyled className={variant === 'common' ? AddressInputClass : NumberInputClass}>
         <InputStyled
           type={variant === 'amount' ? 'number' : 'text'}
           variant={variant} ref={ref}

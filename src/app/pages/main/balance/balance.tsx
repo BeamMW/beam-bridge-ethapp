@@ -12,6 +12,8 @@ import { css } from '@linaria/core';
 import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
 import { isNil } from '@core/utils';
 
+import { IconReceive, IconSend} from '@app/icons';
+
 const Container = styled.div`
   display: flex;
   flex-direction: column;
@@ -56,7 +58,7 @@ const StyledTable = styled.div`
 `;
 
 const ReceiveButtonClass = css`
-  margin-left: 20px;
+  margin-left: 20px !important;
 `;
 
 const handleSendClick: React.MouseEventHandler = () => {
@@ -64,7 +66,7 @@ const handleSendClick: React.MouseEventHandler = () => {
 };
 
 const handleReceiveClick: React.MouseEventHandler = () => {
-  
+  setView(View.RECEIVE);
 }
 
 const Balance = () => {
@@ -91,16 +93,26 @@ const Balance = () => {
   return (
     <Container>
         <ActiveAccount text={account[0]}></ActiveAccount>
-        <Title>ETH to BEAM Bridge</Title>
+        <Title>Ethereum to Beam Bridge</Title>
+        <StyledControls>
+          <Button icon={IconSend}
+          disabled={isInProgress}
+          pallete="purple"
+          onClick={handleSendClick}>
+            ethereum to beam
+          </Button>
+          <Button icon={IconReceive} 
+          className={ReceiveButtonClass} 
+          pallete="blue" 
+          onClick={handleReceiveClick}>
+            beam to ethereum
+          </Button>
+        </StyledControls>
         <Content>
             <ContentHeader>Balance</ContentHeader>
             { balance.map(({ curr_id, value, icon }) => (
               <BalanceCard key={curr_id} type={icon} balanceValue={value}></BalanceCard>
             ))}
-            <StyledControls>
-              <Button disabled={isInProgress} color="send" onClick={handleSendClick}>send</Button>
-              <Button className={ReceiveButtonClass} color="receive" onClick={handleReceiveClick}>receive</Button>
-            </StyledControls>
         </Content>
         <StyledTable>
           <Table config={TABLE_CONFIG} data={data} keyBy='pid'/>
