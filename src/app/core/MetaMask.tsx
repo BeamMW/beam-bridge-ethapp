@@ -105,6 +105,7 @@ export default class MetaMaskController {
           balances.push({
             curr_id: ethId,
             icon: curr.name,
+            rate_id: curr.rate_id,
             value: parseFloat(formattedEthBalance)
           });
         } else {
@@ -114,6 +115,7 @@ export default class MetaMaskController {
             balances.push({
               curr_id: curr.id,
               icon: curr.name,
+              rate_id: curr.rate_id,
               value: parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals))
             });
           } catch (e) {
@@ -181,6 +183,10 @@ export default class MetaMaskController {
         );
 
         const ethSigner = tokenContract.connect(this.signer);
+
+        // const allowance = await tokenContract.allowance(account, selectedCurrency.ethPipeContract);
+        // const aaa = parseFloat(ethers.utils.formatUnits(allowance))
+
         const approveTx = await ethSigner.approve(selectedCurrency.ethPipeContract, totalAmount);
         await approveTx.wait();
 

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { styled } from '@linaria/react';
-
 import { isNil } from '@core/utils';
-import { receive } from '@state/init';
+import { $isInProgress, $accounts } from '@state/shared';
+import { useStore } from 'effector-react';
+import { IconReceive, IconReceived, IconSent } from '@app/icons';
 
 interface CellConfig {
   name: string;
@@ -44,28 +45,21 @@ const Column = styled.td`
   background-color: rgba(13, 77, 118, .9);
 `;
 
-const ConfirmReceive = styled.div`
-  width: 167px;
-  height: 32px;
-  padding: 8px 16px;
-  border-radius: 17.5px;
-  border: solid 1px #0bccf7;
-  background-color: rgba(11, 204, 247, 0.1);
-  color: #0bccf7;
-  text-align: center;
-  font-size: 14px;
-  cursor: pointer;
+const StyledStatus = styled.div`
   display: flex;
-  flex-direction: row;
+  align-items: center;
 `;
 
-const ConfirmIcon = styled.object`
-  display: block;
-  margin-right: 15px;
+const StatusText = styled.span<{ isIncome: boolean }>`
+  margin-left: 10px;
+  color: ${({ isIncome }) => isIncome ? `var(--color-blue` : `var(--color-purple)`};
 `;
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
   const [filterBy, setFilterBy] = useState(0);
+  const [receiveClickedId, setActiveReceive] = useState(null);
+  const isInProgress = useStore($isInProgress);
+  const account = useStore($accounts);
 
   const sortFn = (objectA, objectB) => {
     const name = config[Math.abs(filterBy)].name;
@@ -85,8 +79,8 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
     setFilterBy(index === filterBy ? -filterBy : index);
   };
 
-  const handleReceiveClick = (id: string) => {
-    receive(parseInt(id));
+  const handleReceiveClick = () => {
+   
   };
 
   return !isNil(data) && data.length > 0 ? (
@@ -100,33 +94,27 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
               active={
                 index !== Math.abs(filterBy) ? null : isPositive(filterBy)
               }
-              onClick={handleSortClick}
-            >
-              {title}
+              onClick={handleSortClick}>
+                {title}
             </Header>
           ))}
         </tr>
       </StyledThead>
       <tbody>
-        {data.sort(sortFn).map(item => (
-          <tr key={item[keyBy]}>
-            {config.map(({ name, fn }, index) => {
+        {data.sort(sortFn).map((item, index) => (
+          <tr key={index}>
+            {config.map(({ name, fn }, itemIndex) => {
               const value = item[name];
+              const isIncome = item.to === account[0];
               return name === 'status' 
                 ? (
-                <Column key={index}>
-                  <ConfirmReceive onClick={() => handleReceiveClick(item['id'])}>
-                    <ConfirmIcon
-                      type="image/svg+xml"
-                      data={'./assets/icon-send-blue.svg'}
-                      width="16"
-                      height="16"
-                    ></ConfirmIcon>
-                    
-                    Confirm receive
-                  </ConfirmReceive>
+                <Column key={itemIndex}>
+                  <StyledStatus>
+                    {isIncome ? <IconReceived/> : <IconSent/>}
+                    <StatusText isIncome={isIncome}>{isIncome ? 'received' : 'sent'}</StatusText>
+                  </StyledStatus>
                 </Column>) 
-                : (<Column key={index}>{isNil(fn) ? value : fn(value, item)}</Column>);
+                : (<Column key={itemIndex}>{isNil(fn) ? value : fn(value, item)}</Column>);
             })}
           </tr>
         ))}

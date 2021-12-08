@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
 import { 
@@ -6,11 +6,15 @@ import {
   $accounts,
   $balance,
   $income,
-  $isInProgress
+  $isInProgress,
+  $transactionsList,
+  getTransactionsListFx,
+  $rate
 } from '@state/shared';
 import { css } from '@linaria/core';
 import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
 import { isNil } from '@core/utils';
+import { currencies } from '@app/shared/consts';
 
 import { IconReceive, IconSend} from '@app/icons';
 
@@ -72,16 +76,33 @@ const handleReceiveClick: React.MouseEventHandler = () => {
 const Balance = () => {
   const account = useStore($accounts);
   const balance = useStore($balance);
-  const data = useStore($income);
-
+  const data = useStore($transactionsList);
   const isInProgress = useStore($isInProgress);
+  const rates = useStore($rate);
+
+  useEffect(() => {
+    getTransactionsListFx(account[0]);
+  }, []);
+
+  const transactionsList = useStore($transactionsList);
+  console.log(transactionsList)
 
   const TABLE_CONFIG = [
     {
-      name: 'amount',
+      name: 'value',
       title: 'Amount',
-      fn: (value: string) => {
-        return value + ' USDT';
+      fn: (value: string, item: any) => {
+        const amount = parseInt(value) / (10 ** parseInt(item.tokenDecimal));
+        return `${amount} ${item.tokenSymbol}`;
+      }
+    },
+    {
+      name: 'usd',
+      title: 'USD value',
+      fn: (value: string, item: any) => {
+        const curr = currencies.find((data)=> data.ethTokenContract.toLowerCase() === item.contractAddress.toLowerCase());
+        const rate = (parseInt(item.value) / (10 ** parseInt(item.tokenDecimal))) * rates[curr.rate_id].usd;
+        return rate + ' USD';
       }
     },
     {
@@ -110,8 +131,8 @@ const Balance = () => {
         </StyledControls>
         <Content>
             <ContentHeader>Balance</ContentHeader>
-            { balance.map(({ curr_id, value, icon }) => (
-              <BalanceCard key={curr_id} type={icon} balanceValue={value}></BalanceCard>
+            { balance.map(({ curr_id, rate_id, value, icon }) => (
+              <BalanceCard key={curr_id} rate_id={rate_id} type={icon} balanceValue={value}></BalanceCard>
             ))}
         </Content>
         <StyledTable>

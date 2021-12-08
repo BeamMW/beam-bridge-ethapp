@@ -16,13 +16,6 @@ export async function initApp() {
     if (isNil(interval)) {
         interval = setInterval(() => { metaMaskController.refresh() }, 3000);
     }
-    $accounts.watch(value => {
-        if (!isNil(value) && value.length > 0) {
-            setView(View.BALANCE);
-        } else {
-            setView(View.CONNECT);
-        }
-    });
 }
 
 export function connectToMetaMask() {

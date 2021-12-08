@@ -1,7 +1,6 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { styled } from '@linaria/react';
 import { formatActiveAddressString } from '@core/utils';
-import { getTransactionsListFx, $transactionsList } from '@state/shared';
 import { useStore } from 'effector-react';
 
 interface ActiveAccountProps {
@@ -21,12 +20,9 @@ const AccountStyled = styled.div`
 const ActiveAccount: React.FC<ActiveAccountProps> = ({
   text
 }) => {
-  useEffect(() => {
-    getTransactionsListFx(text);
-  }, []);
-  const transactionsList = useStore($transactionsList);
+
   const textFormatted = formatActiveAddressString(text);
-  console.log(transactionsList)
+  
   return (
   <AccountStyled onClick={() => {navigator.clipboard.writeText(text)}}>
     {textFormatted}

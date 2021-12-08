@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import { connectToMetaMask } from '@state/init';

@@ -42,9 +42,8 @@ const FormStyled = styled.div`
   width: 600px;
   border-radius: 10px;
   backdrop-filter: blur(10px);
-  background-image: linear-gradient(to bottom, rgba(11, 204, 247, 0.3), rgba(11, 204, 247, 0)), 
-    linear-gradient(to bottom, #0d4d76, #0d4d76);
-  padding: 40px 30px;
+  background-image: linear-gradient(to bottom, rgba(11, 204, 247, 0.5), rgba(11, 204, 247, 0)), linear-gradient(to bottom, #0d4d76, #0d4d76);
+  padding: 50px 30px;
   display: flex;
   flex-direction: column;
 `;
@@ -72,10 +71,38 @@ const Address = styled.div`
   line-height: 1.43;
 `;
 
-const PasteInfo = styled.div`
-  margin: 30px auto 0;
-  opacity: .7;
+const InfoContainer = styled.div`
+  margin-top: 20px;
+  width: 600px;
+  padding: 50px
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  background-color: rgba(13, 77, 118, .3);
+`;
+
+const InfoContainerTitle = styled.div`
+  font-size: 14px;
   font-style: italic;
+  opacity: 0.7;
+  margin-bottom: 20px;
+`;
+
+const InfoListItem = styled.li`
+  line-height: 1.57;
+  font-size: 14px;
+  font-style: italic;
+  color: rgba(255, 255, 255, .7)
+`;
+
+const StyledLink = styled.span`
+  cursor: pointer;
+  font-weight: bold;
+  color: #05e2c2;
+`;
+
+const StyledLine = styled.span`
+  color: #ffffff;
+  font-weight: bold;
 `;
 
 const handleBackClick: React.MouseEventHandler = () => {
@@ -117,8 +144,16 @@ const Receive = () => {
           icon={IconCopy}
           color="send">copy and close</Button>
         </ReceiveStyled>
-        <PasteInfo>Paste this address in Beam wallet</PasteInfo>
       </FormStyled>
+      <InfoContainer>
+        <InfoContainerTitle>In order to transfer from Beam to Ethereum network, do the following:</InfoContainerTitle>
+        <ul>
+          <InfoListItem>1.	Download the latest verison of <StyledLink>Beam Wallet</StyledLink> </InfoListItem>
+          <InfoListItem>2.	Launch Bridges DApp from DApp store</InfoListItem>
+          <InfoListItem>3.	Select <StyledLine>Beam to Ethereum</StyledLine> and choose currency</InfoListItem>
+          <InfoListItem>4.	Paste this address to Ethereum Bridge Address field</InfoListItem>
+        </ul>
+      </InfoContainer>
     </Container>
   );
 };

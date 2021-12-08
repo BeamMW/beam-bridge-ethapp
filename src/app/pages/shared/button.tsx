@@ -100,12 +100,22 @@ const LinkButtonStyled = styled(IconButtonStyled)`
   color: ${({ pallete }) => `var(--color-${pallete})`};
 `;
 
+const ValidateButtonStyled = styled(GhostButtonStyled)`
+  color: var(--color-green);
+  border: 1px solid var(--color-green);
+  padding: 8px 30px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+`;
+
 const VARIANTS = {
   regular: ButtonStyled,
   ghost: GhostButtonStyled,
   link: LinkButtonStyled,
   icon: IconButtonStyled,
   block: BlockButtonStyled,
+  validate: ValidateButtonStyled
 };
 
 const Button: React.FC<ButtonProps> = ({

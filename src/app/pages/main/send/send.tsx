@@ -7,6 +7,7 @@ import { send } from '@state/init';
 import { currencies } from '@consts/common';
 import { $selectedCurrency, setCurrency } from '@state/send';
 import MetaMaskController  from '@core/MetaMask';
+import { IconSend } from '@app/icons';
 
 import { IconBack } from '@app/icons';
 
@@ -48,8 +49,8 @@ const FormStyled = styled.form`
   width: 600px;
   border-radius: 10px;
   backdrop-filter: blur(10px);
-  background-color: rgba(13, 77, 118, .4);
-  padding: 40px 30px;
+  background-image: linear-gradient(to bottom, rgba(218, 104, 245, 0.5), rgba(218, 104, 245, 0)), linear-gradient(to bottom, #0d4d76, #0d4d76);
+  padding: 50px 30px;
   display: flex;
   flex-direction: column;
 `;
@@ -162,14 +163,14 @@ const Send = () => {
       </ControlStyled>
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Ethereum to Beam</FormTitle>
-        <FormSubtitle>BEAM WALLET ADDRESS</FormSubtitle>
+        <FormSubtitle>BEAM BRIDGE ADDRESS</FormSubtitle>
         <Input onChange={ inputChange } variant='common' ref={addressInputRef} name="address"></Input>
         <FormSubtitle>AMOUNT</FormSubtitle>
         <Input variant='amount' ref={amountInputRef} name="amount"></Input>
         <FormSubtitle>FEE</FormSubtitle>
         <Input variant='fee' ref={feeInputRef} name="fee"></Input>
         <SendStyled>
-          <Button color="send" >send to beam</Button>
+          <Button color="send" type="submit" pallete='purple' icon={IconSend}>transfer</Button>
         </SendStyled>
       </FormStyled>
     </Container>
