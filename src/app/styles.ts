@@ -10,11 +10,13 @@ css`
       --color-green: #00f6d2;
       --color-blue: #0bccf7;
       --color-dark-blue: #042548;
+      --color-disconnect-dark-blue: #032e49;
       --color-white: #ffffff;
       --color-gray: #8196a4;
       --color-white: white;
+      --color-disconnect: #ff746b;
 
-      --color-popup: #003f6f;
+      --color-popup: rgba(13, 77, 118, .9);
       --color-select: #184469;
 
       --color-disabled: #8da1ad;

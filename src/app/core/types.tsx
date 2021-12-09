@@ -1,6 +1,6 @@
-export type Pallete = 'green' | 'ghost' | 'purple' | 'blue' | 'red' | 'white';
+export type Pallete = 'green' | 'ghost' | 'purple' | 'blue' | 'red' | 'white' | 'disconnect';
 
-export type ButtonVariant = 'regular' | 'ghost' | 'block' | 'link' | 'icon' | 'validate';
+export type ButtonVariant = 'regular' | 'ghost' | 'block' | 'link' | 'icon' | 'validate' | 'disconnect';
 
 export interface SendParams {
     selectedCurrency: Currency,

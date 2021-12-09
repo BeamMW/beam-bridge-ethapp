@@ -3,11 +3,14 @@ import { styled } from '@linaria/react';
 import { $rate } from '@state/shared';
 import { useStore } from 'effector-react';
 import { Button } from '.';
+import { isNil } from '@app/core/utils';
+import { ethId } from '@app/shared/consts';
 
 interface CardProps {
   balanceValue?: number,
   type?: string,
-  rate_id: string
+  rate_id: string,
+  curr_id: number
 }
 const CardStyled = styled.div<CardProps>`
   width: 100%;
@@ -52,6 +55,7 @@ const Card: React.FC<CardProps> = ({
   children,
   balanceValue,
   rate_id,
+  curr_id,
   type,
   ...rest
 }) => {
@@ -63,7 +67,7 @@ const Card: React.FC<CardProps> = ({
 
   }
 
-  return (<CardStyled rate_id={rate_id} type={type} {...rest}>
+  return (<CardStyled curr_id={curr_id} rate_id={rate_id} type={type} {...rest}>
       <LogoStyled
         type="image/svg+xml"
         data={data}
@@ -72,11 +76,13 @@ const Card: React.FC<CardProps> = ({
       ></LogoStyled>
       <BalanceStyled>
         <BalanceValue>{balanceValue} {currency}</BalanceValue>
-        <BalanceRate>{`${balanceValue * rates[rate_id].usd} USD`}</BalanceRate>
+        <BalanceRate>{`${!isNil(rates) ? balanceValue * rates[rate_id].usd : 0} USD`}</BalanceRate>
       </BalanceStyled>
+      {curr_id !== ethId ? (
       <StyledApproveButton>
         <Button variant='validate' onClick={approveTokenClicked}>approve token</Button>
       </StyledApproveButton>
+      ) : <></>}
     </CardStyled>
   )
 };

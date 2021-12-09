@@ -9,6 +9,9 @@ module.exports = {
   devtool: 'eval-source-map',
   devServer: {
     historyApiFallback: true,
+    headers: {
+      'Cache-Control': 'no-store',
+    },
     static: path.resolve(__dirname, './dist'),
     open: true,
     compress: true,

@@ -1,22 +1,10 @@
 import React, { useState, useRef } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
-import { ActiveAccount, Button, Input } from '@pages/shared';
+import { ActiveAccount, Button, Window } from '@pages/shared';
 import { setView, View, $accounts } from '@state/shared';
 
 import { IconBack, IconCopy } from '@app/icons';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 50px;
-`;
-
-const Title = styled.h1`
-  font-size: 56px;
-  font-weight: 900;
-`;
 
 const ControlStyled = styled.div`
   width: 600px;
@@ -113,19 +101,12 @@ const Receive = () => {
   const account = useStore($accounts);
   
   const handleCopyClick: React.MouseEventHandler = () => {
-    const el = document.createElement('textarea');
-    el.value = account[0];
-    document.body.appendChild(el);
-    el.select();
-    document.execCommand('copy');
-    document.body.removeChild(el);
+    navigator.clipboard.writeText(account[0])
     setView(View.BALANCE);
   };
 
   return (
-    <Container>
-      <ActiveAccount text={account[0]}></ActiveAccount>
-      <Title>Ethereum to Beam Bridge</Title>
+    <Window>
       <ControlStyled>
         <BackControl onClick={handleBackClick}>
           <IconBack/>
@@ -154,7 +135,7 @@ const Receive = () => {
           <InfoListItem>4.	Paste this address to Ethereum Bridge Address field</InfoListItem>
         </ul>
       </InfoContainer>
-    </Container>
+    </Window>
   );
 };
 

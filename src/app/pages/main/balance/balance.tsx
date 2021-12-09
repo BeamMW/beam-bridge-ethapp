@@ -12,24 +12,11 @@ import {
   $rate
 } from '@state/shared';
 import { css } from '@linaria/core';
-import { ActiveAccount, BalanceCard, Button, Table } from '@pages/shared';
+import { Window, BalanceCard, Button, Table } from '@pages/shared';
 import { isNil } from '@core/utils';
 import { currencies } from '@app/shared/consts';
 
 import { IconReceive, IconSend} from '@app/icons';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 50px;
-`;
-
-const Title = styled.h1`
-  font-size: 56px;
-  font-weight: 900;
-  margin-bottom: 50px;
-`;
 
 const Content = styled.div`
   width: 600px;
@@ -112,33 +99,31 @@ const Balance = () => {
   ];
 
   return (
-    <Container>
-        <ActiveAccount text={account[0]}></ActiveAccount>
-        <Title>Ethereum to Beam Bridge</Title>
-        <StyledControls>
-          <Button icon={IconSend}
-          disabled={isInProgress}
-          pallete="purple"
-          onClick={handleSendClick}>
-            ethereum to beam
-          </Button>
-          <Button icon={IconReceive} 
-          className={ReceiveButtonClass} 
-          pallete="blue" 
-          onClick={handleReceiveClick}>
-            beam to ethereum
-          </Button>
-        </StyledControls>
-        <Content>
-            <ContentHeader>Balance</ContentHeader>
-            { balance.map(({ curr_id, rate_id, value, icon }) => (
-              <BalanceCard key={curr_id} rate_id={rate_id} type={icon} balanceValue={value}></BalanceCard>
-            ))}
-        </Content>
-        <StyledTable>
-          <Table config={TABLE_CONFIG} data={data} keyBy='pid'/>
-        </StyledTable>
-    </Container>
+    <Window>
+      <StyledControls>
+        <Button icon={IconSend}
+        disabled={isInProgress}
+        pallete="purple"
+        onClick={handleSendClick}>
+          ethereum to beam
+        </Button>
+        <Button icon={IconReceive} 
+        className={ReceiveButtonClass} 
+        pallete="blue" 
+        onClick={handleReceiveClick}>
+          beam to ethereum
+        </Button>
+      </StyledControls>
+      <Content>
+          <ContentHeader>Balance</ContentHeader>
+          { balance.map(({ curr_id, rate_id, value, icon }) => (
+            <BalanceCard curr_id={curr_id} key={curr_id} rate_id={rate_id} type={icon} balanceValue={value}></BalanceCard>
+          ))}
+      </Content>
+      <StyledTable>
+        <Table config={TABLE_CONFIG} data={data} keyBy='pid'/>
+      </StyledTable>
+    </Window>
   );
 };
 

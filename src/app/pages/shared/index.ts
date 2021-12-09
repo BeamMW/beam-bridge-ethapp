@@ -4,3 +4,6 @@ export { default as Button } from './button';
 export { default as Input } from './input';
 export { default as BalanceCard } from './balance-card';
 export { default as Table } from './table';
+export { default as Popup } from './popup';
+export { default as Backdrop } from './backdrop';
+export { default as Window } from './window';

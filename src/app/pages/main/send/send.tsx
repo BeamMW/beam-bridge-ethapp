@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
-import { ActiveAccount, Button, Input } from '@pages/shared';
+import { ActiveAccount, Button, Input, Window } from '@pages/shared';
 import { setView, View, $accounts } from '@state/shared';
 import { send } from '@state/init';
 import { currencies } from '@consts/common';
@@ -12,18 +12,6 @@ import { IconSend } from '@app/icons';
 import { IconBack } from '@app/icons';
 
 const metaMaskController = MetaMaskController.getInstance();
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding-bottom: 50px;
-`;
-
-const Title = styled.h1`
-  font-size: 56px;
-  font-weight: 900;
-`;
 
 const ControlStyled = styled.div`
   width: 600px;
@@ -150,9 +138,7 @@ const Send = () => {
   }
 
   return (
-    <Container>
-      <ActiveAccount text={account[0]}></ActiveAccount>
-      <Title>Ethereum to Beam Bridge</Title>
+    <Window>
       <ControlStyled>
         <BackControl onClick={handleBackClick}>
           <IconBack/>
@@ -173,7 +159,7 @@ const Send = () => {
           <Button color="send" type="submit" pallete='purple' icon={IconSend}>transfer</Button>
         </SendStyled>
       </FormStyled>
-    </Container>
+    </Window>
   );
 };
 

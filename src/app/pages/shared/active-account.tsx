@@ -5,6 +5,7 @@ import { useStore } from 'effector-react';
 
 interface ActiveAccountProps {
   text: string;
+  onClick?: React.MouseEventHandler
 }
 
 const AccountStyled = styled.div`
@@ -18,13 +19,14 @@ const AccountStyled = styled.div`
 `;
 
 const ActiveAccount: React.FC<ActiveAccountProps> = ({
-  text
+  text,
+  onClick
 }) => {
 
   const textFormatted = formatActiveAddressString(text);
   
   return (
-  <AccountStyled onClick={() => {navigator.clipboard.writeText(text)}}>
+  <AccountStyled onClick={onClick}>
     {textFormatted}
   </AccountStyled>
 )};

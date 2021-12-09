@@ -109,13 +109,18 @@ const ValidateButtonStyled = styled(GhostButtonStyled)`
   margin: 0;
 `;
 
+const DisconnectButtonStyled = styled(ButtonStyled)`
+  color: var(--color-disconnect-dark-blue);
+`;
+
 const VARIANTS = {
   regular: ButtonStyled,
   ghost: GhostButtonStyled,
   link: LinkButtonStyled,
   icon: IconButtonStyled,
   block: BlockButtonStyled,
-  validate: ValidateButtonStyled
+  validate: ValidateButtonStyled,
+  disconnect: DisconnectButtonStyled
 };
 
 const Button: React.FC<ButtonProps> = ({
