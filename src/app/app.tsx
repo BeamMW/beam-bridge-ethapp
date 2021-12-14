@@ -3,6 +3,7 @@ import { useStore } from 'effector-react';
 import { $view } from '@state/shared';
 import { getCurrentView } from '@core/router';
 import { initApp } from '@state/init';
+import { BrowserRouter } from 'react-router-dom';
 
 import './styles';
 
@@ -15,9 +16,9 @@ const App = () => {
   const ViewComponent = getCurrentView(view);
 
   return (
-    <div>
+    <BrowserRouter>
       <ViewComponent />
-    </div>
+    </BrowserRouter>
   );
 };
 

@@ -29,7 +29,6 @@ const BackControlText = styled.p`
 const FormStyled = styled.div`
   width: 600px;
   border-radius: 10px;
-  backdrop-filter: blur(10px);
   background-image: linear-gradient(to bottom, rgba(11, 204, 247, 0.5), rgba(11, 204, 247, 0)), linear-gradient(to bottom, #0d4d76, #0d4d76);
   padding: 50px 30px;
   display: flex;
@@ -65,7 +64,7 @@ const InfoContainer = styled.div`
   padding: 50px
   border-radius: 10px;
   backdrop-filter: blur(10px);
-  background-color: rgba(13, 77, 118, .3);
+  background-color: rgba(13, 77, 118, .95);
 `;
 
 const InfoContainerTitle = styled.div`

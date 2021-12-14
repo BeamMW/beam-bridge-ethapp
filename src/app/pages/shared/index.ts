@@ -7,3 +7,4 @@ export { default as Table } from './table';
 export { default as Popup } from './popup';
 export { default as Backdrop } from './backdrop';
 export { default as Window } from './window';
+export { default as TokenCard } from './token-card';

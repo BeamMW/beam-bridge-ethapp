@@ -15,6 +15,7 @@ import { css } from '@linaria/core';
 import { Window, BalanceCard, Button, Table } from '@pages/shared';
 import { isNil } from '@core/utils';
 import { currencies } from '@app/shared/consts';
+import { useSearchParams } from 'react-router-dom';
 
 import { IconReceive, IconSend} from '@app/icons';
 
@@ -67,8 +68,16 @@ const Balance = () => {
   const isInProgress = useStore($isInProgress);
   const rates = useStore($rate);
 
+  const [searchParams, setSearchParams] = useSearchParams();
+  const addressFromParams = searchParams.get('address');
+  
+
   useEffect(() => {
     getTransactionsListFx(account[0]);
+    if (addressFromParams && addressFromParams.length > 0) {
+      console.log(addressFromParams);
+      setView(View.SEND);
+    }
   }, []);
 
   const transactionsList = useStore($transactionsList);
@@ -116,8 +125,15 @@ const Balance = () => {
       </StyledControls>
       <Content>
           <ContentHeader>Balance</ContentHeader>
-          { balance.map(({ curr_id, rate_id, value, icon }) => (
-            <BalanceCard curr_id={curr_id} key={curr_id} rate_id={rate_id} type={icon} balanceValue={value}></BalanceCard>
+          { balance.map(({ curr_id, rate_id, value, icon, is_approved }) => (
+            <BalanceCard icon={icon} 
+              curr_id={curr_id}
+              key={curr_id}
+              rate_id={rate_id}
+              type={icon}
+              balanceValue={value}
+              is_approved={is_approved}
+            ></BalanceCard>
           ))}
       </Content>
       <StyledTable>

@@ -23,7 +23,6 @@ const ContainerStyled = styled.div`
   padding: 30px 30px 50px 50px;
   border-radius: 10px;
   background-color: var(--color-popup);
-  text-align: center;
   color: white;
   display: flex;
   flex-direction: column;
@@ -33,6 +32,7 @@ const TitleStyled = styled.h2`
   font-size: 16px;
   margin: 0;
   margin-bottom: 20px;
+  text-align: center;
 `;
 
 const FooterStyled = styled.div`
@@ -42,6 +42,7 @@ const FooterStyled = styled.div`
 
 const IconCloseClass = css`
   margin-left: auto;
+  cursor: pointer;
 `;
 
 const Popup: React.FC<PopupProps> = ({
@@ -53,7 +54,7 @@ const Popup: React.FC<PopupProps> = ({
 }) => (visible ? (
   <Backdrop onCancel={onCancel}>
     <ContainerStyled>
-      <IconClose className={IconCloseClass}/>
+      <IconClose onClick={onCancel} className={IconCloseClass}/>
       <TitleStyled>{title}</TitleStyled>
       {children}
       <FooterStyled>

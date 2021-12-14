@@ -4,13 +4,18 @@ import { $rate } from '@state/shared';
 import { useStore } from 'effector-react';
 import { Button } from '.';
 import { isNil } from '@app/core/utils';
-import { ethId } from '@app/shared/consts';
+import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/icons';
+import MetaMaskController from '@core/MetaMask';
+
+const metaMaskController = MetaMaskController.getInstance();
 
 interface CardProps {
   balanceValue?: number,
   type?: string,
   rate_id: string,
-  curr_id: number
+  curr_id: number,
+  icon: string,
+  is_approved: boolean
 }
 const CardStyled = styled.div<CardProps>`
   width: 100%;
@@ -51,36 +56,39 @@ const StyledApproveButton = styled.span`
   margin-left: auto;
 `;
 
+const ICONS = {
+  usdt: () => (<IconUsdt/>),
+  wbtc: () => (<IconWbtc/>),
+  dai: () => (<IconDai/>),
+  eth: () => (<IconEth/>),
+};
+
 const Card: React.FC<CardProps> = ({
   children,
   balanceValue,
   rate_id,
   curr_id,
   type,
+  is_approved,
+  icon,
   ...rest
 }) => {
   const rates = useStore($rate);
-  const data = './assets/icon-' + type.toLowerCase() + '.svg';
   const currency = type.toUpperCase();
 
-  const approveTokenClicked: React.MouseEventHandler = () => {
-
+  const approveTokenClicked = (id: number) => {
+    metaMaskController.approveToken(id);
   }
 
-  return (<CardStyled curr_id={curr_id} rate_id={rate_id} type={type} {...rest}>
-      <LogoStyled
-        type="image/svg+xml"
-        data={data}
-        width="26"
-        height="26"
-      ></LogoStyled>
+  return (<CardStyled is_approved={is_approved} icon={icon} curr_id={curr_id} rate_id={rate_id} type={type} {...rest}>
+      { ICONS[icon]() }
       <BalanceStyled>
         <BalanceValue>{balanceValue} {currency}</BalanceValue>
         <BalanceRate>{`${!isNil(rates) ? balanceValue * rates[rate_id].usd : 0} USD`}</BalanceRate>
       </BalanceStyled>
-      {curr_id !== ethId ? (
+      {!is_approved ? (
       <StyledApproveButton>
-        <Button variant='validate' onClick={approveTokenClicked}>approve token</Button>
+        <Button variant='validate' onClick={()=>approveTokenClicked(curr_id)}>approve token</Button>
       </StyledApproveButton>
       ) : <></>}
     </CardStyled>

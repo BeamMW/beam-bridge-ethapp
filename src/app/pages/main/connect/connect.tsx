@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import { connectToMetaMask } from '@state/init';
-
-const ONBOARD_TEXT = 'CONNECT WALLET';
+import { Button } from '@pages/shared';
+import { MetamaskLogo } from '@app/icons';
 
 const Container = styled.div`
   display: flex;
@@ -23,27 +23,16 @@ const Subtitle = styled.h2`
   text-align: center;
 `;
 
-const connectButton = css`
-  margin-top: 80px;
-  cursor: pointer;
-  border: none;
-  padding: 16px 40px;
-  border-radius: 50px;
-  background-color: #fff;
+const connectButtonClass = css`
+  margin-top: 50px !important;
 `;
 
-const connectButtonText = css`
-  font-size: 16px;
-  font-weight: bold;
-  color: #032e49;
+const ButtonTextClass = css`
+  float: right;
+  margin-top: 10px;
 `;
 
 const Connect = () => {
-  const [active, setActive] = useState(null);
-  const [buttonText, setButtonText] = React.useState(ONBOARD_TEXT);
-  const [isDisabled, setDisabled] = React.useState(false);
-  const [accounts, setAccounts] = React.useState([]);
-
   const onClick = () => {
     connectToMetaMask();
   };
@@ -55,9 +44,9 @@ const Connect = () => {
         Transfer ETH, BTC, DAI and USDT.<br/>
         More tokens coming soon!
       </Subtitle>
-      <button className={connectButton} disabled={isDisabled} onClick={onClick}>
-        <span className={connectButtonText}>{buttonText}</span>
-      </button>
+      <Button pallete="white" variant="darkest_blue" icon={MetamaskLogo} className={connectButtonClass} onClick={onClick}>
+        <div className={ButtonTextClass}>CONNECT WALLET</div>
+      </Button>
     </Container>
   );
 };

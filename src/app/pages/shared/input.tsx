@@ -51,14 +51,14 @@ const InputStyled = styled.input<InputProps>`
     margin: 0;
   }
 
-  // &::placeholder {
-  //   position: absolute;
-  //   top: 0;
-  //   left: 3px;
-  //   line-height: inherit;
-  //   color: white;
-  //   opacity: 0.5;
-  // }
+  &::placeholder {
+    position: absolute;
+    top: 5px;
+    left: 3px;
+    line-height: inherit;
+    color: white;
+    opacity: .3;
+  }
 `;
 
 // const ErrorStyled = styled.div`

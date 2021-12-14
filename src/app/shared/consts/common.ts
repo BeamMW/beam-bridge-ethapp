@@ -1,5 +1,8 @@
 export const ethId = 4;
 
+export const MAX_ALLOWED_VALUE = '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+export const REVOKE_VALUE = '0';
+
 export const currencies = [
     {
         name: "USDT",

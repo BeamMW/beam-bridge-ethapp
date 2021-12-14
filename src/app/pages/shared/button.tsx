@@ -26,13 +26,13 @@ const ButtonStyled = styled(BaseButtonStyled)`
   max-width: 254px;
   margin: 0 auto;
   margin-bottom: 10px;
-  padding: 12px 24px;
+  padding: 8px 24px;
   border: none;
-  border-radius: 22px;
+  border-radius: 50px;
   background-color: ${({ pallete }) => `var(--color-${pallete})`};
   text-align: center;
   font-weight: bold;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--color-dark-blue);
 
   &:hover,
@@ -100,6 +100,22 @@ const LinkButtonStyled = styled(IconButtonStyled)`
   color: ${({ pallete }) => `var(--color-${pallete})`};
 `;
 
+const RevokeButtonStyled = styled(GhostButtonStyled)`
+  color: var(--color-disconnect);
+  border: 1px solid var(--color-disconnect);
+  padding: 10px 30px;
+  font-size: 14px;
+  font-weight: 600;
+  margin: 0;
+  background-color: transparent;
+
+  &:hover,
+  &:active {
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.3);
+  }
+`;
+
 const ValidateButtonStyled = styled(GhostButtonStyled)`
   color: var(--color-green);
   border: 1px solid var(--color-green);
@@ -110,7 +126,7 @@ const ValidateButtonStyled = styled(GhostButtonStyled)`
 `;
 
 const DisconnectButtonStyled = styled(ButtonStyled)`
-  color: var(--color-disconnect-dark-blue);
+  color: var(--color-darkest-blue);
 `;
 
 const VARIANTS = {
@@ -120,7 +136,8 @@ const VARIANTS = {
   icon: IconButtonStyled,
   block: BlockButtonStyled,
   validate: ValidateButtonStyled,
-  disconnect: DisconnectButtonStyled
+  darkest_blue: DisconnectButtonStyled,
+  revoke: RevokeButtonStyled
 };
 
 const Button: React.FC<ButtonProps> = ({

@@ -4,12 +4,12 @@ import {
   setAccounts,
   setIsInProgress, setBalance
 } from './../state/shared';
-import { ethers } from 'ethers';
+import { ethers, BigNumber } from 'ethers';
 import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
 import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
-import { isNil } from './utils';
-import { SendParams, Balance } from '@core/types';
+import { SendParams, Balance, Currency } from '@core/types';
 import { currencies, ethId } from '@consts/common';
+import { MAX_ALLOWED_VALUE, REVOKE_VALUE } from '@consts/common';
 
 const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 
@@ -80,6 +80,10 @@ export default class MetaMaskController {
     }
   }
 
+  disconnect() {
+
+  }
+
   requestToContract = async (sender, receiver, abi) => {
     let nonce = await this.ethers.getTransactionCount(sender);
     let hashTx = await this.ethers.sendTransaction({
@@ -98,34 +102,43 @@ export default class MetaMaskController {
 
     if (isUnlocked && this.accounts.length > 0) {
       let balances: Balance[] = [];
+      let balanceValue = 0;
+      let isAllowed = false;
       for(let curr of currencies) {
         if (curr.id === ethId) {
           const ethBalance = await this.ethers.getBalance(this.accounts[0]);
-          const formattedEthBalance = Number(ethers.utils.formatEther(ethBalance)).toFixed(2);
-          balances.push({
-            curr_id: ethId,
-            icon: curr.name,
-            rate_id: curr.rate_id,
-            value: parseFloat(formattedEthBalance)
-          });
+          balanceValue = parseFloat(Number(ethers.utils.formatEther(ethBalance)).toFixed(2));
+          isAllowed = true;
         } else {
-          try {
-            const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
-            const tokenBalance = await token.balanceOf(this.accounts[0]);
-            balances.push({
-              curr_id: curr.id,
-              icon: curr.name,
-              rate_id: curr.rate_id,
-              value: parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals))
-            });
-          } catch (e) {
-            //console.log(e);
-          }
+          const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
+          const tokenBalance = await token.balanceOf(this.accounts[0]);
+          balanceValue = parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals));
+
+          isAllowed = await this.loadAllowance(curr);
         }
+        
+        balances.push({
+          curr_id: curr.id,
+          icon: curr.name.toLowerCase(),
+          rate_id: curr.rate_id,
+          value: balanceValue,
+          is_approved: isAllowed
+        });
       }
 
       setBalance(balances);
     }
+  }
+
+  async loadAllowance(curr: Currency) {
+    const tokenContract = new ethers.Contract(
+      curr.ethTokenContract,  
+      abi,
+      this.ethers
+    );
+
+    const allowance = await tokenContract.allowance(this.accounts[0], curr.ethPipeContract);
+    return parseFloat(ethers.utils.formatUnits(allowance)) > 0; //is Allowed
   }
 
   static amountToBigInt(amount, decimals, validDecimals: number) : bigint {
@@ -183,10 +196,6 @@ export default class MetaMaskController {
         );
 
         const ethSigner = tokenContract.connect(this.signer);
-
-        // const allowance = await tokenContract.allowance(account, selectedCurrency.ethPipeContract);
-        // const aaa = parseFloat(ethers.utils.formatUnits(allowance))
-
         const approveTx = await ethSigner.approve(selectedCurrency.ethPipeContract, totalAmount);
         await approveTx.wait();
 
@@ -210,6 +219,28 @@ export default class MetaMaskController {
 
     this.refresh();
     setView(View.BALANCE);
+  }
+
+  async updateTokenSendLimit(curr_id: number, amount: any) {
+    const currency = currencies.find((item) => item.id === curr_id);
+    const tokenContract = new ethers.Contract(
+      currency.ethTokenContract,  
+      abi,
+      this.ethers
+    );
+
+    const ethSigner = tokenContract.connect(this.signer);
+    const approveTx = await ethSigner.approve(currency.ethPipeContract, amount);
+    await approveTx.wait();
+  }
+
+  async approveToken(curr_id: number) {
+    this.updateTokenSendLimit(curr_id, MAX_ALLOWED_VALUE);
+  }
+
+  async revokeToken(curr_id: number) {
+    console.log(BigNumber.from(REVOKE_VALUE));
+    this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE));
   }
 
   async receiveToken(msgId: number) {

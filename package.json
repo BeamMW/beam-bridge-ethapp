@@ -55,6 +55,7 @@
     "ethers": "^5.4.5",
     "human-standard-token-abi": "^2.0.0",
     "react": "^17.0.1",
-    "react-dom": "^17.0.1"
+    "react-dom": "^17.0.1",
+    "react-router-dom": "^6.1.1"
   }
 }
