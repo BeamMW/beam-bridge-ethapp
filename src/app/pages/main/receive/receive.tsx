@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
-import { ActiveAccount, Button, Window } from '@pages/shared';
+import { Button, Window } from '@pages/shared';
 import { setView, View, $accounts } from '@state/shared';
+import { ROUTES } from '@consts/routes';
 
 import { IconBack, IconCopy } from '@app/icons';
 
@@ -93,15 +94,15 @@ const StyledLine = styled.span`
 `;
 
 const handleBackClick: React.MouseEventHandler = () => {
-  setView(View.BALANCE);
+  setView(ROUTES.BASE);
 };
 
 const Receive = () => {
   const account = useStore($accounts);
   
   const handleCopyClick: React.MouseEventHandler = () => {
-    navigator.clipboard.writeText(account[0])
-    setView(View.BALANCE);
+    navigator.clipboard.writeText(account)
+    setView(ROUTES.BASE);
   };
 
   return (
@@ -117,7 +118,7 @@ const Receive = () => {
       <FormStyled>
         <FormTitle>Beam to Ethereum</FormTitle>
         <AddressTitle>Your Ethereum Bridge address:</AddressTitle>
-        <Address>{account[0]}</Address>
+        <Address>{account}</Address>
         <ReceiveStyled>
           <Button onClick={handleCopyClick}
           pallete='blue'

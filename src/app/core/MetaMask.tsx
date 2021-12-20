@@ -2,7 +2,8 @@ import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
   View, setView,
   setAccounts,
-  setIsInProgress, setBalance
+  setIsInProgress, setBalance,
+  remoteEvent
 } from './../state/shared';
 import { ethers, BigNumber } from 'ethers';
 import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
@@ -10,6 +11,7 @@ import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
 import { SendParams, Balance, Currency } from '@core/types';
 import { currencies, ethId } from '@consts/common';
 import { MAX_ALLOWED_VALUE, REVOKE_VALUE } from '@consts/common';
+import { ROUTES } from '@consts/routes';
 
 const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 
@@ -39,25 +41,23 @@ export default class MetaMaskController {
 
   constructor() {}
 
-  handleAccounts(accounts) {
-    setAccounts(accounts);
-    if (accounts.length > 0) {
-      this.accounts = accounts;
-    }
-  }
-
   private loadAccounts() {
     console.log('loadAccounts called')
     window.ethereum
       .request({ method: 'eth_accounts' })
-      .then((accounts) => {
-        if (accounts.length > 0) {
-          this.handleAccounts(accounts);
-          this.refresh();
-        } else {
-          this.handleAccounts([]);
-        }
-    });
+      .then(remoteEvent);
+  }
+
+  async loadEthBalance(address: string) {
+    const ethBalance = await this.ethers.getBalance(address);
+    return parseFloat(Number(ethers.utils.formatEther(ethBalance)).toFixed(2))
+  }
+
+  async loadTokenBalance(curr: Currency, address: string) {
+    const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
+    const tokenBalance = await token.balanceOf(address);
+    const tokenBalanceFormatted = parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals));
+    return tokenBalanceFormatted
   }
 
   init() {
@@ -101,43 +101,18 @@ export default class MetaMaskController {
     const isUnlocked = await window.ethereum._metamask.isUnlocked();
 
     if (isUnlocked && this.accounts.length > 0) {
-      let balances: Balance[] = [];
-      let balanceValue = 0;
-      let isAllowed = false;
-      for(let curr of currencies) {
-        if (curr.id === ethId) {
-          const ethBalance = await this.ethers.getBalance(this.accounts[0]);
-          balanceValue = parseFloat(Number(ethers.utils.formatEther(ethBalance)).toFixed(2));
-          isAllowed = true;
-        } else {
-          const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
-          const tokenBalance = await token.balanceOf(this.accounts[0]);
-          balanceValue = parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals));
-
-          isAllowed = await this.loadAllowance(curr);
-        }
-        
-        balances.push({
-          curr_id: curr.id,
-          icon: curr.name.toLowerCase(),
-          rate_id: curr.rate_id,
-          value: balanceValue,
-          is_approved: isAllowed
-        });
-      }
-
-      setBalance(balances);
+      
     }
   }
 
-  async loadAllowance(curr: Currency) {
+  async loadAllowance(curr: Currency, address: string) {
     const tokenContract = new ethers.Contract(
       curr.ethTokenContract,  
       abi,
       this.ethers
     );
 
-    const allowance = await tokenContract.allowance(this.accounts[0], curr.ethPipeContract);
+    const allowance = await tokenContract.allowance(address, curr.ethPipeContract);
     return parseFloat(ethers.utils.formatUnits(allowance)) > 0; //is Allowed
   }
 
@@ -218,7 +193,7 @@ export default class MetaMaskController {
     }
 
     this.refresh();
-    setView(View.BALANCE);
+    setView(ROUTES.BASE);
   }
 
   async updateTokenSendLimit(curr_id: number, amount: any) {

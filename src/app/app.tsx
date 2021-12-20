@@ -1,24 +1,53 @@
 import React, { useEffect } from 'react';
 import { useStore } from 'effector-react';
 import { $view } from '@state/shared';
-import { getCurrentView } from '@core/router';
 import { initApp } from '@state/init';
-import { BrowserRouter } from 'react-router-dom';
+import { useNavigate, useRoutes } from 'react-router-dom';
+import { getRateFx } from '@state/shared';
+import { Balance, Receive, Send, Connect } from '@app/pages/main';
 
 import './styles';
 
+const routes = [
+  {
+    path: '/',
+    element: <Balance />,
+  },
+  {
+    path: `send/:address`,
+    element: <Send />,
+  },
+  {
+    path: `send/*`,
+    element: <Send />,
+  },
+  {
+    path: `receive/*`,
+    element: <Receive />
+  }, 
+  {
+    path: `connect/*`,
+    element: <Connect />
+  }
+];
+
 const App = () => {
+  const navigateURL = useStore($view);
+
   useEffect(() => {
     initApp();
+    getRateFx();
   }, []);
 
-  const view = useStore($view);
-  const ViewComponent = getCurrentView(view);
+  useEffect(() => {
+    navigate(navigateURL);
+  }, [navigateURL]);
+
+  const content = useRoutes(routes);
+  const navigate = useNavigate();
 
   return (
-    <BrowserRouter>
-      <ViewComponent />
-    </BrowserRouter>
+      <>{content}</>
   );
 };
 

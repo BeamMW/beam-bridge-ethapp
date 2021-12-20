@@ -1,13 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
-import { ActiveAccount, Button, Input, Window } from '@pages/shared';
-import { setView, View, $accounts } from '@state/shared';
+import { Button, Input, Window } from '@pages/shared';
+import { 
+  setView,
+  View,
+  $accounts,
+  $balance } from '@state/shared';
 import { send } from '@state/init';
 import { currencies, ethId } from '@consts/common';
 import { $selectedCurrency, setCurrency } from '@state/send';
 import MetaMaskController  from '@core/MetaMask';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useParams } from 'react-router-dom';
 import {
   IconEthLarge,
   IconUsdtLarge,
@@ -16,6 +20,7 @@ import {
   IconSend,
   IconCheck
 } from '@app/icons';
+import { ROUTES } from '@consts/routes';
 
 import { IconBack } from '@app/icons';
 import { css } from '@linaria/core';
@@ -63,6 +68,10 @@ const FormSubtitle = styled.p`
   font-weight: bold;
   margin-top: 30px;
   letter-spacing: 2.63px;
+`;
+
+const FeeSubtitleClass = css`
+  margin-top: 0 !important;
 `;
 
 const SendStyled = styled.div`
@@ -131,71 +140,93 @@ const ApproveButtonClass = css`
   margin-top: 30px !important;
 `;
 
+const TransferButtonClass = css`
+  max-width: 180px !important;
+  margin-top: 50px !important;
+`;
+
+const StyledSeparator = styled.div`
+  height: 1px;
+  width: 100%;
+  background-color: rgba(255, 255, 255, 0.1);
+  margin: 20px 0;
+`;
+
+const FeeContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+`;
+
+const FeeItem = styled.div`
+`;
+
+const FeeValue = styled.div`
+  font-size: 14px;
+  font-weight: 600;
+  color: #da68f5;
+  margin-top: 10px;
+`;
+
 const Send = () => {
   const addressInputRef = useRef<HTMLInputElement>();
   const amountInputRef = useRef<HTMLInputElement>();
-  const feeInputRef = useRef<HTMLInputElement>();
   
   const account = useStore($accounts);
   const selectedCurrency = useStore($selectedCurrency);
 
-  const [feeVal, setFeeVal] = useState(0);
+  const [feeVal, setFeeVal] = useState('');
   const [addressValue, setAddress] = useState('');
+  const [parsedAddressValue, setParsedAddressValue] = useState('');
   const [isFromParams, setIsFromParams] = useState(false);
   const [isAdrressValid, setIsAddressValid] = useState(true);
-  const [searchParams, setSearchParams] = useSearchParams();
   const [isAllowed, setIsAllowed] = useState(null);
-  const addressFromParams = searchParams.get('address');
-  let allowanceCheckInterval = null;
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(true);
+  const balance = useStore($balance);
 
+  const { address } = useParams();
+  
   useEffect(() => {
-    if (addressFromParams && addressFromParams.length > 0) {
-      addressInputRef.current.value = addressFromParams;
-      const addressValidationRes = validateAddress(addressFromParams);
+    if (address && balance.length > 0) {
+      const addressValidationRes = validateAddress(address);
       if (addressValidationRes) {
         const parsedCurrency =  loadCurr(addressValidationRes);
         if (parsedCurrency) {
           setCurrency(parsedCurrency);
           setIsFromParams(true);
           setIsAddressValid(true);
-          calcFee(parsedCurrency);
-          setAddress(addressFromParams);
+          setAddress(address);
 
-          if (parsedCurrency.id !== ethId) { 
-            checkTokenAllowance(parsedCurrency);
+          if (parsedCurrency.id !== ethId) {
+            const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
+            setIsAllowed(fromBalance.is_approved);
+
+            if (isAllowed) {
+              calcFee(parsedCurrency);
+            }
           } else {
             setIsAllowed(true);
           }
+          
+          setIsLoaded(true);
         } else {
           setIsAddressValid(false);
         }
       } else {
         setIsAddressValid(false);
       }
+    } else if (!address && balance.length > 0) {
+      setIsLoaded(true);
     }
-  }, []);
-
-  const checkTokenAllowance = (parsedCurrency) => {
-    metaMaskController.loadAllowance(parsedCurrency).then(value => {
-      setIsAllowed(value);
-      if (value) {
-        allowanceCheckInterval ? clearInterval(allowanceCheckInterval) : null;
-      } else {
-        allowanceCheckInterval = setInterval(() => checkTokenAllowance(parsedCurrency), 3000);
-      }
-    });
-  }
-
-  const handleBackClick: React.MouseEventHandler = () => {
-    setSearchParams('');
-    setView(View.BALANCE);
-  };
+  }, [address, balance]);
 
   const validateAddress = (value: string) => {
     const key = value.slice(-66);
     let currName = null;
     if (key.length === 66) {
       currName = value.slice(1, value.length - 66);
+      setParsedAddressValue(key);
     }
 
     return currName;
@@ -216,13 +247,36 @@ const Send = () => {
     getFee(curr).then((data) => {
       console.log(data);
       const fixed = data.toFixed(curr.validator_dec);
-      //feeInputRef.current.value = fixed;
+      setFeeVal(fixed);
+      setIsDisabled(false)
     });
   }
 
   const inputChange = (event) => {
     let value = event.target.value;
-    validateAddress(value);
+    const addressValidationRes = validateAddress(value);
+    if (addressValidationRes) {
+      const parsedCurrency =  loadCurr(addressValidationRes);
+      if (parsedCurrency) {
+        setCurrency(parsedCurrency);
+
+        setIsAddressValid(true);
+          
+        if (parsedCurrency.id !== ethId) {
+          const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
+          setIsAllowed(fromBalance.is_approved);
+
+          if (isAllowed) {
+            calcFee(parsedCurrency);
+          }
+        } else {
+          setIsAllowed(true);
+        }
+      }
+    } else {
+      setCurrency(null);
+      setIsAddressValid(false);
+    }
   };
 
   const getFee = async (curr) => {
@@ -233,27 +287,27 @@ const Send = () => {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
-    const address = data.get('address') as string;
+    const address = isFromParams ? parsedAddressValue : data.get('address') as string;
     const amount = parseFloat(data.get('amount') as string);
-    const fee = parseFloat(data.get('fee') as string);
     
     const sendData = {
       address,
       amount,
-      fee,
+      fee: parseFloat(feeVal),
       selectedCurrency,
-      account: account[0]
+      account: account
     };
 
     console.log('Send data: ', sendData);
     send(sendData);
-    setView(View.BALANCE);
+    setView(ROUTES.BASE);
   }
 
-  const inputChangedHandler = (event) => {
-    const updatedKeyword = event.target.value;
-    // May be call for search result
-  }
+  const handleBackClick: React.MouseEventHandler = () => {
+    setView(ROUTES.BASE);
+
+    //TODO clear states before back redirect
+  };
 
   const approveTokenClicked = (id: number) => {
     metaMaskController.approveToken(id);
@@ -267,7 +321,7 @@ const Send = () => {
   };  
 
   return (
-    <Window>
+    isLoaded ? (<Window>
       <ControlStyled>
         <BackControl onClick={handleBackClick}>
           <IconBack/>
@@ -281,7 +335,7 @@ const Send = () => {
         <FormSubtitle>BEAM BRIDGE ADDRESS</FormSubtitle>
         { 
           isFromParams && isAdrressValid
-        ? (<StyledAddressFromParams>{addressFromParams}</StyledAddressFromParams>)
+        ? (<StyledAddressFromParams>{address}</StyledAddressFromParams>)
         : (<Input placeholder='Paste Beam bridge address here' 
               onChange={ inputChange } 
               variant='common' 
@@ -298,31 +352,43 @@ const Send = () => {
         }
         {
           isAdrressValid && isAllowed 
-          ? (<>allowed</>) 
+          ? (<>
+            <FormSubtitle>AMOUNT</FormSubtitle>
+            <Input variant='amount' ref={amountInputRef} name="amount"></Input>
+            <StyledSeparator/>
+            <FeeContainer>
+              <FeeItem>
+                <FormSubtitle className={FeeSubtitleClass}>RELAYER FEE</FormSubtitle>
+                <FeeValue>{feeVal}</FeeValue>
+              </FeeItem>
+              <FeeItem>
+                <FormSubtitle className={FeeSubtitleClass}>EXPECTED ETHERUM NETWORK FEE</FormSubtitle>
+                <FeeValue>{0.0001}</FeeValue>
+              </FeeItem>
+            </FeeContainer>
+            <Button className={TransferButtonClass}
+                  type="submit"
+                  disabled={isDisabled}
+                  pallete='purple' icon={IconSend}>
+                    transfer
+            </Button>
+          </>) 
           : (selectedCurrency !== null 
             ? (
               <>
                 {ICONS[selectedCurrency.name.toLowerCase()]()}
                 <ApproveDesc>
-                  {`To send funds to this address you need to approve ${selectedCurrency.name} token first`}
+                  {`To send funds to BEAM please approve ${selectedCurrency.name} token first`}
                 </ApproveDesc>
                 <Button className={ApproveButtonClass}
                   onClick={()=>approveTokenClicked(selectedCurrency.id)}
-                  color="send" type="submit" 
+                  color="send"
                   pallete='green' icon={IconCheck}>
                     approve token
                 </Button>
               </>)
             : null)
         }
-
-        {/* <FormSubtitle>AMOUNT</FormSubtitle>
-        <Input variant='amount' ref={amountInputRef} name="amount"></Input>
-        <FormSubtitle>FEE</FormSubtitle>
-        <Input variant='fee' ref={feeInputRef} name="fee"></Input> */}
-        {/* <SendStyled>
-          <Button color="send" type="submit" pallete='purple' icon={IconSend}>transfer</Button>
-        </SendStyled> */}
       </FormStyled>
       { 
         !isAdrressValid || addressValue.length === 0 
@@ -331,12 +397,13 @@ const Send = () => {
         <ul>
           <InfoListItem>1.	Download the latest verison of <StyledLink>Beam Wallet</StyledLink> </InfoListItem>
           <InfoListItem>2.	Launch Bridges DApp from DApp store</InfoListItem>
-          <InfoListItem>3.	Select <StyledLine>Ethereum to Beam</StyledLine> and follow instructions to obtain Beam bridge address</InfoListItem>
+          <InfoListItem>3.	Select <StyledLine>Ethereum to Beam</StyledLine> 
+          and follow instructions to obtain Beam bridge address</InfoListItem>
           <InfoListItem>4.	Get back to this screen and paste the address</InfoListItem>
         </ul>
       </InfoContainer>)
       : null }
-    </Window>
+    </Window>) : (<></>)
   );
 };
 

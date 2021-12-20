@@ -2,20 +2,16 @@ import React, { useEffect } from 'react';
 import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
 import { 
-  setView, View, 
-  $accounts,
+  setView,
   $balance,
-  $income,
   $isInProgress,
   $transactionsList,
-  getTransactionsListFx,
   $rate
 } from '@state/shared';
 import { css } from '@linaria/core';
 import { Window, BalanceCard, Button, Table } from '@pages/shared';
-import { isNil } from '@core/utils';
 import { currencies } from '@app/shared/consts';
-import { useSearchParams } from 'react-router-dom';
+import { ROUTES } from '@consts/routes';
 
 import { IconReceive, IconSend} from '@app/icons';
 
@@ -54,34 +50,18 @@ const ReceiveButtonClass = css`
 `;
 
 const handleSendClick: React.MouseEventHandler = () => {
-  setView(View.SEND);
+  setView(ROUTES.SEND);
 };
 
 const handleReceiveClick: React.MouseEventHandler = () => {
-  setView(View.RECEIVE);
+  setView(ROUTES.RECEIVE);
 }
 
 const Balance = () => {
-  const account = useStore($accounts);
   const balance = useStore($balance);
   const data = useStore($transactionsList);
   const isInProgress = useStore($isInProgress);
   const rates = useStore($rate);
-
-  const [searchParams, setSearchParams] = useSearchParams();
-  const addressFromParams = searchParams.get('address');
-  
-
-  useEffect(() => {
-    getTransactionsListFx(account[0]);
-    if (addressFromParams && addressFromParams.length > 0) {
-      console.log(addressFromParams);
-      setView(View.SEND);
-    }
-  }, []);
-
-  const transactionsList = useStore($transactionsList);
-  console.log(transactionsList)
 
   const TABLE_CONFIG = [
     {
@@ -96,9 +76,13 @@ const Balance = () => {
       name: 'usd',
       title: 'USD value',
       fn: (value: string, item: any) => {
-        const curr = currencies.find((data)=> data.ethTokenContract.toLowerCase() === item.contractAddress.toLowerCase());
-        const rate = (parseInt(item.value) / (10 ** parseInt(item.tokenDecimal))) * rates[curr.rate_id].usd;
-        return rate + ' USD';
+        if (rates.length > 0) {
+          const curr = currencies.find((data)=> data.ethTokenContract.toLowerCase() === item.contractAddress.toLowerCase());
+          const rate = (parseInt(item.value) / (10 ** parseInt(item.tokenDecimal))) * rates[curr.rate_id].usd;
+          return rate + ' USD';
+        } else {
+          return '';
+        }
       }
     },
     {

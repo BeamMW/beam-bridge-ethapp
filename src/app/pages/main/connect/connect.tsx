@@ -4,6 +4,9 @@ import { css } from '@linaria/core';
 import { connectToMetaMask } from '@state/init';
 import { Button } from '@pages/shared';
 import { MetamaskLogo } from '@app/icons';
+import { $accounts, setView } from '@state/shared';
+import { useStore } from 'effector-react';
+import { ROUTES } from '@app/shared/consts';
 
 const Container = styled.div`
   display: flex;
@@ -33,6 +36,14 @@ const ButtonTextClass = css`
 `;
 
 const Connect = () => {
+  const account = useStore($accounts);
+
+  useEffect(() => {
+    if (account.length > 0) {
+      setView(ROUTES.BASE); //TODO REDIRECT BY LINK TO SEND 
+    }
+  }, [account]);
+
   const onClick = () => {
     connectToMetaMask();
   };

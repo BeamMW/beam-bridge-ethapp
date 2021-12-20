@@ -105,7 +105,7 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
           <tr key={index}>
             {config.map(({ name, fn }, itemIndex) => {
               const value = item[name];
-              const isIncome = item.to === account[0];
+              const isIncome = item.to === account;
               return name === 'status' 
                 ? (
                 <Column key={itemIndex}>

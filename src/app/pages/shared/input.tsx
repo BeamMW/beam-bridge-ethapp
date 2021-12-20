@@ -1,10 +1,10 @@
 import React, { useState, useRef, HTMLAttributes } from 'react';
 import { styled } from '@linaria/react';
-import { isNil } from '@core/utils';
-import { setCurrency, $selectedCurrency } from '@state/send';
+import { $selectedCurrency } from '@state/send';
 import { useStore } from 'effector-react';
 import { currencies } from '@consts/common';
 import { css } from '@linaria/core';
+import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/icons';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
@@ -61,6 +61,22 @@ const InputStyled = styled.input<InputProps>`
   }
 `;
 
+const StyledCurrency = styled.div`
+  margin-left: auto;
+  display: flex;
+  flex-direction: row;
+`;
+
+const CurrencyTitle = styled.span`
+  margin-left: 10px;
+  cursor: pointer;
+  background-color: transparent;
+  border: none;
+  opacity: 0.5;
+  font-size: 20px;
+  align-items: center;
+`;
+
 // const ErrorStyled = styled.div`
 //   position: absolute;
 //   top: 33px;
@@ -70,86 +86,12 @@ const InputStyled = styled.input<InputProps>`
 //   color: var(--color-failed);
 // `;
 
-const Selector = (data: {type: string}) => {
-  const [isOpen, setOpen] = useState(false);
-  const [items, setItem] = useState(currencies);
-  const [selectedItem, setSelectedItem] = useState(items[0]);
-
-  const selectedCurrency = useStore($selectedCurrency);
-  
-  const toggleDropdown = () => setOpen(!isOpen);
-
-  const handleItemClick = (item) => {
-    setSelectedItem(item);
-    setCurrency(item);
-    setOpen(false);
-  }
-
-  const StyledDropdown = styled.div`
-    margin-left: auto;
-  `;
-
-  const DropdownElem = styled.div`
-    cursor: pointer;
-    background-color: transparent;
-    border: none;
-    font-size: 20px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-  `;
-
-  const DropdownElemOption = styled.div`
-    font-size: 16px;
-    padding: 10px;
-    cursor: pointer;
-  `;
-
-  const DropdownBody = styled.div<DropdownProps>`
-    position: absolute;
-    background-color: rgba(11, 204, 247);
-    z-index: 100;
-    display: ${({ isVisible }) => `${isVisible ? 'block' : 'none'}`};
-  `;
-
-  const Triangle = styled.div`
-    width: 0; 
-    height: 0; 
-    border-left: 5px solid transparent;
-    border-right: 5px solid transparent;
-    border-top: 5px solid #8da1ad;
-    margin-left: 5px;
-  `;
-
-  return (data.type === 'fee' || data.type === 'amount' ? <StyledDropdown>
-  <DropdownElem>
-    {selectedCurrency !== null ? selectedCurrency.name : ''}
-  </DropdownElem>
-</StyledDropdown> : <></>);
-
-
-  // return data.type === 'amount' ? (
-  //   <StyledDropdown>
-  //     <DropdownElem onClick={toggleDropdown}>
-  //       {selectedCurrency.name}
-  //       <Triangle></Triangle>
-  //     </DropdownElem>
-  //     <DropdownBody isVisible={isOpen} className={`dropdown-body ${isOpen && 'open'}`}>
-  //       {items.map(item => (
-  //         <DropdownElemOption key={item.id} onClick={e => handleItemClick(item)}>
-  //           {/* <span className={`${item.id == selectedItem.id && 'selected'}`}>• </span> */}
-  //           {item.name}
-  //         </DropdownElemOption>
-  //       ))}
-  //     </DropdownBody>
-  //   </StyledDropdown>
-  // ) : (data.type === 'fee' ? 
-  // <StyledDropdown>
-  //   <DropdownElem>
-  //     {selectedCurrency.name}
-  //   </DropdownElem>
-  // </StyledDropdown> : <></>);
-}
+const ICONS = {
+  usdt: () => (<IconUsdt/>),
+  wbtc: () => (<IconWbtc/>),
+  dai: () => (<IconDai/>),
+  eth: () => (<IconEth/>),
+};
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ variant, error, ...rest }, ref) => {
@@ -171,7 +113,17 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           variant={variant} ref={ref}
           onChange={variant === 'amount' || variant === 'fee' ? inputChange : null}
           error={error} {...rest} />
-        <Selector type={variant}/>
+        {
+          (variant === 'amount' 
+            ? (
+            <StyledCurrency>
+              { ICONS[selectedCurrency.name.toLowerCase()]() }
+              <CurrencyTitle>
+                {selectedCurrency !== null ? selectedCurrency.name : ''}
+              </CurrencyTitle>
+            </StyledCurrency>
+            ) : <></>)
+        }
       </ContainerStyled>
     )
   },

@@ -63,7 +63,7 @@ const Window: React.FC<any> = ({
   }
 
   const handleCopyClick: React.MouseEventHandler = () => {
-    navigator.clipboard.writeText(account[0]);
+    navigator.clipboard.writeText(account);
   };
 
   const disconnectWalletClicked: React.MouseEventHandler = async () => {
@@ -72,7 +72,7 @@ const Window: React.FC<any> = ({
 
   return (
     <Container ref={rootRef}>
-      <ActiveAccount text={account[0]} onClick={()=>{setPopupVisible(true)}}></ActiveAccount>
+      <ActiveAccount text={account} onClick={()=>{setPopupVisible(true)}}></ActiveAccount>
       <Title>Ethereum to Beam Bridge</Title>
       { children }
       <Popup
@@ -87,7 +87,7 @@ const Window: React.FC<any> = ({
       >
         <PopupSubtitle>ETHEREUM BRIDGE ADDRESS</PopupSubtitle>
         <PopupAccount>
-          <span>{account[0]}</span>
+          <span>{account}</span>
           <IconCopyWhite onClick={handleCopyClick} className={CopyAccountClass}/>
         </PopupAccount>
         <PopupSubtitle>SUPPORTED TOKENS</PopupSubtitle>
