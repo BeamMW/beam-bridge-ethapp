@@ -159,22 +159,12 @@ export default class MetaMaskController {
           console.log('receipt: ', receipt);
         });
       } else {
-        const tokenContract = new ethers.Contract(
-          selectedCurrency.ethTokenContract,  
-          abi,
-          this.ethers
-        );
         const pipeContract = new ethers.Contract(
           selectedCurrency.ethPipeContract,  
           EthERC20Pipe.abi,
           this.ethers
         );
-
-        const ethSigner = tokenContract.connect(this.signer);
-        const approveTx = await ethSigner.approve(selectedCurrency.ethPipeContract, totalAmount);
-        await approveTx.wait();
-
-        // tokenContract.functions;
+        
         const userSigner = pipeContract.connect(this.signer);
         const lockTx = await userSigner.sendFunds(
           finalAmount,

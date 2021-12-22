@@ -4,14 +4,13 @@ import { styled } from '@linaria/react';
 import { Button, Input, Window } from '@pages/shared';
 import { 
   setView,
-  View,
   $accounts,
   $balance } from '@state/shared';
 import { send } from '@state/init';
 import { currencies, ethId } from '@consts/common';
 import { $selectedCurrency, setCurrency } from '@state/send';
 import MetaMaskController  from '@core/MetaMask';
-import { useSearchParams, useParams } from 'react-router-dom';
+import {  useParams } from 'react-router-dom';
 import {
   IconEthLarge,
   IconUsdtLarge,
@@ -266,7 +265,7 @@ const Send = () => {
           const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
           setIsAllowed(fromBalance.is_approved);
 
-          if (isAllowed) {
+          if (fromBalance.is_approved) {
             calcFee(parsedCurrency);
           }
         } else {
@@ -362,7 +361,7 @@ const Send = () => {
                 <FeeValue>{feeVal}</FeeValue>
               </FeeItem>
               <FeeItem>
-                <FormSubtitle className={FeeSubtitleClass}>EXPECTED ETHERUM NETWORK FEE</FormSubtitle>
+                <FormSubtitle className={FeeSubtitleClass}>EXPECTED ETHEREUM NETWORK FEE</FormSubtitle>
                 <FeeValue>{0.0001}</FeeValue>
               </FeeItem>
             </FeeContainer>
