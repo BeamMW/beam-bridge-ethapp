@@ -206,6 +206,7 @@ const Send = () => {
             }
           } else {
             setIsAllowed(true);
+            calcFee(parsedCurrency);
           }
           
           setIsLoaded(true);
