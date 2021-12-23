@@ -32,7 +32,7 @@ export const setAccounts = createEvent<string>();
 export const $accounts = restore(setAccounts, '');
 
 export const setNetwork = createEvent<boolean>();
-export const $isNetworkCorrect = restore(setNetwork, window.ethereum.networkVersion === '3');
+export const $isNetworkCorrect = restore(setNetwork, true);
 
 const getTransations = async (address) => {
   let result = [];
