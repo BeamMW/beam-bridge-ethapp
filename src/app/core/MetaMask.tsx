@@ -1,8 +1,7 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { 
-  View, setView,
-  setAccounts,
-  setIsInProgress, setBalance,
+  setView,
+  setIsInProgress, setNetwork,
   remoteEvent
 } from './../state/shared';
 import { ethers, BigNumber } from 'ethers';
@@ -67,6 +66,10 @@ export default class MetaMaskController {
       this.signer = this.ethers.getSigner();
       window.ethereum.on('accountsChanged', ()=>{this.loadAccounts()});
       this.loadAccounts();
+
+      setInterval(()=>{
+        setNetwork(window.ethereum.networkVersion === '3');
+      }, 1000)
     }
   }
 
@@ -164,7 +167,7 @@ export default class MetaMaskController {
           EthERC20Pipe.abi,
           this.ethers
         );
-        
+
         const userSigner = pipeContract.connect(this.signer);
         const lockTx = await userSigner.sendFunds(
           finalAmount,

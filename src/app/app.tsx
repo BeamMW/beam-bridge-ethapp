@@ -1,12 +1,13 @@
 import React, { useEffect } from 'react';
 import { useStore } from 'effector-react';
-import { $view } from '@state/shared';
+import { $isNetworkCorrect, $view } from '@state/shared';
 import { initApp } from '@state/init';
 import { useNavigate, useRoutes } from 'react-router-dom';
 import { getRateFx } from '@state/shared';
 import { Balance, Receive, Send, Connect } from '@app/pages/main';
 
 import './styles';
+import { NetworkAlert } from './pages/shared';
 
 const routes = [
   {
@@ -33,6 +34,7 @@ const routes = [
 
 const App = () => {
   const navigateURL = useStore($view);
+  const isNetworkIsCorrect = useStore($isNetworkCorrect);
 
   useEffect(() => {
     initApp();
@@ -47,7 +49,10 @@ const App = () => {
   const navigate = useNavigate();
 
   return (
-      <>{content}</>
+      <>
+        {content}
+        {!isNetworkIsCorrect ? <NetworkAlert/> : <></>}
+      </>
   );
 };
 

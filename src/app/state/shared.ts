@@ -1,7 +1,6 @@
 import { createEvent, restore, createEffect } from 'effector';
 import { Balance } from '@core/types';
 import { currencies, ethId } from '@consts/common';
-import { isNil } from '@core/utils';
 import MetaMaskController  from '@core/MetaMask';
 import { ROUTES } from '@app/shared/consts';
 
@@ -32,17 +31,8 @@ export const $view = restore(setView, '/send');
 export const setAccounts = createEvent<string>();
 export const $accounts = restore(setAccounts, '');
 
-$accounts.watch(value => {
-  // if (!isNil(value) && value.length > 0) {
-  //     setView('/');
-  // } else 
-  
-  // if (!isNil(value) && value.length === 0) {
-  //   setView('/connect');
-  // } else {
-  //   setView('/');
-  // }
-});
+export const setNetwork = createEvent<boolean>();
+export const $isNetworkCorrect = restore(setNetwork, window.ethereum.networkVersion === '3');
 
 const getTransations = async (address) => {
   let result = [];
