@@ -270,6 +270,7 @@ const Send = () => {
           }
         } else {
           setIsAllowed(true);
+          calcFee(parsedCurrency);
         }
       }
     } else {
