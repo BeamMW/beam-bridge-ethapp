@@ -288,7 +288,10 @@ const Send = () => {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
-    const address = isFromParams ? parsedAddressValue : data.get('address') as string;
+    let address = isFromParams ? parsedAddressValue : data.get('address') as string;
+    if (address.length > 66) {
+      address = address.slice(-66)
+    }
     const amount = parseFloat(data.get('amount') as string);
     
     const sendData = {
