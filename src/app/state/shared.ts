@@ -55,8 +55,8 @@ const getBalances = async (address: string) => {
       balanceValue = await metaMaskController.loadEthBalance(address);
       isAllowed = true;
     } else {
-      balanceValue = await metaMaskController.loadTokenBalance(curr, address);
-      isAllowed = await metaMaskController.loadAllowance(curr, address);
+      balanceValue = 14004; //await metaMaskController.loadTokenBalance(curr, address);
+      isAllowed = true;//await metaMaskController.loadAllowance(curr, address);
     }
     
     balances.push({
