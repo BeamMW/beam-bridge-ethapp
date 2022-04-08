@@ -73,7 +73,7 @@ const Window: React.FC<any> = ({
   return (
     <Container ref={rootRef}>
       <ActiveAccount text={account} onClick={()=>{setPopupVisible(true)}}></ActiveAccount>
-      <Title>Ethereum to Beam Bridge</Title>
+      <Title>Metamask and Beam Dapp</Title>
       { children }
       <Popup
       visible={isPopupVisible}
