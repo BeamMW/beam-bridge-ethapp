@@ -68,7 +68,7 @@ export default class MetaMaskController {
       this.loadAccounts();
 
       setInterval(()=>{
-        setNetwork(window.ethereum.networkVersion === '0x582');
+        setNetwork(window.ethereum.networkVersion === '3');
       }, 1000)
     }
   }

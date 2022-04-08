@@ -65,6 +65,11 @@ module.exports = {
     new CopyWebpackPlugin({
       patterns: [
         {
+          from: path.join(__dirname, 'src/app/wasm'),
+          to: path.join(__dirname, 'dist/'),
+          context: 'public',
+        },
+        {
           from: path.join(__dirname, 'src/assets'),
           to: path.join(__dirname, 'dist/assets'),
           context: 'public',
