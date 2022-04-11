@@ -55,8 +55,35 @@ const toHex = (bytes) => {
 const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
     const response = await fetch("./app.wasm");
     const bytes = Array.from(new Uint8Array(await response.arrayBuffer()));
-    console.log(bytes);
+    //console.log(bytes);
     const { ethereum } = window;
+
+    if (createTx) {
+        let enc = new TextEncoder();
+        console.log(shaderArgs);
+        const arr = enc.encode(shaderArgs);
+        console.log(arr);
+        const data = '0x' + toHex(Array.from(arr));
+        console.log(data);
+        const transactionParameters = {
+            //nonce: '0x00', // ignored by MetaMask
+            gasPrice: '0x3b9aca00', // customizable by user during MetaMask confirmation.
+            gas: '0x5208', // customizable by user during MetaMask confirmation.
+            to: '0x0000000000000000000000000000000000000000', // Required except during contract publications.
+            from: ethereum.selectedAddress, // must match user's active address.
+            value: '0x00', // Only required to send ether to the recipient from the initiating external account.
+            data: data,
+            //'0x7f7465737432000000000000000000000000000000000000000000000000000000600057', // Optional, but used for defining smart contract creation and interaction.
+            //chainId: '0x3', // Used to prevent transaction reuse across blockchains. Auto-filled by MetaMask.
+        };
+
+        // txHash is a hex string
+        // As with any RPC call, it may throw an error
+        const txHash = await ethereum.request({
+            method: 'eth_sendTransaction',
+            params: [transactionParameters],
+        });
+    }
 
     const request = {
         jsonrpc: '2.0',
@@ -70,7 +97,7 @@ const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
         }
     };
 
-    const state = await ethereum.request({
+    const state = JSON.parse(await ethereum.request({
         method: 'eth_call',
         params: [
             {
@@ -78,20 +105,23 @@ const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
             },
             'latest'
         ]
-    });
+    }));
     console.log(state);
-    return JSON.parse(state.output)
+    console.log(state.result.output);
+    return JSON.parse(state.result.output);
 }
 
+const contractID: string = 'b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902';
+
 const getState = async () => {
-    const state = await callAppShader('role=user,action=view_state,cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902');
+    const state = await callAppShader(`role=user,action=view_state,cid=${contractID}`);
     console.log(state);
     setState(state);
 }
 
 const getAccounState = async () => {
     const { ethereum } = window;
-    const state = await callAppShader(`role=user,action=view_account,accountID=${ethereum.selectedAddress.slice(-40)},cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902`);
+    const state = await callAppShader(`role=user,action=view_account,accountID=${ethereum.selectedAddress.slice(-40)},cid=${contractID}`);
     console.log(state);
     setAccountState(state.impression);
 }
@@ -99,7 +129,7 @@ const getAccounState = async () => {
 export const likeDislike = async (like: boolean) => {
     const { ethereum } = window;
     const action = like ? 'like' : 'dislike';
-    await callAppShader(`role=user,action=${action},accountID=${ethereum.selectedAddress.slice(-40)},cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902`, true);
+    await callAppShader(`role=user,action=${action},accountID=${ethereum.selectedAddress.slice(-40)},cid=${contractID}`, true);
 }
 
 const getBalances = async (address: string) => {
