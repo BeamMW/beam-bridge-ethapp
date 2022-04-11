@@ -50,10 +50,9 @@ const Connect = () => {
 
   return (
     <Container>
-      <Title>ETH to BEAM Bridge</Title>
+      <Title>BEAM DAPP</Title>
       <Subtitle>
-        Transfer ETH, BTC, DAI and USDT.<br/>
-        More tokens coming soon!
+        Works with BEAM dapp via Metamask<br/>
       </Subtitle>
       <Button pallete="white" variant="darkest_blue" icon={MetamaskLogo} className={connectButtonClass} onClick={onClick}>
         <div className={ButtonTextClass}>CONNECT WALLET</div>

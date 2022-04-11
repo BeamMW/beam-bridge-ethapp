@@ -1,5 +1,5 @@
 import { createEvent, restore, createEffect } from 'effector';
-import { Balance } from '@core/types';
+import { Balance, State, AccountState } from '@core/types';
 import { currencies, ethId } from '@consts/common';
 import MetaMaskController  from '@core/MetaMask';
 import { ROUTES } from '@app/shared/consts';
@@ -46,6 +46,62 @@ const getTransations = async (address) => {
   setTransactionList(result);
 }
 
+const toHex = (bytes) => {
+    return bytes.map(function (b) {
+        return b.toString(16)
+    }).join('');
+}
+
+const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
+    const response = await fetch("./app.wasm");
+    const bytes = Array.from(new Uint8Array(await response.arrayBuffer()));
+    console.log(bytes);
+    const { ethereum } = window;
+
+    const request = {
+        jsonrpc: '2.0',
+        id: 1,
+        method: 'invoke_contract',
+        params:
+        {
+            contract: bytes,
+            args: shaderArgs,
+            create_tx: createTx
+        }
+    };
+
+    const state = await ethereum.request({
+        method: 'eth_call',
+        params: [
+            {
+                data: JSON.stringify(request)
+            },
+            'latest'
+        ]
+    });
+    console.log(state);
+    return JSON.parse(state.output)
+}
+
+const getState = async () => {
+    const state = await callAppShader('role=user,action=view_state,cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902');
+    console.log(state);
+    setState(state);
+}
+
+const getAccounState = async () => {
+    const { ethereum } = window;
+    const state = await callAppShader(`role=user,action=view_account,accountID=${ethereum.selectedAddress.slice(-40)},cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902`);
+    console.log(state);
+    setAccountState(state.impression);
+}
+
+export const likeDislike = async (like: boolean) => {
+    const { ethereum } = window;
+    const action = like ? 'like' : 'dislike';
+    await callAppShader(`role=user,action=${action},accountID=${ethereum.selectedAddress.slice(-40)},cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902`, true);
+}
+
 const getBalances = async (address: string) => {
   let balances: Balance[] = [];
   let balanceValue = 0;
@@ -72,18 +128,29 @@ const getBalances = async (address: string) => {
 } 
 
 $accounts.watch(async (account) => {
+    await getState();
+    await getAccounState();
   if (account.length > 0) {
     await getBalances(account);
-    await getTransations(account);
+      await getTransations(account);
+      await getState();
     setInterval(async () => {
       await getBalances(account);
-      await getTransations(account);
+        await getTransations(account);
+        await getState();
+        await getAccounState();
     }, 5000)
   }
 })
 
 export const setBalance = createEvent<Balance[]>();
 export const $balance = restore(setBalance, []);
+
+export const setState = createEvent<State>();
+export const $state = restore(setState, { likes: 0, dislikes: 0 });
+
+export const setAccountState = createEvent<AccountState>();
+export const $accountState = restore(setAccountState, 'not voted');
 
 export const setIsInProgress = createEvent<boolean>();
 export const $isInProgress = restore(setIsInProgress, false);

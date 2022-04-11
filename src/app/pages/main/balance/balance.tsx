@@ -3,10 +3,15 @@ import { useStore } from 'effector-react';
 import { styled } from '@linaria/react';
 import { 
   setView,
+  setState,
+  setAccountState,
+  likeDislike,
   $balance,
   $isInProgress,
   $transactionsList,
-  $rate
+  $rate,
+  $state,
+  $accountState
 } from '@state/shared';
 import { css } from '@linaria/core';
 import { Window, BalanceCard, Button, Table } from '@pages/shared';
@@ -64,93 +69,9 @@ const handleReceiveClick: React.MouseEventHandler = () => {
   setView(ROUTES.RECEIVE);
 }
 
-
-const download = (url, cback) => {
-  var xhr = new XMLHttpRequest();
-  xhr.onreadystatechange = function() {
-      if(xhr.readyState === XMLHttpRequest.DONE) {
-          if (xhr.status === 200) {
-              let buffer    = xhr.response;
-              let byteArray = new Uint8Array(buffer);
-              let array     = Array.from(byteArray);
-
-              if (!array || !array.length) {
-                  return cback("empty shader");
-              }
-          
-              return cback(null, array);
-          } else {
-              let errMsg = ["code", xhr.status].join(" ");
-              return cback(errMsg);
-          }
-      }
-  }
-  xhr.open('GET', url, true);
-  xhr.responseType = "arraybuffer";
-  xhr.send(null);
-}
-
-const toHex = (bytes) => {
-    return bytes.map(function (b) {
-        return b.toString(16) 
-    }).join('');
-}
-
 const handleBeamClick = () => {
-  download("./app.wasm", async (err, bytes) => {
-    //console.log(toHex(bytes));
-      
-      const { ethereum } = window;
-      console.log(ethereum.isMetaMask);
 
-      console.log(`account: ${ethereum.selectedAddress}`)
-
-    const stateRequest = {
-        jsonrpc: '2.0',
-        id: 1,
-        method: 'invoke_contract',
-        params:
-        {
-            contract: bytes,
-            args: 'role=user,action=view_state,cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902',
-            create_tx: false
-        }
-    };
-
-      const callRes = await ethereum.request({
-          method: 'eth_call',
-          params: [
-              {
-                  data: JSON.stringify(stateRequest)
-              },
-              'latest'
-          ]
-      });
-
-      console.log(callRes);
-
-      const myStateRequest = {
-          jsonrpc: '2.0',
-          id: 1,
-          method: 'invoke_contract',
-          params:
-          {
-              contract: bytes,
-              args: `role=user,action=view_account,accountID=${ethereum.selectedAddress.slice(-40)},cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902`,
-              create_tx: false
-          }
-      };
-
-      const callRes2 = await ethereum.request({
-          method: 'eth_call',
-          params: [
-              {
-                  data: JSON.stringify(myStateRequest)
-              },
-              'latest'
-          ]
-      });
-      console.log(callRes2);
+  
 
     //const transactionParameters = {
     //  nonce: '0x00', // ignored by MetaMask
@@ -185,37 +106,6 @@ const handleBeamClick = () => {
     // });
 
     // console.log(hashTx)
-  });
-}
-
-const likeDislike = (like: boolean) => {
-
-    download("./app.wasm", async (err, bytes) => {
-        const { ethereum } = window;
-        const action = like ? 'like' : 'dislike';
-
-        const request = {
-            jsonrpc: '2.0',
-            id: 1,
-            method: 'invoke_contract',
-            params:
-            {
-                contract: bytes,
-                args: `role=user,action=${action},accountID=${ethereum.selectedAddress.slice(-40)},cid=b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902`,
-            }
-        };
-
-        const callRes2 = await ethereum.request({
-            method: 'eth_call',
-            params: [
-                {
-                    data: JSON.stringify(request)
-                },
-                'latest'
-            ]
-        });
-        console.log(callRes2);
-    });
 
 }
 
@@ -232,6 +122,8 @@ const Balance = () => {
   const data = useStore($transactionsList);
   const isInProgress = useStore($isInProgress);
   const rates = useStore($rate);
+  const state = useStore($state);
+  const accountState = useStore($accountState);
 
   const TABLE_CONFIG = [
     {
@@ -281,6 +173,7 @@ const Balance = () => {
               onClick={handleDislikeClick}>
               Dislike
           </Button>
+          
       {/*<StyledControls>*/}
       {/*  <Button icon={IconSend}*/}
       {/*  disabled={isInProgress}*/}
@@ -295,19 +188,11 @@ const Balance = () => {
       {/*    beam to ethereum*/}
       {/*  </Button>*/}
       {/*</StyledControls>*/}
-      {/*<Content>*/}
-      {/*    <ContentHeader>Balance</ContentHeader>*/}
-      {/*    { balance.map(({ curr_id, rate_id, value, icon, is_approved }) => (*/}
-      {/*      <BalanceCard icon={icon} */}
-      {/*        curr_id={curr_id}*/}
-      {/*        key={curr_id}*/}
-      {/*        rate_id={rate_id}*/}
-      {/*        type={icon}*/}
-      {/*        balanceValue={value}*/}
-      {/*        is_approved={is_approved}*/}
-      {/*      ></BalanceCard>*/}
-      {/*    ))}*/}
-      {/*</Content>*/}
+      <Content>
+          <ContentHeader>State</ContentHeader>
+          <ContentHeader>{accountState}</ContentHeader>
+          <ContentHeader>{state.likes} : {state.dislikes}</ContentHeader>
+          </Content>
       <StyledTable>
         <Table config={TABLE_CONFIG} data={data} keyBy='pid'/>
       </StyledTable>

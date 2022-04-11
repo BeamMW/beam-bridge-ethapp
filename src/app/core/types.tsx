@@ -27,3 +27,10 @@ export interface Balance {
     icon: string,
     is_approved: boolean
 }
+
+export interface State {
+    likes: number,
+    dislikes: number
+}
+
+export type AccountState = 'not voted' | 'likes' | 'dislikes';
