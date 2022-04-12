@@ -123,7 +123,7 @@ const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
     return JSON.parse(state.result.output);
 }
 
-const contractID: string = '919ee927caad444c08fc1438b6227399b8f7b9475c92a319562e40957ca36d10';
+const contractID: string = '92e3599aaf99670035203b2215bbac46e5488f8a5250e116a22e6c81e7e09a09';
 //const contractID: string = 'b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902';
 
 const getState = async () => {
@@ -142,7 +142,7 @@ const getAccounState = async () => {
 export const likeDislike = async (like: boolean) => {
     const { ethereum } = window;
     const action = like ? 'like' : 'dislike';
-    await callAppShader(`role=user,action=${action},accountID=${ethereum.selectedAddress.slice(-40)},cid=${contractID}`, true);
+    await callAppShader(`role=user,action=${action},cid=${contractID}`, true);
 }
 
 const getBalances = async (address: string) => {
