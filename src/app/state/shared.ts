@@ -52,10 +52,17 @@ const toHex = (bytes) => {
     }).join('');
 }
 
+var appShader: Uint8Array = null;
+
 const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
-    const response = await fetch("./app.wasm");
-    const bytes = Array.from(new Uint8Array(await response.arrayBuffer()));
+    const sendAppShader: boolean = true;//appShader == null;
+    if (sendAppShader) {
+        const response = await fetch("./app.wasm");
+        appShader = new Uint8Array(await response.arrayBuffer())
+    }
+    
     //console.log(bytes);
+    
     const { ethereum } = window;
 
     if (createTx) {
@@ -83,19 +90,24 @@ const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
             method: 'eth_sendTransaction',
             params: [transactionParameters],
         });
+        return {};
     }
 
-    const request = {
+    let request = {
         jsonrpc: '2.0',
         id: 1,
         method: 'invoke_contract',
         params:
         {
-            contract: bytes,
             args: shaderArgs,
             create_tx: createTx
         }
     };
+
+    if (sendAppShader) {
+        const bytes = Array.from(appShader);
+        request.params['contract'] = bytes;
+    }
 
     const state = JSON.parse(await ethereum.request({
         method: 'eth_call',
@@ -111,7 +123,8 @@ const callAppShader = async (shaderArgs: string, createTx: Boolean = false) => {
     return JSON.parse(state.result.output);
 }
 
-const contractID: string = 'b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902';
+const contractID: string = '919ee927caad444c08fc1438b6227399b8f7b9475c92a319562e40957ca36d10';
+//const contractID: string = 'b09361e57d42ddad63dc06ce94706f82e11ad90cd63fa0d3dd7913e9edd9b902';
 
 const getState = async () => {
     const state = await callAppShader(`role=user,action=view_state,cid=${contractID}`);
