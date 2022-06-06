@@ -10,8 +10,8 @@ export const currencies = [
         id: 1,
         decimals: 6,
         validator_dec: 6,
-        ethTokenContract: '0xfdb6ba93e0b3A760bCD36140C20F96eE4A636f7B',
-        ethPipeContract: '0x1E5b95e08d2F382D9b35Ab1a8ba1443Cf767Ae5c'
+        ethTokenContract: '0x2226014269E1A64DA3E50FBb9ba7d4bc947386B3',
+        ethPipeContract: '0x653Ffac2cee2f53bb0e0822b8a57cd8697eD9862',
     },
     {
         name:'WBTC',
@@ -19,8 +19,8 @@ export const currencies = [
         id: 2,
         decimals: 8,
         validator_dec: 6,
-        ethTokenContract: '0x9acDE598dd6e8D29eCCe8FbE58e3190Ab7302179',
-        ethPipeContract: '0xdbfe9643dB5f967643d8481BA2A8b7752061453d'
+        ethTokenContract: '0x1Fd73527b778224CF2F900a27C493d243C43f796',
+        ethPipeContract: '0x02e95B7459cED6Bb8e6246c62E01eCd5831E53DC',
     },
     {
         name:'DAI',
@@ -28,8 +28,8 @@ export const currencies = [
         id: 3,
         decimals: 18,
         validator_dec: 8,
-        ethTokenContract: '0xB786c676A626D0abB616beF59056291fC84F4Bc4',
-        ethPipeContract: '0x2822659F502aE977b4bA62D9a43d389b22E56b04'
+        ethTokenContract: '0x6662aFde33a3B2ac14Cd176cA21c5A5E153868fa',
+        ethPipeContract: '0xb79f094De32A4ed800f2470D5D698B2a3CF6E7B4',
     },
     {
         name: 'ETH',
@@ -38,6 +38,6 @@ export const currencies = [
         decimals: 18,
         validator_dec: 8,
         ethTokenContract: '',
-        ethPipeContract: '0xc6120F6102416040F7FA9c2333715713Dd77Ef09'
+        ethPipeContract: '0x6062110D730aA638712dC97B17e7Ce694e343985',
     }
 ];
