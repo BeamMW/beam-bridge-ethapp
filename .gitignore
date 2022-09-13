@@ -8,6 +8,8 @@
 
 /dist
 /.linaria-cache
+/html
+.firebase
 
 # misc
 .DS_Store

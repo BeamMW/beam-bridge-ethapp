@@ -1,16 +1,16 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { 
-  setView,
-  setIsInProgress, setNetwork,
-  remoteEvent
-} from './../state/shared';
+// import { 
+//   setView,
+//   setIsInProgress, setNetwork,
+//   remoteEvent
+// } from './../state/shared';
 import { ethers, BigNumber } from 'ethers';
-import EthPipe from './../../contract-pipes/eth-pipe/EthPipe.json';
-import EthERC20Pipe from './../../contract-pipes/eth-pipe/EthERC20Pipe.json';
+import EthPipe from '@app/eth-pipe/EthPipe.json';
+import EthERC20Pipe from '@app/eth-pipe/EthERC20Pipe.json';
 import { SendParams, Balance, Currency } from '@core/types';
-import { currencies, ethId } from '@consts/common';
-import { MAX_ALLOWED_VALUE, REVOKE_VALUE } from '@consts/common';
-import { ROUTES } from '@consts/routes';
+import { CURRENCIES, MAX_ALLOWED_VALUE, REVOKE_VALUE, ethId, ROUTES } from '@app/shared/constants';
+//import { MAX_ALLOWED_VALUE, REVOKE_VALUE } from '@consts/common';
+//import { ROUTES } from '@consts/routes';
 
 const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 
@@ -40,13 +40,6 @@ export default class MetaMaskController {
 
   constructor() {}
 
-  private loadAccounts() {
-    console.log('loadAccounts called')
-    window.ethereum
-      .request({ method: 'eth_accounts' })
-      .then(remoteEvent);
-  }
-
   async loadEthBalance(address: string) {
     const ethBalance = await this.ethers.getBalance(address);
     return parseFloat(Number(ethers.utils.formatEther(ethBalance)).toFixed(2))
@@ -64,12 +57,6 @@ export default class MetaMaskController {
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       this.ethers = new ethers.providers.Web3Provider(window.ethereum);
       this.signer = this.ethers.getSigner();
-      window.ethereum.on('accountsChanged', ()=>{this.loadAccounts()});
-      this.loadAccounts();
-
-      setInterval(()=>{
-        setNetwork(window.ethereum.networkVersion === '3');
-      }, 1000)
     }
   }
 
@@ -135,7 +122,7 @@ export default class MetaMaskController {
     console.log('amount = ', amount, ' fee = ', fee);
     console.log('finalAmount = ', finalAmount, ' relayerFee = ', relayerFee, ' totalAmount = ', totalAmount);
 
-    setIsInProgress(true);
+    //setIsInProgress(true);
 
     try {
       if (selectedCurrency.id === ethId) {
@@ -158,7 +145,7 @@ export default class MetaMaskController {
         );
         
         await lockTx.wait().then((receipt)=> {
-          setIsInProgress(false);
+          //setIsInProgress(false);
           console.log('receipt: ', receipt);
         });
       } else {
@@ -176,21 +163,21 @@ export default class MetaMaskController {
         );
 
         await lockTx.wait().then((receipt)=> {
-          setIsInProgress(false);
+          //setIsInProgress(false);
           console.log('receipt: ', receipt);
         });
       }
     } catch (e) {
       console.log('send transaction error: ', e);
-      setIsInProgress(false);
+      //setIsInProgress(false);
     }
 
     this.refresh();
-    setView(ROUTES.BASE);
+    //this.navigate(ROUTES.MAIN.BASE);
   }
 
   async updateTokenSendLimit(curr_id: number, amount: any) {
-    const currency = currencies.find((item) => item.id === curr_id);
+    const currency = CURRENCIES.find((item) => item.id === curr_id);
     const tokenContract = new ethers.Contract(
       currency.ethTokenContract,  
       abi,
