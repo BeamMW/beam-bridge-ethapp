@@ -3,17 +3,15 @@ import {
 } from 'redux-saga/effects';
 
 import { eventChannel, END } from 'redux-saga';
-import { actions } from '@app/shared/store/index';
 import { actions as mainActions } from '@app/containers/Main/store/index';
 import { navigate, setAccountState, setNetworkState } from '@app/shared/store/actions';
 import store from '../../../index';
-import { SharedStateType } from '../interface';
-import { FaucetStateType } from '@app/containers/Main/interfaces';
 
 import { ROUTES } from '@app/shared/constants';
 import MetaMaskController from '@core/MetaMask';
 
 import MetaMaskOnboarding from '@metamask/onboarding';
+import { setIsLoggedIn } from '@app/containers/Main/store/actions';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -25,11 +23,13 @@ function isNeededChain(chainId:string) {
     chainId.toLowerCase() === GOERLI_CHAIN_ID.toLowerCase();
 }
 
-function connectMetaMask () {
-  // Request to connect to the MetaMask wallet
-  window.ethereum
-    .request({ method: 'eth_requestAccounts' })
-    .then(accounts => this.setState({ accounts }))
+function initApp(account: string) {
+  store.dispatch(setAccountState(account));
+  store.dispatch(setIsLoggedIn(true));
+  metaMaskController.init();
+  store.dispatch(mainActions.loadAppParams.request(null));
+
+  store.dispatch(mainActions.loadRate.request());
 }
 
 export function remoteEventChannel() {
@@ -65,6 +65,8 @@ export function remoteEventChannel() {
         //   this.props.onConnected()
         // }
       })
+    } else {
+      setTimeout(()=>emitter({event: 'metamask_not_installed'}), 0)
     }
 
     const unsubscribe = () => {
@@ -90,30 +92,29 @@ function* sharedSaga() {
       switch (payload.event) {
         case 'account_loaded':
           if (payload.data.length === 0) {
+            store.dispatch(setIsLoggedIn(false));
             yield put(navigate(ROUTES.MAIN.CONNECT));
           } else {
-            store.dispatch(setAccountState(payload.data[0]));
-            metaMaskController.init();
-            store.dispatch(mainActions.loadAppParams.request(null));
-
-            store.dispatch(mainActions.loadRate.request());
-            //yield put(navigate(ROUTES.MAIN.BASE));
+            initApp(payload.data[0]);
           }
 
           break;
         
         case 'account_changed':
           if (payload.data.length === 0) {
+            store.dispatch(setIsLoggedIn(false));
             yield put(navigate(ROUTES.MAIN.CONNECT));
           } else {
-            store.dispatch(setAccountState(payload.data[0]));
-            metaMaskController.init();
-            store.dispatch(mainActions.loadAppParams.request(null));
-
-            store.dispatch(mainActions.loadRate.request());
-            //yield put(navigate(ROUTES.MAIN.BASE));
+            initApp(payload.data[0]);
+            yield put(navigate(ROUTES.MAIN.BASE));
           }
 
+          break;
+        case 'metamask_not_installed':
+          store.dispatch(setIsLoggedIn(false));
+          yield put(navigate(ROUTES.MAIN.CONNECT));
+
+          break;
         default:
           break;
       }

@@ -9,5 +9,5 @@ import { encode } from 'js-base64';
 export function connectToMetamask() {
     window.ethereum
         .request({ method: 'eth_requestAccounts' })
-        .then(accounts => console.log(accounts))
+        .then(accounts => console.log('success!'))
 }

@@ -2,7 +2,7 @@ import { createAsyncAction, createAction } from 'typesafe-actions';
 import { BridgeTransaction } from '@core/types';
 
 export const setBridgeTransactions = createAction('@@MAIN/SET_BRIDGE_TRANSACTIONS')<BridgeTransaction[]>();
-export const setPk = createAction('@@MAIN/SET_PK')<string>();
+export const setIsLoggedIn = createAction('@@MAIN/SET_IS_LOGGED_IN')<boolean>();
 
 
 //export const setAppParams = createAction('@@MAIN/SET_PARAMS')<FaucetAppParams>();

@@ -10,6 +10,7 @@ import { ActiveAccount } from '@app/shared/components';
 
 interface WindowProps {
   onPrevious?: React.MouseEventHandler | undefined;
+  state?: 'content';
 }
 
 const Container = styled.div`
@@ -34,7 +35,8 @@ const Title = styled.h1`
 
 const Window: React.FC<WindowProps> = ({
   children,
-  onPrevious
+  onPrevious,
+  state
 }) => {
   const navigate = useNavigate();
   const rootRef = useRef();
@@ -50,16 +52,23 @@ const Window: React.FC<WindowProps> = ({
   
   return (
     <Container ref={rootRef}>
-      {
-        systemState.account ? 
-        <ActiveAccount text={systemState.account} onClick={()=>{setPopupVisible()}}></ActiveAccount> :
-        <></>
-      }
-      <Title>Ethereum to Beam Bridge</Title>
+      { state !== "content" ?
+      <>  
+        {
+          systemState.account ? 
+          <ActiveAccount text={systemState.account} onClick={()=>{setPopupVisible()}}></ActiveAccount> :
+          <></>
+        }
+        <Title>Ethereum to Beam Bridge</Title>
+        { children }
+        <AccountPopup visible={popupsState.account} onCancel={()=>{
+          dispatch(setPopupState({type: 'account', state: false}));
+        }}/>
+      </> : 
+      <>
       { children }
-      <AccountPopup visible={popupsState.account} onCancel={()=>{
-        dispatch(setPopupState({type: 'account', state: false}));
-      }}/>
+      </>
+      }
     </Container>
   );
 };

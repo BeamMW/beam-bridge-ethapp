@@ -1,14 +1,14 @@
 import produce from 'immer';
 import { ActionType, createReducer } from 'typesafe-actions';
 
-import { FaucetStateType } from '../interfaces';
+import { AppStateType } from '../interfaces';
 import * as actions from './actions';
 
 type Action = ActionType<typeof actions>;
 
-const initialState: FaucetStateType = {
+const initialState: AppStateType = {
   bridgeTransactions: [],
-  pk: '',
+  isLoggedIn: false,
   balance: [],
   // appParams: {
   //   backlogPeriod: 0,
@@ -26,11 +26,13 @@ const initialState: FaucetStateType = {
   donatedBeamX: 0
 };
 
-const reducer = createReducer<FaucetStateType, Action>(initialState)
+const reducer = createReducer<AppStateType, Action>(initialState)
   .handleAction(actions.setBridgeTransactions, (state, action) => produce(state, (nexState) => {
     nexState.bridgeTransactions = action.payload;
   }))
-
+  .handleAction(actions.setIsLoggedIn, (state, action) => produce(state, (nexState) => {
+    nexState.isLoggedIn = action.payload;
+  }))
 
   .handleAction(actions.loadAppParams.success, (state, action) => produce(state, (nexState) => {
     nexState.balance = action.payload;

@@ -5,7 +5,7 @@ import { css } from '@linaria/core';
 import { actions as sharedActions, selectors as sharedSelectors } from '@app/shared/store';
 import 'react-toastify/dist/ReactToastify.css';
 
-import { useNavigate, useRoutes } from 'react-router-dom';
+import { useNavigate, useRoutes, Navigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { ToastContainer } from 'react-toastify';
 import { Scrollbars } from 'react-custom-scrollbars';
@@ -18,32 +18,33 @@ import {
   Send,
   Connect
 } from '@app/containers/Main/containers';
+import { selectIsLoggedIn } from './containers/Main/store/selectors';
 const trackStyle = css`
   z-index: 999;
   border-radius: 3px;
   background-color: rgba(255, 255, 255, 0.2);
 `;
 
-const routes = [
+const routes = (isLoggedIn: boolean) => [
   {
-    path: '/',
+    path: ROUTES_PATH.MAIN.BASE,
     element: <MainPage />,
   },
   {
-    path: 'send/:address',
+    path: ROUTES_PATH.MAIN.SEND_BY_ADDRESS,
     element: <Send />,
   },
   {
-    path: 'receive/*',
+    path: ROUTES_PATH.MAIN.RECEIVE,
     element: <Receive />,
   },
   {
-    path: 'send/*',
+    path: ROUTES_PATH.MAIN.SEND,
     element: <Send />,
   },
   {
-    path: 'connect/*',
-    element: <Connect />,
+    path: ROUTES_PATH.MAIN.CONNECT,
+    element: !isLoggedIn ? <Connect /> : <Navigate to={ROUTES_PATH.MAIN.BASE} />,
   }
 ];
 
@@ -55,7 +56,8 @@ declare global {
 
 const App = () => {
   const dispatch = useDispatch();
-  const content = useRoutes(routes);
+  const isLoggedIn = useSelector(selectIsLoggedIn());
+  const content = useRoutes(routes(isLoggedIn));
   const navigate = useNavigate();
   const navigateURL = useSelector(sharedSelectors.selectRouterLink());
 

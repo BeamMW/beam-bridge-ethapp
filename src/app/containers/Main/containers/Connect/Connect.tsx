@@ -1,13 +1,12 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
-
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Window, Button, Table } from '@app/shared/components';
-import { selectAppParams, selectBridgeTransactions, selectRate } from '../../store/selectors';
+import { Button, Window } from '@app/shared/components';
+import { selectBridgeTransactions, selectRate } from '../../store/selectors';
 import { IconMetamask } from '@app/shared/icons';
-import { CURRENCIES, ROUTES } from '@app/shared/constants';
+import { ROUTES } from '@app/shared/constants';
 import { BridgeTransaction } from '@core/types';
 import { connectToMetamask } from '@app/core/api';
 
@@ -41,42 +40,10 @@ const ButtonTextClass = css`
 const Connect: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const rate = useSelector(selectRate());
-  const bridgeTransactions = useSelector(selectBridgeTransactions());
-
-  const TABLE_CONFIG = [
-    {
-      name: 'amount',
-      title: 'Amount',
-      fn: (value: string, tr: BridgeTransaction) => {
-        // const curr = CURRENCIES.find((item) => item.cid === tr.cid);
-
-        // return parseInt(value) / Math.pow(10, 8) + ' ' + curr.name;
-      }
-    },
-    {
-      name: 'status',
-      title: 'Status'
-    }
-  ];
-
-  const handleSendClick: React.MouseEventHandler = () => {
-    navigate(ROUTES.MAIN.SEND);
-  };
-  
-  const handleReceiveClick: React.MouseEventHandler = () => {
-    navigate(ROUTES.MAIN.RECEIVE);
-  };
-
-  const handleConnect = () => {
-    window.ethereum
-      .request({ method: 'eth_requestAccounts' })
-      .then(accounts => console.log(accounts))
-  }
 
   return (
     <>
-      <Window>
+      <Window state="content">
         <Container>
           <Title>ETH to BEAM Bridge</Title>
           <Subtitle>

@@ -4,9 +4,9 @@ interface Rate {
   usd: number
 }
 
-export interface FaucetStateType {
+export interface AppStateType {
   bridgeTransactions: BridgeTransaction[];
-  pk: string;
+  isLoggedIn: boolean;
   balance: Balance[];
   //appParams: FaucetAppParams;
   popupsState: {
