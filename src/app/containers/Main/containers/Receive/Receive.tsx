@@ -6,6 +6,7 @@ import { IconCopyBlue, IconBack } from '@app/shared/icons';
 import { useSelector } from 'react-redux';
 import { selectSystemState } from '@app/shared/store/selectors';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 
 const ControlStyled = styled.div`
   width: 600px;
@@ -98,7 +99,8 @@ const Receive = () => {
   const navigate = useNavigate();
   
   const handleCopyClick: React.MouseEventHandler = () => {
-    navigator.clipboard.writeText(systemState.account)
+    navigator.clipboard.writeText(systemState.account);
+    toast('Address copied to clipboard');
     navigate(ROUTES.MAIN.BASE);
   };
 

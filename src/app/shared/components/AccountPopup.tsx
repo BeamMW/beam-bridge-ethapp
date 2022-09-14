@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState } from 'react';
 import { styled } from '@linaria/react';
 import { Button, Popup, TokenCard } from '@app/shared/components';
 import { IconCopyWhite, IconLogout } from '@app/shared/icons';
@@ -7,6 +7,7 @@ import { IconCopyWhite, IconLogout } from '@app/shared/icons';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectErrorMessage, selectSystemState } from '@app/shared/store/selectors';
 import { css } from '@linaria/core';
+import { toast } from 'react-toastify';
 import { selectAppParams, selectBalance } from '@app/containers/Main/store/selectors';
 
 interface AccountPopupProps {
@@ -58,7 +59,8 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ visible, onCancel }) => {
   };
 
   const handleCopyClick = () => {
-
+    navigator.clipboard.writeText(systemState.account);
+    toast('Address copied to clipboard');
   };
 
   return (
