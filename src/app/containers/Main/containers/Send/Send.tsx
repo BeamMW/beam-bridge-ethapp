@@ -10,7 +10,8 @@ import {
   IconEthLarge,
   IconUsdtLarge,
   IconWbtcLarge,
-  IconCheck
+  IconCheck,
+  IconSendPink
 } from '@app/shared/icons';
 import { useNavigate } from 'react-router-dom';
 import { ROUTES } from '@app/shared/constants';
@@ -19,10 +20,15 @@ import MetaMaskController  from '@core/MetaMask';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ethId, CURRENCIES } from '@app/shared/constants';
-import { selectBalance } from '../../store/selectors';
-
+import { selectBalance, selectRate } from '../../store/selectors';
+import { useFormik } from 'formik';
 
 const metaMaskController = MetaMaskController.getInstance();
+
+interface SendFormData {
+  send_amount: string;
+  address: string;
+}
 
 const ControlStyled = styled.div`
   width: 600px;
@@ -166,15 +172,59 @@ const FeeValue = styled.div`
   margin-top: 10px;
 `;
 
+
+const AvailableContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  margin-top: 30px;
+
+  > .header {
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 17px;
+    letter-spacing: 3.11111px;
+    display: flex;
+
+    > .add-max {
+      margin-left: auto;
+      cursor: pointer;
+      display: flex;
+
+      > .text {
+        font-weight: 700;
+        font-size: 14px;
+        line-height: 17px;
+        color: #DA68F5;
+        margin-left: 10px;
+      }
+    }
+  }
+
+  > .balance {
+    margin-top: 10px;
+    font-weight: 400;
+    font-size: 14px;
+  }
+
+  > .rate {
+    margin-top: 5px;
+    font-size: 12px;
+    mix-blend-mode: normal;
+    opacity: 0.5;
+  }
+`;
+
 const Send = () => {
   const navigate = useNavigate();
   const addressInputRef = useRef<HTMLInputElement>();
   const amountInputRef = useRef<HTMLInputElement>();
   const systemState = useSelector(selectSystemState());
   const balance = useSelector(selectBalance());
+  const rates = useSelector(selectRate());
 
   const [selectedCurrency, setSelectedCurrency] = useState(null);
   const [feeVal, setFeeVal] = useState('');
+  const [ethFeeVal, setEthFeeVal] = useState(null);
   const [addressValue, setAddress] = useState('');
   const [parsedAddressValue, setParsedAddressValue] = useState('');
   const [isFromParams, setIsFromParams] = useState(false);
@@ -182,9 +232,52 @@ const Send = () => {
   const [isAllowed, setIsAllowed] = useState(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [availableBalance, setAvailableBalance] = useState({
+    value: 0,
+    rate: 0
+  })
   // const balance = useStore($balance);
 
   const { address } = useParams();
+
+  
+  const validate = async (formValues: SendFormData) => {
+    const errorsValidation: any = {};
+    const {
+        send_amount
+    } = formValues;
+
+    if (Number(send_amount) === 0) {
+      errorsValidation.send_amount = `Invalid amount`;
+    }
+
+    return errorsValidation;
+  };
+
+  const formik = useFormik<SendFormData>({
+    initialValues: {
+        send_amount: '',
+        address: ''
+    },
+    isInitialValid: false,
+    onSubmit: (value) => {
+    
+    },
+    validate: (e) => validate(e),
+  });
+
+  const {
+    values, setFieldValue, errors, submitForm, resetForm
+  } = formik;
+
+  const isFormDisabled = () => {
+    if (!formik.isValid) return !formik.isValid;
+    return false;
+  };
+
+  const isSendAmountValid = () => {
+    return !errors.send_amount;
+  }
 
   const resetState = () => {
     setAddress('');
@@ -208,17 +301,18 @@ const Send = () => {
           setIsFromParams(true);
           setIsAddressValid(true);
           setAddress(address);
+          setFieldValue('address', address, true);
 
           if (parsedCurrency.id !== ethId) {
             const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
             setIsAllowed(fromBalance.is_approved);
 
-            if (isAllowed) {
-              calcFee(parsedCurrency);
-            }
+            // if (isAllowed) {
+            //   calcFee(parsedCurrency);
+            // }
           } else {
             setIsAllowed(true);
-            calcFee(parsedCurrency);
+            //calcFee(parsedCurrency);
           }
           
           setIsLoaded(true);
@@ -232,6 +326,22 @@ const Send = () => {
       setIsLoaded(true);
     }
   }, [address, balance]);
+
+  const getBalance = (id: number) => {
+    return balance.find((item) => {
+      return item.id === id;
+    }).value;
+  }
+
+  useEffect(() => {
+    if (selectedCurrency) {
+      setAvailableBalance({
+        value: getBalance(selectedCurrency.curr_id),
+        rate: rates[selectedCurrency.rate_id].usd
+      });
+      calcFee(selectedCurrency);
+    }
+  }, [selectedCurrency])
 
   const validateAddress = (value: string) => {
     const key = value.slice(-66);
@@ -340,6 +450,39 @@ const Send = () => {
     window.open('https://beam.mw/downloads/mainnet', '_blank').focus();
   }
 
+  const handleAssetChange = (amount: string) => {
+    setFieldValue('send_amount', amount, true);
+    getEthFee(amount);
+  };
+
+  const handleAddressChange = (address: string) => {
+    setFieldValue('address', address, true);
+  }
+
+  const addMaxClicked = () => {
+    setFieldValue('send_amount', availableBalance.value, true);
+    getEthFee(availableBalance.value);
+  }
+
+  const getEthFee = async (amount) => {
+    let address = isFromParams ? parsedAddressValue : values.address as string;
+    if (address.length > 66) {
+      address = address.slice(-66)
+    }
+    
+    const sendData = {
+      address,
+      amount,
+      fee: parseFloat(feeVal),
+      selectedCurrency,
+      account: systemState.account
+    };
+
+    const fee = await metaMaskController.loadEthFee(sendData);
+    console.log('ETH FEE', fee);
+    setEthFeeVal(fee);
+  }
+
   return (
     isLoaded ? (<Window>
       <ControlStyled>
@@ -359,6 +502,8 @@ const Send = () => {
         : (<Input placeholder='Paste Beam bridge address here' 
               onChange={ inputChange } 
               variant="common"
+              value={values.address}
+              onChangeHandler={handleAddressChange}
               ref={addressInputRef} 
               name="address"/>)
         }
@@ -376,22 +521,35 @@ const Send = () => {
             <FormSubtitle>AMOUNT</FormSubtitle>
             <Input 
               variant='amount'
-              selectedCurrency={selectedCurrency}  
+              selectedCurrency={selectedCurrency}
+              onChangeHandler={handleAssetChange}
+              value={values.send_amount}
               ref={amountInputRef} name="amount"></Input>
+            <AvailableContainer>
+              <div className='header'>
+                <span className='title'>AVAILABLE</span>
+                <span className='add-max' onClick={addMaxClicked}>
+                  <IconSendPink/>
+                  <span className='text'>max</span>
+                </span>
+              </div>
+              <div className='balance'> {availableBalance.value} {selectedCurrency.name} </div>
+              <div className='rate'>{availableBalance.rate} USD</div>
+            </AvailableContainer>
             <StyledSeparator/>
             <FeeContainer>
               <FeeItem>
                 <FormSubtitle className={FeeSubtitleClass}>RELAYER FEE</FormSubtitle>
-                <FeeValue>{feeVal}</FeeValue>
+                <FeeValue>{feeVal} {selectedCurrency.name}</FeeValue>
               </FeeItem>
               <FeeItem>
                 <FormSubtitle className={FeeSubtitleClass}>EXPECTED ETHEREUM NETWORK FEE</FormSubtitle>
-                <FeeValue>{0.0001}</FeeValue>
+                {ethFeeVal ? <FeeValue>{ethFeeVal} ETH</FeeValue> : <></>}
               </FeeItem>
             </FeeContainer>
             <Button className={TransferButtonClass}
                   type="submit"
-                  disabled={isDisabled}
+                  disabled={isFormDisabled()}
                   pallete='purple' icon={IconSend}>
                     transfer
             </Button>

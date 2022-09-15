@@ -112,63 +112,64 @@ export default class MetaMaskController {
     return result * BigInt(Math.pow(10, decimals - validDecimals));
   }
 
+  async loadEthFee(params: SendParams) {
+    const { amount, fee, address, selectedCurrency, account } = params;
+    const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals, selectedCurrency.validator_dec);
+    const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals, selectedCurrency.validator_dec);
+
+    let transactionFee = null;
+
+    const pipeContract = new ethers.Contract(
+      selectedCurrency.ethPipeContract,  
+      EthERC20Pipe.abi,
+      this.ethers
+    );
+
+    const gasPrice = await ethers.getDefaultProvider().getGasPrice();
+    const userSigner = pipeContract.connect(this.signer);
+    try {
+      const feeAmount = await userSigner.estimateGas.sendFunds(
+        finalAmount,
+        relayerFee,
+        address.slice(0, 2) !== '0x' ? ('0x' + address) : address
+      );
+
+      transactionFee = gasPrice.mul(feeAmount);
+    } catch (e) {
+    }
+
+    return transactionFee ? ethers.utils.formatUnits(transactionFee, "ether") : 0;
+  }
+
   async sendToken(params: SendParams) {
     const { amount, fee, address, selectedCurrency, account } = params;
     const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals, selectedCurrency.validator_dec);
     const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals, selectedCurrency.validator_dec);
     const totalAmount = finalAmount + relayerFee;
 
-    // TODO should delete this code. it's only for debug
-    console.log('amount = ', amount, ' fee = ', fee);
-    console.log('finalAmount = ', finalAmount, ' relayerFee = ', relayerFee, ' totalAmount = ', totalAmount);
-
     //setIsInProgress(true);
 
     try {
-      if (selectedCurrency.id === ethId) {
-        //send for eth
-        const pipeContract = new ethers.Contract(
-          selectedCurrency.ethPipeContract,
-          EthPipe.abi,
-          this.ethers
-        );
-
-        const userSigner = pipeContract.connect(this.signer);
-        const lockTx = await userSigner.sendFunds(
-          finalAmount,
-          relayerFee,
-          address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
-          {
-            from: account,
-            value: totalAmount
-          }
-        );
-        
-        await lockTx.wait().then((receipt)=> {
-          //setIsInProgress(false);
-          console.log('receipt: ', receipt);
-        });
-      } else {
-        const pipeContract = new ethers.Contract(
-          selectedCurrency.ethPipeContract,  
-          EthERC20Pipe.abi,
-          this.ethers
-        );
-
-        const userSigner = pipeContract.connect(this.signer);
-        const lockTx = await userSigner.sendFunds(
-          finalAmount,
-          relayerFee,
-          address.slice(0, 2) !== '0x' ? ('0x' + address) : address
-        );
-
-        await lockTx.wait().then((receipt)=> {
-          //setIsInProgress(false);
-          console.log('receipt: ', receipt);
-        });
-      }
+      const pipeContract = new ethers.Contract(
+        selectedCurrency.ethPipeContract,
+        selectedCurrency.id === ethId ? EthPipe.abi : EthERC20Pipe.abi,
+        this.ethers
+      );
+      const userSigner = pipeContract.connect(this.signer);
+      const lockTx = await userSigner.sendFunds(
+        finalAmount,
+        relayerFee,
+        address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
+        selectedCurrency.id === ethId ? {
+          from: account,
+          value: totalAmount
+        } : {}
+      );
+      await lockTx.wait().then((receipt)=> {
+        //setIsInProgress(false);
+        console.log('receipt: ', receipt);
+      });
     } catch (e) {
-      console.log('send transaction error: ', e);
       //setIsInProgress(false);
     }
 
@@ -234,6 +235,6 @@ export default class MetaMaskController {
     const currRate = await this.loadRate(rate_id);
 
     const RELAY_SAFETY_COEFF = 1.1;
-    return RELAY_SAFETY_COEFF * relayCosts / parseFloat(currRate[rate_id]['usd']);
+    return RELAY_SAFETY_COEFF * relayCosts;// / parseFloat(currRate[rate_id]['usd']);
   }
 }

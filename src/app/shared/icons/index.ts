@@ -58,6 +58,7 @@ import IconUsdtLarge from './icon-large-usdt.svg';
 import IconWbtcLarge from './icon-large-wbtc.svg';
 import IconCheck from './icon-check.svg';
 import IconClose from './icon-close.svg';
+import IconSendPink from './icon-send-pink.svg';
 
 export {
   IconBack,
@@ -118,5 +119,6 @@ export {
   IconEthLarge,
   IconWbtcLarge,
   IconCheck,
-  IconClose
+  IconClose,
+  IconSendPink
 }

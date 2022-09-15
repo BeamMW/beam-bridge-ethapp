@@ -3,12 +3,17 @@ import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import { IconWbtc, IconEth, IconDai, IconUsdt } from '@app/shared/icons';
 import { Currency } from '@app/core/types';
+import { Rate } from '.';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
+  value: string;
   variant: 'amount' | 'common' | 'fee',
-  selectedCurrency?: Currency
+  selectedCurrency?: Currency,
+  onChangeHandler?: (value: string) => void;
 }
+
+export const AMOUNT_MAX = 253999999.9999999;
 
 interface DropdownProps {
   isVisible: boolean
@@ -76,6 +81,12 @@ const CurrencyTitle = styled.span`
   align-items: center;
 `;
 
+const rateStyle = css`
+  font-size: 12px;
+  align-self: start;
+  margin-left: 15px;
+`;
+
 // const ErrorStyled = styled.div`
 //   position: absolute;
 //   top: 33px;
@@ -85,19 +96,21 @@ const CurrencyTitle = styled.span`
 //   color: var(--color-failed);
 // `;
 
-
+const REG_AMOUNT = /^(?!0\d)(\d+)(\.)?(\d{0,8})?$/;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant, selectedCurrency, error, ...rest }, ref) => {
-
-    const inputChange = (event) => {
+  ({ variant, value, selectedCurrency, error, onChangeHandler, ...rest }, ref) => {
+    const handleInput: React.ChangeEventHandler<HTMLInputElement> = (event) => {
+      const { value: raw } = event.target;
+  
       if (selectedCurrency) {
-        let value = event.target.value;
-        var regex = new RegExp("^\\d*(\\.?\\d{0," + selectedCurrency.validator_dec + "})", "g");
-        value = (value.match(regex)[0]) || null;
-        event.target.value = value;
+        if ((raw !== '' && !REG_AMOUNT.test(raw)) || parseFloat(raw) > AMOUNT_MAX) {
+          return;
+        }
       }
-    }
+  
+      onChangeHandler(raw);
+    };
 
     const getCurrIcon = (curr) => {
       const ICONS = {
@@ -111,24 +124,27 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     }
 
     return (
-      <ContainerStyled className={variant === 'common' ? AddressInputClass : NumberInputClass}>
-        <InputStyled
-          type={variant === 'amount' ? 'number' : 'text'}
-          variant={variant} ref={ref}
-          onChange={variant === 'amount' || variant === 'fee' ? inputChange : null}
-          error={error} {...rest} />
-        {
-          (variant === 'amount' 
-            ? (
-            <StyledCurrency>
-              { getCurrIcon(selectedCurrency) }
-              <CurrencyTitle>
-                {selectedCurrency !== null ? selectedCurrency.name : ''}
-              </CurrencyTitle>
-            </StyledCurrency>
-            ) : <></>)
-        }
-      </ContainerStyled>
+      <>
+        <ContainerStyled className={variant === 'common' ? AddressInputClass : NumberInputClass}>
+          <InputStyled
+            variant={variant} ref={ref}
+            onInput={handleInput}
+            value={value}
+            error={error} {...rest} />
+          {
+            (variant === 'amount' 
+              ? (
+              <StyledCurrency>
+                { getCurrIcon(selectedCurrency) }
+                <CurrencyTitle>
+                  {selectedCurrency !== null ? selectedCurrency.name : ''}
+                </CurrencyTitle>
+              </StyledCurrency>
+              ) : <></>)
+          }
+        </ContainerStyled>
+        {!error && selectedCurrency && <Rate value={parseFloat(value)} selectedCurrencyId={selectedCurrency.rate_id} className={rateStyle} />}
+      </>
     )
   },
 );
