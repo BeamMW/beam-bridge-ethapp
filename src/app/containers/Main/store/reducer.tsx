@@ -17,7 +17,8 @@ const initialState: AppStateType = {
   //   withdrawLimit: 0
   // },
   popupsState: {
-    account: false
+    account: false,
+    install: false
   },
   // funds: [],
   rate: null,

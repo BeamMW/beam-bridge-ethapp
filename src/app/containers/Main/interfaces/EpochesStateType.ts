@@ -11,6 +11,7 @@ export interface AppStateType {
   //appParams: FaucetAppParams;
   popupsState: {
     account: boolean;
+    install: boolean;
   };
   rate: {
     dai: Rate,

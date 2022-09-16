@@ -1,7 +1,6 @@
 import React, { useState, useRef, HTMLAttributes } from 'react';
 import { styled } from '@linaria/react';
 import { CURRENCIES } from '@app/shared/constants';
-import { useStore } from 'effector-react';
 import { css } from '@linaria/core';
 import { IconDai, IconEth, IconUsdt, IconWbtc } from '@app/shared/icons';
 import { useEffect } from 'react';

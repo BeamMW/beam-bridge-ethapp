@@ -1,14 +1,7 @@
 import { call, put, takeLatest, select } from 'redux-saga/effects';
-import { navigate } from '@app/shared/store/actions';
-//import { ROUTES, CURRENCIES } from '@app/shared/constants';
-import { selectTransactions } from '@app/shared/store/selectors';
-
 import { actions } from '.';
 import store from '../../../../index';
-
-import { setIsLoaded } from '@app/shared/store/actions';
 import { selectSystemState } from '@app/shared/store/selectors';
-import { RateResponse } from '../interfaces';
 import { Balance, Currency } from '@app/core/types';
 import { CURRENCIES, ethId } from '@app/shared/constants';
 import MetaMaskController  from '@core/MetaMask';
@@ -17,7 +10,6 @@ const metaMaskController = MetaMaskController.getInstance();
 
 const FETCH_INTERVAL = 310000;
 const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
-const RATE_PARAMS = 'ids=beam&vs_currencies=usd';
 
 async function callLoadEthBalance(account: string) {
   return await metaMaskController.loadEthBalance(account);

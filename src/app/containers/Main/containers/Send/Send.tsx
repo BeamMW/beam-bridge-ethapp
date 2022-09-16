@@ -236,11 +236,8 @@ const Send = () => {
     value: 0,
     rate: 0
   })
-  // const balance = useStore($balance);
-
   const { address } = useParams();
 
-  
   const validate = async (formValues: SendFormData) => {
     const errorsValidation: any = {};
     const {
@@ -447,10 +444,10 @@ const Send = () => {
   };
 
   const handleDownloadClick: React.MouseEventHandler = () => {
-    window.open('https://beam.mw/downloads/mainnet', '_blank').focus();
+    window.open('https://beam.mw/downloads/dappnet', '_blank').focus();
   }
 
-  const handleAssetChange = (amount: string) => {
+  const handleAmountChange = (amount: string) => {
     setFieldValue('send_amount', amount, true);
     getEthFee(amount);
   };
@@ -522,7 +519,7 @@ const Send = () => {
             <Input 
               variant='amount'
               selectedCurrency={selectedCurrency}
-              onChangeHandler={handleAssetChange}
+              onChangeHandler={handleAmountChange}
               value={values.send_amount}
               ref={amountInputRef} name="amount"></Input>
             <AvailableContainer>

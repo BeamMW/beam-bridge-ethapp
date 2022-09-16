@@ -1,14 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import React, { useRef, useState } from 'react';
+import React from 'react';
 import { styled } from '@linaria/react';
 import { Button, Popup, TokenCard } from '@app/shared/components';
 import { IconCopyWhite, IconLogout } from '@app/shared/icons';
 
-import { useDispatch, useSelector } from 'react-redux';
-import { selectErrorMessage, selectSystemState } from '@app/shared/store/selectors';
+import { useSelector } from 'react-redux';
+import { selectSystemState } from '@app/shared/store/selectors';
 import { css } from '@linaria/core';
 import { toast } from 'react-toastify';
-import { selectAppParams, selectBalance } from '@app/containers/Main/store/selectors';
+import { selectBalance } from '@app/containers/Main/store/selectors';
 
 interface AccountPopupProps {
   visible?: boolean;
@@ -44,13 +44,6 @@ const PopupCards = styled.div`
 `;
 
 const AccountPopup: React.FC<AccountPopupProps> = ({ visible, onCancel }) => {
-  const inputRef = useRef<HTMLInputElement>();
-  const [warned, setWarned] = useState(false);
-  const dispatch = useDispatch();
-  const error = useSelector(selectErrorMessage());
-  const appParams = useSelector(selectAppParams());
-  const [nextEpochDate, setNextEpochStartDate] = useState(null);
-  const [aid, setAid] = useState(null);
   const systemState = useSelector(selectSystemState());
   const balance = useSelector(selectBalance());
 

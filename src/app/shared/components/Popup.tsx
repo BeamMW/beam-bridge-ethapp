@@ -26,7 +26,7 @@ const ContainerStyled = styled.div`
   background-color: var(--color-popup);
   color: white;
   width: 660px;
-  padding: 30px 30px 50px 50px;
+  padding: 30px;
   color: white;
   display: flex;
   flex-direction: column;

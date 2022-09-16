@@ -11,7 +11,8 @@ import { ROUTES } from '@app/shared/constants';
 import MetaMaskController from '@core/MetaMask';
 
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { setIsLoggedIn } from '@app/containers/Main/store/actions';
+import { setIsLoggedIn, setPopupState } from '@app/containers/Main/store/actions';
+import { connectToMetamask } from '@app/core/api';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -93,6 +94,11 @@ function* sharedSaga() {
         case 'account_loaded':
           if (payload.data.length === 0) {
             store.dispatch(setIsLoggedIn(false));
+            const wasReloaded = localStorage.getItem('wasReloaded');
+            if (wasReloaded) {
+              connectToMetamask();
+              localStorage.removeItem('wasReloaded');
+            }
             yield put(navigate(ROUTES.MAIN.CONNECT));
           } else {
             initApp(payload.data[0]);
@@ -112,6 +118,7 @@ function* sharedSaga() {
           break;
         case 'metamask_not_installed':
           store.dispatch(setIsLoggedIn(false));
+          store.dispatch(setPopupState({type: 'install', state: true}));
           yield put(navigate(ROUTES.MAIN.CONNECT));
 
           break;

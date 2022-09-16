@@ -109,7 +109,7 @@ const Receive = () => {
   };
 
   const handleDownloadClick: React.MouseEventHandler = () => {
-    window.open('https://beam.mw/downloads/mainnet', '_blank').focus();
+    window.open('https://beam.mw/downloads/dappnet', '_blank').focus();
   }
 
   return (

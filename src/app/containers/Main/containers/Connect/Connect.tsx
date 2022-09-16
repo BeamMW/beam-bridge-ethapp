@@ -3,12 +3,11 @@ import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
-import { Button, Window } from '@app/shared/components';
-import { selectBridgeTransactions, selectRate } from '../../store/selectors';
+import { Button, Window, InstallPopup } from '@app/shared/components';
 import { IconMetamask } from '@app/shared/icons';
-import { ROUTES } from '@app/shared/constants';
-import { BridgeTransaction } from '@core/types';
 import { connectToMetamask } from '@app/core/api';
+import { selectPopupsState } from '../../store/selectors';
+import { setPopupState } from '../../store/actions';
 
 const Container = styled.div`
   display: flex;
@@ -41,6 +40,8 @@ const Connect: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
+  const popupsState = useSelector(selectPopupsState());
+
   return (
     <>
       <Window state="content">
@@ -57,6 +58,9 @@ const Connect: React.FC = () => {
               CONNECT WALLET
             </Button>
         </Container>
+        <InstallPopup visible={popupsState.install} onCancel={()=>{
+          dispatch(setPopupState({type: 'install', state: false}));
+        }}/>
       </Window>
     </>
   );

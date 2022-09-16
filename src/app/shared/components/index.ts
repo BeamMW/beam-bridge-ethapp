@@ -13,3 +13,4 @@ export { default as CurrInput } from './CurrInput';
 export { default as ActiveAccount } from './ActiveAccount';
 export { default as BalanceCard } from './BalanceCard';
 export { default as TokenCard } from './TokenCard';
+export { default as InstallPopup } from './InstallPopup';
