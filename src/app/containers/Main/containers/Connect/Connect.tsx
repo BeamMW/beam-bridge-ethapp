@@ -5,9 +5,9 @@ import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Window, InstallPopup } from '@app/shared/components';
 import { IconMetamask } from '@app/shared/icons';
-import { connectToMetamask } from '@app/core/api';
 import { selectPopupsState } from '../../store/selectors';
-import { setPopupState } from '../../store/actions';
+import { setIsLocked, setPopupState } from '../../store/actions';
+import { ROUTES } from '@app/shared/constants';
 
 const Container = styled.div`
   display: flex;
@@ -41,6 +41,22 @@ const Connect: React.FC = () => {
   const dispatch = useDispatch();
 
   const popupsState = useSelector(selectPopupsState());
+
+  const connectToMetamask = () => {
+    if (window.ethereum) {
+        if (localStorage.getItem('locked')) {
+          localStorage.removeItem('locked');
+          dispatch(setIsLocked(false));
+          navigate(ROUTES.MAIN.BASE);
+        }
+        window.ethereum
+            .request({ method: 'eth_requestAccounts' })
+            .then(accounts => console.log('success!'))
+    } else {
+        localStorage.setItem('wasReloaded', '1');
+        window.location.reload();
+    }
+}
 
   return (
     <>

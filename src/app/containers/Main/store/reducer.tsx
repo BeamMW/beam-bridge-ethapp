@@ -10,6 +10,7 @@ const initialState: AppStateType = {
   bridgeTransactions: [],
   isLoggedIn: false,
   balance: [],
+  isLocked: false,
   // appParams: {
   //   backlogPeriod: 0,
   //   enabled: 0,
@@ -34,7 +35,9 @@ const reducer = createReducer<AppStateType, Action>(initialState)
   .handleAction(actions.setIsLoggedIn, (state, action) => produce(state, (nexState) => {
     nexState.isLoggedIn = action.payload;
   }))
-
+  .handleAction(actions.setIsLocked, (state, action) => produce(state, (nexState) => {
+    nexState.isLocked = action.payload;
+  }))
   .handleAction(actions.loadAppParams.success, (state, action) => produce(state, (nexState) => {
     nexState.balance = action.payload;
   }))
@@ -53,8 +56,5 @@ const reducer = createReducer<AppStateType, Action>(initialState)
   .handleAction(actions.setIsInProgress, (state, action) => produce(state, (nexState) => {
     nexState.isDonateInProgress = action.payload;
   }))
-  // .handleAction(actions.setFaucetFunds, (state, action) => produce(state, (nexState) => {
-  //   nexState.funds = action.payload;
-  // }));
 
 export { reducer as MainReducer };

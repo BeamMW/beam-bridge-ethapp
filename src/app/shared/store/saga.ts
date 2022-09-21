@@ -11,8 +11,7 @@ import { ROUTES } from '@app/shared/constants';
 import MetaMaskController from '@core/MetaMask';
 
 import MetaMaskOnboarding from '@metamask/onboarding';
-import { setIsLoggedIn, setPopupState } from '@app/containers/Main/store/actions';
-import { connectToMetamask } from '@app/core/api';
+import { setIsLocked, setIsLoggedIn, setPopupState } from '@app/containers/Main/store/actions';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -90,13 +89,17 @@ function* sharedSaga() {
     try {
       const payload: any = yield take(remoteChannel);
       console.log('payload: ', payload);
+      if (localStorage.getItem('locked')) {
+        store.dispatch(setIsLocked(true));
+      }
+
       switch (payload.event) {
         case 'account_loaded':
           if (payload.data.length === 0) {
             store.dispatch(setIsLoggedIn(false));
             const wasReloaded = localStorage.getItem('wasReloaded');
             if (wasReloaded) {
-              connectToMetamask();
+              metaMaskController.connect();
               localStorage.removeItem('wasReloaded');
             }
             yield put(navigate(ROUTES.MAIN.CONNECT));

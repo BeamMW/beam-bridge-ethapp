@@ -1,8 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { styled } from '@linaria/react';
-import { Button, CurrInput, Input, Window } from '@app/shared/components';
+import { Button, Input, Window } from '@app/shared/components';
 import { css } from '@linaria/core';
-import { calcSomeFee } from '@core/appUtils';
 import { 
   IconBack,
   IconSend,

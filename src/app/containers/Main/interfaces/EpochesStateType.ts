@@ -8,7 +8,7 @@ export interface AppStateType {
   bridgeTransactions: BridgeTransaction[];
   isLoggedIn: boolean;
   balance: Balance[];
-  //appParams: FaucetAppParams;
+  isLocked: boolean;
   popupsState: {
     account: boolean;
     install: boolean;

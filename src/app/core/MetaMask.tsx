@@ -1,16 +1,9 @@
 import MetaMaskOnboarding from '@metamask/onboarding';
-// import { 
-//   setView,
-//   setIsInProgress, setNetwork,
-//   remoteEvent
-// } from './../state/shared';
 import { ethers, BigNumber } from 'ethers';
 import EthPipe from '@app/eth-pipe/EthPipe.json';
 import EthERC20Pipe from '@app/eth-pipe/EthERC20Pipe.json';
 import { SendParams, Balance, Currency } from '@core/types';
 import { CURRENCIES, MAX_ALLOWED_VALUE, REVOKE_VALUE, ethId, ROUTES } from '@app/shared/constants';
-//import { MAX_ALLOWED_VALUE, REVOKE_VALUE } from '@consts/common';
-//import { ROUTES } from '@consts/routes';
 
 const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 
@@ -53,7 +46,6 @@ export default class MetaMaskController {
   }
 
   init() {
-    console.log('init called')
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       this.ethers = new ethers.providers.Web3Provider(window.ethereum);
       this.signer = this.ethers.getSigner();
@@ -61,17 +53,13 @@ export default class MetaMaskController {
   }
 
   connect() {
-    console.log('connect called')
-    if(MetaMaskOnboarding.isMetaMaskInstalled()) {
+    if (window.ethereum) {
       window.ethereum
-        .request({ method: 'eth_requestAccounts' });
+          .request({ method: 'eth_requestAccounts' })
     } else {
-      this.onboarding.startOnboarding();
+        localStorage.setItem('wasReloaded', '1');
+        window.location.reload();
     }
-  }
-
-  disconnect() {
-
   }
 
   requestToContract = async (sender, receiver, abi) => {
@@ -197,15 +185,6 @@ export default class MetaMaskController {
   async revokeToken(curr_id: number) {
     console.log(BigNumber.from(REVOKE_VALUE));
     this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE));
-  }
-
-  async receiveToken(msgId: number) {
-    // TODO: remove all mentions of the 'receiveToken'
-  }
-
-  // TODO: implement depending on the type of token
-  async getTokenDecimals() {
-    return 8;
   }
 
   async loadGasPrice () {

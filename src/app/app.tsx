@@ -18,33 +18,33 @@ import {
   Send,
   Connect
 } from '@app/containers/Main/containers';
-import { selectIsLoggedIn } from './containers/Main/store/selectors';
+import { selectIsLocked, selectIsLoggedIn } from './containers/Main/store/selectors';
 const trackStyle = css`
   z-index: 999;
   border-radius: 3px;
   background-color: rgba(255, 255, 255, 0.2);
 `;
 
-const routes = (isLoggedIn: boolean) => [
+const routes = (isLoggedIn: boolean, isLocked: boolean) => [
   {
     path: ROUTES_PATH.MAIN.BASE,
-    element: <MainPage />,
+    element: isLocked ? <Connect/> : <MainPage />,
   },
   {
     path: ROUTES_PATH.MAIN.SEND_BY_ADDRESS,
-    element: <Send />,
+    element: isLocked ? <Connect/> : <Send />,
   },
   {
     path: ROUTES_PATH.MAIN.RECEIVE,
-    element: <Receive />,
+    element: isLocked ? <Connect/> : <Receive />,
   },
   {
     path: ROUTES_PATH.MAIN.SEND,
-    element: <Send />,
+    element: isLocked ? <Connect/> : <Send />,
   },
   {
     path: ROUTES_PATH.MAIN.CONNECT,
-    element: !isLoggedIn ? <Connect /> : <Navigate to={ROUTES_PATH.MAIN.BASE} />,
+    element: !isLoggedIn || isLocked ? <Connect /> : <Navigate to={ROUTES_PATH.MAIN.BASE} />,
   }
 ];
 
@@ -57,7 +57,8 @@ declare global {
 const App = () => {
   const dispatch = useDispatch();
   const isLoggedIn = useSelector(selectIsLoggedIn());
-  const content = useRoutes(routes(isLoggedIn));
+  const isLocked = useSelector(selectIsLocked());
+  const content = useRoutes(routes(isLoggedIn, isLocked));
   const navigate = useNavigate();
   const navigateURL = useSelector(sharedSelectors.selectRouterLink());
 

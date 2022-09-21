@@ -8,6 +8,7 @@ export const selectBridgeTransactions = () => createSelector(selectMain, (state)
 
 export const selectBalance = () => createSelector(selectMain, (state) => state.balance);
 export const selectIsLoggedIn = () => createSelector(selectMain, (state) => state.isLoggedIn);
+export const selectIsLocked = () => createSelector(selectMain, (state) => state.isLocked);
 
 export const selectAppParams = () => createSelector(selectMain, (state) => state.appParams);
 export const selectRate = () => createSelector(selectMain, (state) => state.rate);

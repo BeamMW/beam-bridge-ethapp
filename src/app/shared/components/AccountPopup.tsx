@@ -9,6 +9,8 @@ import { selectSystemState } from '@app/shared/store/selectors';
 import { css } from '@linaria/core';
 import { toast } from 'react-toastify';
 import { selectBalance } from '@app/containers/Main/store/selectors';
+import { ROUTES } from '@app/shared/constants';
+import { useNavigate } from 'react-router-dom';
 
 interface AccountPopupProps {
   visible?: boolean;
@@ -46,9 +48,10 @@ const PopupCards = styled.div`
 const AccountPopup: React.FC<AccountPopupProps> = ({ visible, onCancel }) => {
   const systemState = useSelector(selectSystemState());
   const balance = useSelector(selectBalance());
-
+  
   const disconnectWalletClicked = () => {
-
+    localStorage.setItem('locked', '1');
+    window.location.reload();
   };
 
   const handleCopyClick = () => {

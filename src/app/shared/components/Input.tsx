@@ -96,15 +96,15 @@ const rateStyle = css`
 //   color: var(--color-failed);
 // `;
 
-const REG_AMOUNT = /^(?!0\d)(\d+)(\.)?(\d{0,8})?$/;
-
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ variant, value, selectedCurrency, error, onChangeHandler, ...rest }, ref) => {
     const handleInput: React.ChangeEventHandler<HTMLInputElement> = (event) => {
       const { value: raw } = event.target;
   
       if (selectedCurrency) {
-        if ((raw !== '' && !REG_AMOUNT.test(raw)) || parseFloat(raw) > AMOUNT_MAX) {
+        console.log()
+        const regex = new RegExp("^(?!0\\d)(\\d+)(\\.)?(\\d{0," + selectedCurrency.validator_dec + "})?$");
+        if ((raw !== '' && !regex.test(raw)) || parseFloat(raw) > AMOUNT_MAX) {
           return;
         }
       }
