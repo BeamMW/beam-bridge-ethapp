@@ -7,5 +7,5 @@ export const setError = createAction(SharedActionTypes.SET_ERROR)<string | null>
 export const setAccountState = createAction('@@SHARED/SET_ACCOUNT_STATE')<string>();
 export const setNetworkState = createAction('@@SHARED/SET_NETWORK_STATE')<string>();
 
-//export const setTransactions = createAction('@@TRANSACTIONS/SET_TRANSACTIONS')<Transaction[]>();
+export const setTransactions = createAction('@@TRANSACTIONS/SET_TRANSACTIONS')<any[]>();
 export const setIsLoaded = createAction('@@SHARED/SET_IS_LOADED')<boolean>();

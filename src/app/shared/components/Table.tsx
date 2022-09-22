@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { styled } from '@linaria/react';
 //import { Transaction } from '@app/core/types';
 import { useEffect } from 'react';
-import { IconConfirm } from '@app/shared/icons';
+import { IconDeposit, IconConfirm } from '@app/shared/icons';
+import { useSelector } from 'react-redux';
+import { selectSystemState } from '../store/selectors';
 
 interface CellConfig {
   name: string;
@@ -29,6 +31,7 @@ const StyledThead = styled.thead`
 const isPositive = (value: number) => 1 / value > 0;
 
 const Header = styled.th<{ active: boolean }>`
+  background-color: rgba(13, 77, 118, .9);
   text-align: left;
   color: ${({ active }) => {
     if (!active) {
@@ -75,13 +78,25 @@ const ConfirmReceive = styled.div<{disabled: boolean}>`
   }
 `;
 
-const ConfirmIcon = styled.object`
-  display: block;
-  margin-right: 15px;
-`;
+const Completed = styled.div`
+  display: flex;
 
-const EmptyTable = styled.tr`
-  padding: 72px 199px;
+  > .icon-deposit {
+    margin-left: 2px;
+    margin-right: 12px;
+  }
+
+  > .icon-receive {
+    margin-right: 10px;
+  }
+
+  > .text-receive {
+    color: #0BCCF7;
+  }
+
+  > .text-deposit {
+    color: #DA68F5;
+  }
 `;
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
@@ -89,6 +104,7 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
   const [receiveClickedId, setActiveReceive] = useState(null);
   const isInProgress =  false //useStore($isInProgress);
   const [trs, setTrs] = useState(data);
+  const appParams = useSelector(selectSystemState())
 
   useEffect(() => {
     setTrs(data);
@@ -116,18 +132,6 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
     setFilterBy(index === filterBy ? -filterBy : index);
   };
 
-  const handleReceiveClick = (tr: any, index: number) => {
-    //Receive(tr);
-    // if (receiveClickedId !== index) {
-    //   setActiveReceive(index);
-    //   //receive(tr);
-    // } else {
-    //   if (!isInProgress) {
-    //     //receive(tr);
-    //   }
-    // }
-  };
-
   return  (
     <StyledTable>
       <StyledThead>
@@ -150,15 +154,17 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
           <tr key={index}>
             {config.map(({ name, fn }, itemIndex) => {
               const value = item[name];
-             // console.log(name === 'status' ? itemIndex : '')
               return name === 'status' 
                 ? (
                 <Column key={itemIndex}>
-                  <ConfirmReceive 
-                  disabled={isInProgress && (receiveClickedId === itemIndex)} 
-                  onClick={() => handleReceiveClick(item, itemIndex)}>
-                    <div className='text'><IconConfirm/>Confirm receive</div>
-                  </ConfirmReceive>
+                  <Completed>
+                    {appParams.account === item.to ? 
+                      <IconConfirm className='icon-receive'/> : 
+                      <IconDeposit className='icon-deposit'/>} 
+                      {<span className={appParams.account === item.to ? 'text-receive' : 'text-deposit'}>
+                        completed
+                      </span>}
+                  </Completed>
                 </Column>) 
                 : (<Column key={itemIndex}>{!fn ? value : fn(value, item)}</Column>);
             })}

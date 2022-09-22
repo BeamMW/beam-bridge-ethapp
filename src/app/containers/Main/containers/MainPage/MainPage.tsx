@@ -5,10 +5,10 @@ import { css } from '@linaria/core';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Window, Button, Table, BalanceCard } from '@app/shared/components';
-import { selectAppParams, selectBalance, selectBridgeTransactions, selectRate } from '../../store/selectors';
+import { selectAppParams, selectBalance, selectRate } from '../../store/selectors';
 import { IconSend, IconReceive } from '@app/shared/icons';
 import { CURRENCIES, ROUTES } from '@app/shared/constants';
-import { BridgeTransaction } from '@core/types';
+import { selectTransactions } from '@app/shared/store/selectors';
 
 const Content = styled.div`
   width: 600px;
@@ -44,11 +44,19 @@ const ReceiveButtonClass = css`
   margin-left: 20px !important;
 `;
 
+const EmptyTableContent = styled.div`
+  text-align: center;
+  margin-top: 72px;
+  font-size: 14px;
+  font-style: italic;
+  color: #8da1ad;
+`;
+
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const rate = useSelector(selectRate());
-  const bridgeTransactions = useSelector(selectBridgeTransactions());
+  const bridgeTransactions = useSelector(selectTransactions());
 
   useEffect(() => {
     if (!rate) {
@@ -58,21 +66,25 @@ const MainPage: React.FC = () => {
 
   const balance = useSelector(selectBalance());
 
-  // const TABLE_CONFIG = [
-  //   {
-  //     name: 'amount',
-  //     title: 'Amount',
-  //     fn: (value: string, tr: BridgeTransaction) => {
-  //       const curr = CURRENCIES.find((item) => item.cid === tr.cid);
-
-  //       return parseInt(value) / Math.pow(10, 8) + ' ' + curr.name;
-  //     }
-  //   },
-  //   {
-  //     name: 'status',
-  //     title: 'Status'
-  //   }
-  // ];
+  const TABLE_CONFIG = [
+    {
+      name: 'amount',
+      title: 'Amount',
+      fn: (value: string, tr: any) => {
+        const curr = CURRENCIES.find((item) => { 
+          return item.ethTokenContract.toLowerCase() === tr.contractAddress.toLowerCase()
+        });
+        if (curr) {
+          const amount = parseInt(tr.value) / (10 ** curr.decimals);
+        return `${amount} ${curr.name}`;
+        }
+      }
+    },
+    {
+      name: 'status',
+      title: 'Status',
+    }
+  ];
 
   const handleSendClick: React.MouseEventHandler = () => {
     navigate(ROUTES.MAIN.SEND);
@@ -94,18 +106,18 @@ const MainPage: React.FC = () => {
         <StyledControls>
           <Button icon={IconSend}
           //disabled={isInProgress}
-          pallete="purple"
-          onClick={handleSendClick}>
-            ethereum to beam
+            pallete="purple"
+            onClick={handleSendClick}>
+              ethereum to beam
           </Button>
           <Button icon={IconReceive} 
-          className={ReceiveButtonClass} 
-          pallete="blue" 
-          onClick={handleReceiveClick}>
-            beam to ethereum
+            className={ReceiveButtonClass} 
+            pallete="blue" 
+            onClick={handleReceiveClick}>
+              beam to ethereum
           </Button>
         </StyledControls>
-      <Content>
+        <Content>
           <ContentHeader>Balance</ContentHeader>
           { balance.map(({ curr_id, rate_id, value, icon, is_approved }) => (
             <BalanceCard icon={icon} 
@@ -117,32 +129,11 @@ const MainPage: React.FC = () => {
               is_approved={is_approved}
             ></BalanceCard>
           ))}
-      </Content>
-      {/* <StyledTable>
-        <Table config={TABLE_CONFIG} data={data} keyBy='pid'/>
-      </StyledTable> */}
-
-
-        {/* <Container>
-          <StyledControls>
-            <Button icon={IconSend}
-            pallete="purple"
-            onClick={handleSendClick}>
-              beam to ethereum
-            </Button>
-            <Button icon={IconReceive}
-            className={receiveButtonClass}
-            pallete="blue"
-            onClick={handleReceiveClick}>
-              ethereum to beam
-            </Button>
-          </StyledControls>
-          <StyledTable>
-            <Table config={TABLE_CONFIG} data={bridgeTransactions} keyBy='MsgId'/>
-            {bridgeTransactions.length === 0 && 
-              <EmptyTableContent>There are no incoming transactions yet</EmptyTableContent>}
-          </StyledTable>
-        </Container> */}
+        </Content>
+        <StyledTable>
+          <Table config={TABLE_CONFIG} data={bridgeTransactions} keyBy='transactionIndex'/>
+          {bridgeTransactions.length === 0 && <EmptyTableContent>There are no transactions yet</EmptyTableContent>}
+        </StyledTable>
       </Window>
     </>
   );

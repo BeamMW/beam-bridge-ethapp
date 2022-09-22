@@ -21,11 +21,11 @@ const reducer = createReducer<SharedStateType, Action>(initialState)
   .handleAction(actions.navigate, (state, action) => produce(state, (nexState) => {
     nexState.routerLink = action.payload;
   }))
-  // .handleAction(actions.setTransactions, (state, action) => produce(state, (nexState) => {
-  //   nexState.transactions = state.transactions.length
-  //     ? [...new Map([...state.transactions, ...action.payload].map((item) => [item.txId, item])).values()]
-  //     : action.payload;
-  // }))
+  .handleAction(actions.setTransactions, (state, action) => produce(state, (nexState) => {
+    nexState.transactions = state.transactions.length
+      ? [...new Map([...state.transactions, ...action.payload].map((item) => [item.txId, item])).values()]
+      : action.payload;
+  }))
   // .handleAction(actions.setError, (state, action) => produce(state, (nexState) => {
   //   nexState.errorMessage = action.payload;
   // }))

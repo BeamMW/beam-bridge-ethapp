@@ -7,9 +7,9 @@ import { actions as mainActions } from '@app/containers/Main/store/index';
 import { navigate, setAccountState, setNetworkState } from '@app/shared/store/actions';
 import store from '../../../index';
 
-import { ROUTES } from '@app/shared/constants';
+import { actions } from '@app/shared/store/index';
+import { ROUTES, CURRENCIES, ethId } from '@app/shared/constants';
 import MetaMaskController from '@core/MetaMask';
-
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { setIsLocked, setIsLoggedIn, setPopupState } from '@app/containers/Main/store/actions';
 
@@ -79,7 +79,14 @@ export function remoteEventChannel() {
 
 
 export function* handleTransactions(payload) {
-  //yield put(actions.setTransactions(payload.txs));
+  let result = [];
+  for (var item of CURRENCIES) {
+    if (item.id !== ethId) {
+      const trs = yield call(metaMaskController.loadTransactions, payload, item.ethTokenContract);
+      result = result.concat(trs);
+    }
+  }
+  yield put(actions.setTransactions(result));
 }
 
 function* sharedSaga() {
@@ -105,6 +112,7 @@ function* sharedSaga() {
             yield put(navigate(ROUTES.MAIN.CONNECT));
           } else {
             initApp(payload.data[0]);
+            yield fork(handleTransactions, payload.data[0]);
           }
 
           break;
@@ -115,6 +123,7 @@ function* sharedSaga() {
             yield put(navigate(ROUTES.MAIN.CONNECT));
           } else {
             initApp(payload.data[0]);
+            yield fork(handleTransactions, payload.data[0]);
             yield put(navigate(ROUTES.MAIN.BASE));
           }
 

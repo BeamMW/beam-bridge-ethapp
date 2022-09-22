@@ -5,7 +5,8 @@ import EthERC20Pipe from '@app/eth-pipe/EthERC20Pipe.json';
 import { SendParams, Balance, Currency } from '@core/types';
 import { CURRENCIES, MAX_ALLOWED_VALUE, REVOKE_VALUE, ethId, ROUTES } from '@app/shared/constants';
 
-const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
+const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price';
+const BRIDGES_API_URL = 'https://masternet-explorer.beam.mw/bridges';
 
 let abi = require("human-standard-token-abi");
 
@@ -172,10 +173,15 @@ export default class MetaMaskController {
       abi,
       this.ethers
     );
+    //show loader
 
     const ethSigner = tokenContract.connect(this.signer);
     const approveTx = await ethSigner.approve(currency.ethPipeContract, amount);
-    await approveTx.wait();
+    await approveTx.wait().then((receipt) => {
+      console.log('limit update receipt: ', receipt);
+      //update currency list
+      //hide loader
+    });
   }
 
   async approveToken(curr_id: number) {
@@ -187,6 +193,12 @@ export default class MetaMaskController {
     this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE));
   }
 
+  async loadTransactions(address: string, contract: string) {
+    const trs = await fetch(`${BRIDGES_API_URL}/tokens_transfer/${address}/${contract}`);
+    const promise = await trs.json();
+    return promise;
+  }
+
   async loadGasPrice () {
     const gasPrice = ethers.utils.formatUnits(await this.ethers.getGasPrice(), 'gwei');
     console.log('gas price:', gasPrice);
@@ -194,7 +206,7 @@ export default class MetaMaskController {
   }
 
   async loadRate (rate_id: string) {
-    const response = await fetch(`${API_URL}?ids=${rate_id}&vs_currencies=usd`, {
+    const response = await fetch(`${COINGECKO_API_URL}?ids=${rate_id}&vs_currencies=usd`, {
       mode: 'cors',
       headers: {
         'Access-Control-Allow-Origin':'*'
