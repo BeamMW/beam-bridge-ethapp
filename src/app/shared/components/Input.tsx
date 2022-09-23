@@ -8,6 +8,7 @@ import { Rate } from '.';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
   value: string;
+  valid?: boolean;
   variant: 'amount' | 'common' | 'fee',
   selectedCurrency?: Currency,
   onChangeHandler?: (value: string) => void;
@@ -27,7 +28,7 @@ const AddressInputClass = css`
   height: 44px;
 `;
 
-const ContainerStyled = styled.div`
+const ContainerStyled = styled.div<{valid: boolean}>`
   margin-top: 20px;
   position: relative;
   background-color: rgba(255, 255, 255, .05);
@@ -37,13 +38,15 @@ const ContainerStyled = styled.div`
   flex-direction: row;
   align-items: center;
   padding: 8px 15px;
+  border: ${({ valid }) => (valid ? 'none' : '1px solid')};
+  border-color: ${({ valid }) => (valid ? 'rgba(255,255,255,0.3)' : 'var(--color-red)')};
 `;
 
 const InputStyled = styled.input<InputProps>`
   line-height: 20px;
   border: none;
   font-size: ${({ variant }) => `${variant === 'common' ? '16px' : '36px'}`};
-  color: ${({ variant }) => `${variant === 'common' ? 'white' : '#da68f5'}`};
+  color: ${({ variant, valid }) => `${variant === 'common' ? (valid ? 'white' : 'var(--color-red)') : '#da68f5'}`};
   background-color: transparent;
   width: ${({ variant }) => `${variant === 'common' ? '100%' : '90%'}`};
   height: 100%;
@@ -97,7 +100,9 @@ const rateStyle = css`
 // `;
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant, value, selectedCurrency, error, onChangeHandler, ...rest }, ref) => {
+  ({ variant, value, valid, selectedCurrency, error, onChangeHandler, ...rest }, ref) => {
+
+    console.log('VALID : ', valid)
     const handleInput: React.ChangeEventHandler<HTMLInputElement> = (event) => {
       const { value: raw } = event.target;
   
@@ -125,11 +130,12 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     return (
       <>
-        <ContainerStyled className={variant === 'common' ? AddressInputClass : NumberInputClass}>
+        <ContainerStyled valid={valid} className={variant === 'common' ? AddressInputClass : NumberInputClass}>
           <InputStyled
             variant={variant} ref={ref}
             onInput={handleInput}
             value={value}
+            valid={valid}
             error={error} {...rest} />
           {
             (variant === 'amount' 

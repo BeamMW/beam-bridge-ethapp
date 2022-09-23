@@ -240,11 +240,17 @@ const Send = () => {
   const validate = async (formValues: SendFormData) => {
     const errorsValidation: any = {};
     const {
-        send_amount
+        send_amount,
+        address
     } = formValues;
 
     if (Number(send_amount) === 0) {
       errorsValidation.send_amount = `Invalid amount`;
+    }
+
+    const regex = new RegExp('^[A-Za-z0-9]+$');
+    if (!regex.test(address)) {
+      errorsValidation.address = `Invalid address`;
     }
 
     return errorsValidation;
@@ -270,10 +276,6 @@ const Send = () => {
     if (!formik.isValid) return !formik.isValid;
     return false;
   };
-
-  const isSendAmountValid = () => {
-    return !errors.send_amount;
-  }
 
   const resetState = () => {
     setAddress('');
@@ -420,7 +422,6 @@ const Send = () => {
       account: systemState.account
     };
 
-    console.log('Send data: ', sendData);
     metaMaskController.sendToken(sendData);
     resetState()
     navigate(ROUTES.MAIN.BASE);
@@ -460,6 +461,9 @@ const Send = () => {
     getEthFee(availableBalance.value);
   }
 
+  const isAddressValid = () => !errors.address;
+  const isSendAmountValid = () => !errors.send_amount;
+
   const getEthFee = async (amount) => {
     let address = isFromParams ? parsedAddressValue : values.address as string;
     if (address.length > 66) {
@@ -496,7 +500,8 @@ const Send = () => {
           isFromParams && isAdrressValid
         ? (<StyledAddressFromParams>{address}</StyledAddressFromParams>)
         : (<Input placeholder='Paste Beam bridge address here' 
-              onChange={ inputChange } 
+              onChange={ inputChange }
+              valid={isAddressValid()}
               variant="common"
               value={values.address}
               onChangeHandler={handleAddressChange}
@@ -519,6 +524,7 @@ const Send = () => {
               variant='amount'
               selectedCurrency={selectedCurrency}
               onChangeHandler={handleAmountChange}
+              valid={isSendAmountValid()}
               value={values.send_amount}
               ref={amountInputRef} name="amount"></Input>
             <AvailableContainer>
