@@ -5,7 +5,7 @@ import EthERC20Pipe from '@app/eth-pipe/EthERC20Pipe.json';
 import { SendParams, Balance, Currency } from '@core/types';
 import { CURRENCIES, MAX_ALLOWED_VALUE, REVOKE_VALUE, ethId, ROUTES } from '@app/shared/constants';
 import { toast } from 'react-toastify';
-import { loadAppParams, setIsApproveInProgress } from '@app/containers/Main/store/actions';
+import { loadAppParams, setIsApproveInProgress, setIsTrInProgress } from '@app/containers/Main/store/actions';
 import store from '../../index';
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price';
@@ -79,14 +79,6 @@ export default class MetaMaskController {
     console.log('hash tx: ', hashTx);
   }
 
-  async refresh() {
-    const isUnlocked = await window.ethereum._metamask.isUnlocked();
-
-    if (isUnlocked && this.accounts.length > 0) {
-      
-    }
-  }
-
   async loadAllowance(curr: Currency, address: string) {
     const tokenContract = new ethers.Contract(
       curr.ethTokenContract,  
@@ -139,8 +131,6 @@ export default class MetaMaskController {
     const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals, selectedCurrency.validator_dec);
     const totalAmount = finalAmount + relayerFee;
 
-    //setIsInProgress(true);
-
     try {
       const pipeContract = new ethers.Contract(
         selectedCurrency.ethPipeContract,
@@ -157,16 +147,27 @@ export default class MetaMaskController {
           value: totalAmount
         } : {}
       );
-      await lockTx.wait().then((receipt)=> {
-        //setIsInProgress(false);
-        console.log('receipt: ', receipt);
+
+      toast.promise(
+        lockTx.wait(), {
+          pending: {
+            render({data}){
+              store.dispatch(setIsTrInProgress(true));
+              return 'Transaction is in progress';
+            }
+          },
+          success: {
+            render({data}){
+              store.dispatch(loadAppParams.request(null));
+              store.dispatch(setIsTrInProgress(false));
+              return 'Transaction completed'
+            },
+          },
+          error: 'Transaction rejected'
       });
     } catch (e) {
-      //setIsInProgress(false);
+      store.dispatch(setIsTrInProgress(false));
     }
-
-    this.refresh();
-    //this.navigate(ROUTES.MAIN.BASE);
   }
 
   async updateTokenSendLimit(curr_id: number, amount: any, isApprove: boolean) {

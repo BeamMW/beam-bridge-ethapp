@@ -5,7 +5,7 @@ import { css } from '@linaria/core';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Window, Button, Table, BalanceCard } from '@app/shared/components';
-import { selectAppParams, selectBalance, selectRate } from '../../store/selectors';
+import { selectAppParams, selectBalance, selectIsTrInProgress, selectRate } from '../../store/selectors';
 import { IconSend, IconReceive } from '@app/shared/icons';
 import { CURRENCIES, ROUTES } from '@app/shared/constants';
 import { selectSystemState, selectTransactions } from '@app/shared/store/selectors';
@@ -86,6 +86,7 @@ const MainPage: React.FC = () => {
   const rate = useSelector(selectRate());
   const bridgeTransactions = useSelector(selectTransactions());
   const systemState = useSelector(selectSystemState());
+  const isTrInProgress = useSelector(selectIsTrInProgress());
 
   useEffect(() => {
     if (!rate) {
@@ -147,7 +148,7 @@ const MainPage: React.FC = () => {
       <Window>
         <StyledControls>
           <Button icon={IconSend}
-          //disabled={isInProgress}
+            disabled={isTrInProgress}
             pallete="purple"
             onClick={handleSendClick}>
               ethereum to beam

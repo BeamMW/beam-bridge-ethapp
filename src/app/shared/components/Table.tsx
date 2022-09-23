@@ -47,7 +47,6 @@ const Column = styled.td`
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
   const [filterBy, setFilterBy] = useState(0);
-  const isInProgress =  false //useStore($isInProgress);
   const [trs, setTrs] = useState(data);
 
   useEffect(() => {
