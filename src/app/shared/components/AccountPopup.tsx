@@ -61,38 +61,36 @@ const AccountPopup: React.FC<AccountPopupProps> = ({ visible, onCancel }) => {
 
   return (
     <Popup
-        visible={visible}
-        onCancel={onCancel}
-        title="Your wallet"
-        confirmButton={(
-          <Button onClick={disconnectWalletClicked} 
-            pallete="red-disc" 
-            variant="disconnect" 
-            icon={IconLogout}
-            >
-            disconnect wallet
-          </Button>
-        )}
-      >
-        <PopupSubtitle>ETHEREUM BRIDGE ADDRESS</PopupSubtitle>
-        <PopupAccount>
-          <span>{systemState.account}</span>
-          <IconCopyWhite onClick={handleCopyClick} className={CopyAccountClass}/>
-        </PopupAccount>
-        <PopupSubtitle>SUPPORTED TOKENS</PopupSubtitle>
-        <PopupCards>
-          { balance.map(({ curr_id, rate_id, value, icon, is_approved }) => (
-            <TokenCard icon={icon} 
-              curr_id={curr_id}
-              key={curr_id}
-              rate_id={rate_id}
-              type={icon}
-              balanceValue={value}
-              is_approved={is_approved}
-            ></TokenCard>
-          ))}
-        </PopupCards>
-      </Popup>
+      visible={visible}
+      onCancel={onCancel}
+      title="Your wallet"
+      confirmButton={(
+        <Button onClick={disconnectWalletClicked} 
+          pallete="red-disc" 
+          variant="disconnect" 
+          icon={IconLogout}>
+          disconnect wallet
+        </Button>
+      )}>
+      <PopupSubtitle>ETHEREUM BRIDGE ADDRESS</PopupSubtitle>
+      <PopupAccount>
+        <span>{systemState.account}</span>
+        <IconCopyWhite onClick={handleCopyClick} className={CopyAccountClass}/>
+      </PopupAccount>
+      <PopupSubtitle>SUPPORTED TOKENS</PopupSubtitle>
+      <PopupCards>
+        { balance.map(({ curr_id, rate_id, value, icon, is_approved }) => (
+          <TokenCard icon={icon} 
+            curr_id={curr_id}
+            key={curr_id}
+            rate_id={rate_id}
+            type={icon}
+            balanceValue={value}
+            is_approved={is_approved}
+          ></TokenCard>
+        ))}
+      </PopupCards>
+    </Popup>
   );
 };
 

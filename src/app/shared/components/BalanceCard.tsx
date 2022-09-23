@@ -1,6 +1,6 @@
 import React from 'react';
 import { styled } from '@linaria/react';
-import { selectRate } from '@app/containers/Main/store/selectors';
+import { selectIsApproveInProgress, selectRate } from '@app/containers/Main/store/selectors';
 import { Button } from '.';
 import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/shared/icons';
 import MetaMaskController from '@core/MetaMask';
@@ -74,12 +74,14 @@ const Card: React.FC<CardProps> = ({
 }) => {
   const rates = useSelector(selectRate());
   const currency = type.toUpperCase();
+  const isApproveInProgress = useSelector(selectIsApproveInProgress())
 
   const approveTokenClicked = (id: number) => {
     metaMaskController.approveToken(id);
   }
 
-  return (<CardStyled is_approved={is_approved} icon={icon} curr_id={curr_id} rate_id={rate_id} type={type} {...rest}>
+  return (
+    <CardStyled is_approved={is_approved} icon={icon} curr_id={curr_id} rate_id={rate_id} type={type} {...rest}>
       { ICONS[icon]() }
       <BalanceStyled>
         <BalanceValue>{balanceValue} {currency}</BalanceValue>
@@ -88,8 +90,11 @@ const Card: React.FC<CardProps> = ({
       {!is_approved ? (
       <StyledApproveButton>
         <Button 
-        variant='validate' 
-        onClick={()=>approveTokenClicked(curr_id)}>approve token</Button>
+          variant='validate'
+          disabled={isApproveInProgress} 
+          onClick={()=>approveTokenClicked(curr_id)}>
+            approve token
+        </Button>
       </StyledApproveButton>
       ) : <></>}
     </CardStyled>

@@ -8,7 +8,9 @@ import { Window, Button, Table, BalanceCard } from '@app/shared/components';
 import { selectAppParams, selectBalance, selectRate } from '../../store/selectors';
 import { IconSend, IconReceive } from '@app/shared/icons';
 import { CURRENCIES, ROUTES } from '@app/shared/constants';
-import { selectTransactions } from '@app/shared/store/selectors';
+import { selectSystemState, selectTransactions } from '@app/shared/store/selectors';
+import { IconDeposit, IconConfirm } from '@app/shared/icons';
+import { formatActiveAddressString } from '@core/appUtils';
 
 const Content = styled.div`
   width: 600px;
@@ -52,11 +54,38 @@ const EmptyTableContent = styled.div`
   color: #8da1ad;
 `;
 
+const Completed = styled.div`
+  display: flex;
+
+  > .icon-deposit {
+    margin-left: 2px;
+    margin-right: 12px;
+  }
+
+  > .icon-receive {
+    margin-right: 10px;
+  }
+
+  > .text-receive {
+    color: #0BCCF7;
+  }
+
+  > .text-deposit {
+    color: #DA68F5;
+  }
+`;
+
+const HashLink = styled.a`
+  text-decoration: none;
+  color: #00f6d2;
+`;
+
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const rate = useSelector(selectRate());
   const bridgeTransactions = useSelector(selectTransactions());
+  const systemState = useSelector(selectSystemState());
 
   useEffect(() => {
     if (!rate) {
@@ -83,6 +112,25 @@ const MainPage: React.FC = () => {
     {
       name: 'status',
       title: 'Status',
+      fn: (value: string, tr: any) => {
+        return (<Completed>
+          { systemState.account === tr.to ? 
+            <IconConfirm className='icon-receive'/> : 
+            <IconDeposit className='icon-deposit'/> } 
+            {<span className={ systemState.account === tr.to ? 'text-receive' : 'text-deposit' }>
+              completed
+            </span>}
+        </Completed>);
+      }
+    },
+    {
+      name: 'hash',
+      title: 'Hash',
+      fn: (value: string, tr: any) => {
+        return (<HashLink href={'https://goerli.etherscan.io/tx/' + tr.hash} target='_blank'>
+          {formatActiveAddressString(tr.hash)
+        }</HashLink>)
+      }
     }
   ];
 
@@ -93,12 +141,6 @@ const MainPage: React.FC = () => {
   const handleReceiveClick: React.MouseEventHandler = () => {
     navigate(ROUTES.MAIN.RECEIVE);
   };
-
-  const handleConnect = () => {
-    window.ethereum
-      .request({ method: 'eth_requestAccounts' })
-      .then(accounts => console.log(accounts))
-  }
 
   return (
     <>

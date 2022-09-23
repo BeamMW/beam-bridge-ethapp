@@ -11,17 +11,12 @@ const initialState: AppStateType = {
   isLoggedIn: false,
   balance: [],
   isLocked: false,
-  // appParams: {
-  //   backlogPeriod: 0,
-  //   enabled: 0,
-  //   isAdmin: 0,
-  //   withdrawLimit: 0
-  // },
+  isApproveInProgress: false,
+  isTrInProgress: false,
   popupsState: {
     account: false,
     install: false
   },
-  // funds: [],
   rate: null,
   isDonateInProgress: false,
   donatedBeam: 0,
@@ -47,8 +42,11 @@ const reducer = createReducer<AppStateType, Action>(initialState)
   .handleAction(actions.loadRate.success, (state, action) => produce(state, (nexState) => {
     nexState.rate = action.payload;
   }))
-  .handleAction(actions.setDonatedBeam, (state, action) => produce(state, (nexState) => {
-    nexState.donatedBeam = action.payload;
+  .handleAction(actions.setIsTrInProgress, (state, action) => produce(state, (nexState) => {
+    nexState.isTrInProgress = action.payload;
+  }))
+  .handleAction(actions.setIsApproveInProgress, (state, action) => produce(state, (nexState) => {
+    nexState.isApproveInProgress = action.payload;
   }))
   .handleAction(actions.setDonatedBeamx, (state, action) => produce(state, (nexState) => {
     nexState.donatedBeamX = action.payload;

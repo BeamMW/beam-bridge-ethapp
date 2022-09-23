@@ -4,6 +4,9 @@ import EthPipe from '@app/eth-pipe/EthPipe.json';
 import EthERC20Pipe from '@app/eth-pipe/EthERC20Pipe.json';
 import { SendParams, Balance, Currency } from '@core/types';
 import { CURRENCIES, MAX_ALLOWED_VALUE, REVOKE_VALUE, ethId, ROUTES } from '@app/shared/constants';
+import { toast } from 'react-toastify';
+import { loadAppParams, setIsApproveInProgress } from '@app/containers/Main/store/actions';
+import store from '../../index';
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price';
 const BRIDGES_API_URL = 'https://masternet-explorer.beam.mw/bridges';
@@ -166,31 +169,41 @@ export default class MetaMaskController {
     //this.navigate(ROUTES.MAIN.BASE);
   }
 
-  async updateTokenSendLimit(curr_id: number, amount: any) {
+  async updateTokenSendLimit(curr_id: number, amount: any, isApprove: boolean) {
     const currency = CURRENCIES.find((item) => item.id === curr_id);
     const tokenContract = new ethers.Contract(
       currency.ethTokenContract,  
       abi,
       this.ethers
     );
-    //show loader
 
     const ethSigner = tokenContract.connect(this.signer);
     const approveTx = await ethSigner.approve(currency.ethPipeContract, amount);
-    await approveTx.wait().then((receipt) => {
-      console.log('limit update receipt: ', receipt);
-      //update currency list
-      //hide loader
+    toast.promise(
+      approveTx.wait(), {
+        pending: {
+          render({data}){
+            store.dispatch(setIsApproveInProgress(true));
+            return (isApprove ? 'Approve ' : 'Revoke ') + 'is in progress';
+          }
+        },
+        success: {
+          render({data}){
+            store.dispatch(loadAppParams.request(null));
+            store.dispatch(setIsApproveInProgress(false));
+            return (isApprove ? 'Approve ' : 'Revoke ') + 'completed'
+          },
+        },
+        error: (isApprove ? 'Approve ' : 'Revoke ') + 'rejected'
     });
   }
 
   async approveToken(curr_id: number) {
-    this.updateTokenSendLimit(curr_id, MAX_ALLOWED_VALUE);
+    this.updateTokenSendLimit(curr_id, MAX_ALLOWED_VALUE, true);
   }
 
   async revokeToken(curr_id: number) {
-    console.log(BigNumber.from(REVOKE_VALUE));
-    this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE));
+    this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE), false);
   }
 
   async loadTransactions(address: string, contract: string) {

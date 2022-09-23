@@ -9,6 +9,8 @@ export interface AppStateType {
   isLoggedIn: boolean;
   balance: Balance[];
   isLocked: boolean;
+  isTrInProgress: boolean;
+  isApproveInProgress: boolean;
   popupsState: {
     account: boolean;
     install: boolean;

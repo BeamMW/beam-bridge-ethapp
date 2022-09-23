@@ -28,7 +28,6 @@ function initApp(account: string) {
   store.dispatch(setIsLoggedIn(true));
   metaMaskController.init();
   store.dispatch(mainActions.loadAppParams.request(null));
-
   store.dispatch(mainActions.loadRate.request());
 }
 

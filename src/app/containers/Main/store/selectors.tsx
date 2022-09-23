@@ -12,9 +12,9 @@ export const selectIsLocked = () => createSelector(selectMain, (state) => state.
 
 export const selectAppParams = () => createSelector(selectMain, (state) => state.appParams);
 export const selectRate = () => createSelector(selectMain, (state) => state.rate);
-export const selectPopupsState = () => createSelector(selectMain, 
-    (state) => state.popupsState);
-export const selectDonatedBeam = () => createSelector(selectMain, (state) => state.donatedBeam);
+export const selectPopupsState = () => createSelector(selectMain, (state) => state.popupsState);
+export const selectIsTrInProgress = () => createSelector(selectMain, (state) => state.isTrInProgress);
+export const selectIsApproveInProgress = () => createSelector(selectMain, (state) => state.isApproveInProgress);
 export const selectDonatedBeamX = () => createSelector(selectMain, (state) => state.donatedBeamX);
 export const selectIsInProgress = () => createSelector(selectMain, (state) => state.isInProgress);
 export const selectFunds = () => createSelector(selectMain, (state) => state.funds);

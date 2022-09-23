@@ -85,7 +85,6 @@ const App = () => {
           pauseOnFocusLoss={false}
           draggable={false}
           pauseOnHover={false}
-          icon={false}
           toastStyle={{
             textAlign: 'center',
             background: '#22536C',

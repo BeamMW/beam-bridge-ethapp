@@ -4,6 +4,8 @@ import { Button } from '.';
 import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/shared/icons';
 import MetaMaskController from '@core/MetaMask';
 import { ethId } from '@app/shared/constants';
+import { useSelector } from 'react-redux';
+import { selectIsApproveInProgress } from '@app/containers/Main/store/selectors';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -53,16 +55,23 @@ const TokenCard: React.FC<CardProps> = ({
   ...rest
 }) => {
   const currency = type.toUpperCase();
+  const isApproveInProgress = useSelector(selectIsApproveInProgress());
   const revokeTokenClicked = (id: number) => {
     metaMaskController.revokeToken(id);
   }
 
-  return (<CardStyled is_approved={is_approved} icon={icon} curr_id={curr_id} type={type} {...rest}>
+  return (
+    <CardStyled is_approved={is_approved} icon={icon} curr_id={curr_id} type={type} {...rest}>
       { ICONS[icon]() }
       <BalanceValue>{currency}</BalanceValue>
       {is_approved && curr_id !== ethId ? (
       <StyledApproveButton>
-        <Button variant='revoke' onClick={()=>revokeTokenClicked(curr_id)}>revoke</Button>
+        <Button 
+          variant='revoke'
+          disabled={isApproveInProgress}
+          onClick={()=>revokeTokenClicked(curr_id)}>
+            revoke
+        </Button>
       </StyledApproveButton>
       ) : <></>}
     </CardStyled>
