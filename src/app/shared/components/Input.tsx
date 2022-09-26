@@ -7,9 +7,10 @@ import { Rate } from '.';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   error?: string;
-  value: string;
+  value?: string;
   valid?: boolean;
-  variant: 'amount' | 'common' | 'fee',
+  label?: string;
+  variant?: 'amount' | 'common' | 'fee',
   selectedCurrency?: Currency,
   onChangeHandler?: (value: string) => void;
 }
@@ -99,15 +100,22 @@ const rateStyle = css`
 //   color: var(--color-failed);
 // `;
 
-const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ variant, value, valid, selectedCurrency, error, onChangeHandler, ...rest }, ref) => {
+const LabelStyled = styled.div<InputProps>`
+  text-align: start;
+  margin-top: 4px;
+  font-family: SFProDisplay;
+  font-size: 14px;
+  margin-left: 15px;
+  font-style: italic;
+  color: ${({ valid }) => (valid ? 'rgba(255, 255, 255, .7)' : 'var(--color-red)')};
+`;
 
-    console.log('VALID : ', valid)
+const Input = React.forwardRef<HTMLInputElement, InputProps>(
+  ({ variant, label, value, valid, selectedCurrency, error, onChangeHandler, ...rest }, ref) => {
     const handleInput: React.ChangeEventHandler<HTMLInputElement> = (event) => {
       const { value: raw } = event.target;
   
       if (selectedCurrency) {
-        console.log()
         const regex = new RegExp("^(?!0\\d)(\\d+)(\\.)?(\\d{0," + selectedCurrency.validator_dec + "})?$");
         if ((raw !== '' && !regex.test(raw)) || parseFloat(raw) > AMOUNT_MAX) {
           return;
@@ -134,6 +142,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           <InputStyled
             variant={variant} ref={ref}
             onInput={handleInput}
+            spellCheck={false}
             value={value}
             valid={valid}
             error={error} {...rest} />
@@ -149,6 +158,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               ) : <></>)
           }
         </ContainerStyled>
+        {label && <LabelStyled valid={valid}>{!valid ? label : ''}</LabelStyled>}
         {!error && selectedCurrency && <Rate value={parseFloat(value)} selectedCurrencyId={selectedCurrency.rate_id} className={rateStyle} />}
       </>
     )

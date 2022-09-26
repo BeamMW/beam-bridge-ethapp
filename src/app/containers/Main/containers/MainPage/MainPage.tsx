@@ -96,6 +96,15 @@ const MainPage: React.FC = () => {
 
   const balance = useSelector(selectBalance());
 
+  const getDate = (timestamp: number) => {
+    const date = new Date(timestamp * 1000);
+    const yearString = date.toLocaleDateString(undefined, { year: 'numeric' });
+    const monthString = date.toLocaleDateString(undefined, { month: 'numeric' });
+    const dayString = date.toLocaleDateString(undefined, { day: 'numeric' });
+    const time = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+    return `${dayString}.${'0' + monthString.slice(-2)}.${yearString} ${time}`;
+  };
+
   const TABLE_CONFIG = [
     {
       name: 'amount',
@@ -105,9 +114,18 @@ const MainPage: React.FC = () => {
           return item.ethTokenContract.toLowerCase() === tr.contractAddress.toLowerCase()
         });
         if (curr) {
-          const amount = parseInt(tr.value) / (10 ** curr.decimals);
+          const amount = ((parseInt(tr.value) / Math.pow(10, curr.decimals)).toFixed(curr.validator_dec)).replace(/\.0+$/,'');
         return `${amount} ${curr.name}`;
         }
+      }
+    },
+    {
+      name: 'date',
+      title: 'Date',
+      fn: (value: string, tr: any) => {
+        const date = getDate(tr.timeStamp);
+        return date;
+
       }
     },
     {

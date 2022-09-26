@@ -19,7 +19,7 @@ import MetaMaskController  from '@core/MetaMask';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 import { ethId, CURRENCIES } from '@app/shared/constants';
-import { selectBalance, selectRate } from '../../store/selectors';
+import { selectBalance, selectIsApproveInProgress, selectRate } from '../../store/selectors';
 import { useFormik } from 'formik';
 
 const metaMaskController = MetaMaskController.getInstance();
@@ -220,6 +220,7 @@ const Send = () => {
   const systemState = useSelector(selectSystemState());
   const balance = useSelector(selectBalance());
   const rates = useSelector(selectRate());
+  const isApproveInProgress = useSelector(selectIsApproveInProgress());
 
   const [selectedCurrency, setSelectedCurrency] = useState(null);
   const [feeVal, setFeeVal] = useState('');
@@ -249,8 +250,10 @@ const Send = () => {
     }
 
     const regex = new RegExp('^[A-Za-z0-9]+$');
-    if (!regex.test(address)) {
-      errorsValidation.address = `Invalid address`;
+    const validatedAddr = validateAddress(address);
+    const parsedCurrency =  validatedAddr ? loadCurr(validatedAddr) : null;
+    if (!regex.test(address) || !parsedCurrency) {
+      errorsValidation.address = `Unrecognized address`;
     }
 
     return errorsValidation;
@@ -290,16 +293,19 @@ const Send = () => {
   }
   
   useEffect(() => {
-    if (address && balance.length > 0) {
-      const addressValidationRes = validateAddress(address);
+    if ((addressValue || address) && balance.length > 0) {
+      const tmpAddress = address ? address : addressValue;
+      const addressValidationRes = validateAddress(tmpAddress);
       if (addressValidationRes) {
         const parsedCurrency =  loadCurr(addressValidationRes);
         if (parsedCurrency) {
           setSelectedCurrency(parsedCurrency);
-          setIsFromParams(true);
+          if (address) {
+            setIsFromParams(true);
+          }
           setIsAddressValid(true);
-          setAddress(address);
-          setFieldValue('address', address, true);
+          setAddress(tmpAddress);
+          setFieldValue('address', tmpAddress, true);
 
           if (parsedCurrency.id !== ethId) {
             const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
@@ -323,7 +329,7 @@ const Send = () => {
     } else if (!address && balance.length > 0) {
       setIsLoaded(true);
     }
-  }, [address, balance]);
+  }, [address, balance, addressValue]);
 
   const getBalance = (id: number) => {
     return balance.find((item) => {
@@ -365,7 +371,6 @@ const Send = () => {
 
   const calcFee = (curr) => {
     getFee(curr).then((data) => {
-      console.log(data);
       const fixed = data.toFixed(curr.validator_dec);
       setFeeVal(fixed);
       setIsDisabled(false)
@@ -454,6 +459,7 @@ const Send = () => {
 
   const handleAddressChange = (address: string) => {
     setFieldValue('address', address, true);
+    setAddress(address);
   }
 
   const addMaxClicked = () => {
@@ -479,7 +485,6 @@ const Send = () => {
     };
 
     const fee = await metaMaskController.loadEthFee(sendData);
-    console.log('ETH FEE', fee);
     setEthFeeVal(fee);
   }
 
@@ -503,6 +508,7 @@ const Send = () => {
               onChange={ inputChange }
               valid={isAddressValid()}
               variant="common"
+              label={errors.address}
               value={values.address}
               onChangeHandler={handleAddressChange}
               ref={addressInputRef} 
@@ -564,6 +570,7 @@ const Send = () => {
                   {`To send funds to BEAM please approve ${selectedCurrency.name} token first`}
                 </ApproveDesc>
                 <Button className={ApproveButtonClass}
+                  disabled={isApproveInProgress}
                   onClick={()=>approveTokenClicked(selectedCurrency.id)}
                   color="send"
                   pallete='green' icon={IconCheck}>

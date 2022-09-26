@@ -94,7 +94,6 @@ function* sharedSaga() {
   while (true) {
     try {
       const payload: any = yield take(remoteChannel);
-      console.log('payload: ', payload);
       if (localStorage.getItem('locked')) {
         store.dispatch(setIsLocked(true));
       }

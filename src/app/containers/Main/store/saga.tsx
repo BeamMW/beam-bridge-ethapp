@@ -23,10 +23,15 @@ async function callLoadAllowance(curr: Currency, account: string) {
   return await metaMaskController.loadAllowance(curr, account);
 }
 
+function asyncCallBackUtil(action){
+  if (action.payload && action.payload.callback) {
+      action.payload.callback('Done');
+  }
+}
+
 export function* loadParamsSaga(
     action: ReturnType<typeof actions.loadAppParams.request>,
   ) : Generator {
-    console.log('started')
     const systemState = (yield select(selectSystemState())) as {account: string};
     let balances: Balance[] = [];
     let balanceValue = 0;
@@ -48,7 +53,7 @@ export function* loadParamsSaga(
         is_approved: isAllowed
       });
     }
-
+    asyncCallBackUtil(action);
     yield put(actions.loadAppParams.success(balances));
 }
 

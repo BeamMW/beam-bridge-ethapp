@@ -41,7 +41,7 @@ const Header = styled.th<{ active: boolean }>`
 `;
 
 const Column = styled.td`
-  padding: 20px 30px;
+  padding: 20px 25px;
   background-color: rgba(13, 77, 118, .9);
 `;
 
@@ -54,8 +54,6 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
     // .sort(sortFn)
     //trs = data.length > 0 ? data : [];
   },[data]);
-
-  console.log('TABLE:', data);
 
   const sortFn = (objectA, objectB) => {
     const name = config[Math.abs(filterBy)].name;

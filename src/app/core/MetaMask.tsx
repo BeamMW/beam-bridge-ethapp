@@ -9,7 +9,7 @@ import { loadAppParams, setIsApproveInProgress, setIsTrInProgress } from '@app/c
 import store from '../../index';
 
 const COINGECKO_API_URL = 'https://api.coingecko.com/api/v3/simple/price';
-const BRIDGES_API_URL = 'https://masternet-explorer.beam.mw/bridges';
+const BRIDGES_API_URL = 'https://explorer-api.beam.mw/bridges';
 
 let abi = require("human-standard-token-abi");
 
@@ -75,8 +75,6 @@ export default class MetaMaskController {
         gas: 2000000,
         nonce: nonce,
     });
-
-    console.log('hash tx: ', hashTx);
   }
 
   async loadAllowance(curr: Currency, address: string) {
@@ -170,6 +168,12 @@ export default class MetaMaskController {
     }
   }
 
+  updateAppBalance() {
+    return new Promise((resolve, reject) => {
+      store.dispatch(loadAppParams.request({callback: resolve }));
+    });
+  }
+
   async updateTokenSendLimit(curr_id: number, amount: any, isApprove: boolean) {
     const currency = CURRENCIES.find((item) => item.id === curr_id);
     const tokenContract = new ethers.Contract(
@@ -180,18 +184,26 @@ export default class MetaMaskController {
 
     const ethSigner = tokenContract.connect(this.signer);
     const approveTx = await ethSigner.approve(currency.ethPipeContract, amount);
+
+    const approvePromise = new Promise((resolve, reject) => {
+      store.dispatch(setIsApproveInProgress(true));
+      approveTx.wait().then((receipt)=> {
+        this.updateAppBalance().then(()=>{
+          store.dispatch(setIsApproveInProgress(false));
+          resolve(true);
+        });
+      });
+    });
+
     toast.promise(
-      approveTx.wait(), {
+      approvePromise, {
         pending: {
           render({data}){
-            store.dispatch(setIsApproveInProgress(true));
             return (isApprove ? 'Approve ' : 'Revoke ') + 'is in progress';
           }
         },
         success: {
           render({data}){
-            store.dispatch(loadAppParams.request(null));
-            store.dispatch(setIsApproveInProgress(false));
             return (isApprove ? 'Approve ' : 'Revoke ') + 'completed'
           },
         },
@@ -215,7 +227,6 @@ export default class MetaMaskController {
 
   async loadGasPrice () {
     const gasPrice = ethers.utils.formatUnits(await this.ethers.getGasPrice(), 'gwei');
-    console.log('gas price:', gasPrice);
     return gasPrice;
   }
 

@@ -46,7 +46,6 @@ const Window: React.FC<WindowProps> = ({
   const systemState = useSelector(selectSystemState());
 
   const setPopupVisible = () => {
-    console.log('clicked')
     dispatch(setPopupState({type: 'account', state: true}));
   };
   
