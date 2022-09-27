@@ -47,12 +47,10 @@ const Column = styled.td`
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
   const [filterBy, setFilterBy] = useState(0);
-  const [trs, setTrs] = useState(data);
+  let tableData = [...data];
 
   useEffect(() => {
-    setTrs(data);
-    // .sort(sortFn)
-    //trs = data.length > 0 ? data : [];
+    tableData = [...data];
   },[data]);
 
   const sortFn = (objectA, objectB) => {
@@ -91,14 +89,14 @@ const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
         </tr>
       </StyledThead>
       <tbody>
-        {trs && trs.length > 0 ? trs.map((item, index) => (
+        {tableData && tableData.length > 0 && tableData.sort(sortFn).map((item, index) => (
           <tr key={index}>
             {config.map(({ name, fn }, itemIndex) => {
               const value = item[name];
               return <Column key={itemIndex}>{!fn ? value : fn(value, item)}</Column>;
             })}
           </tr>
-        )): (<></>)
+        ))
       }
       </tbody>
     </StyledTable>

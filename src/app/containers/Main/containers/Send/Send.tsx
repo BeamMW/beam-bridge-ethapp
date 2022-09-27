@@ -255,6 +255,14 @@ const Send = () => {
     if (!regex.test(address) || !parsedCurrency) {
       errorsValidation.address = `Unrecognized address`;
     }
+    
+    if (parsedCurrency) {
+      const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id);
+      if (Number(send_amount) > fromBalance.value) {
+        errorsValidation.send_amount = `Insufficient funds to complete the transaction.
+          Maximum amount is ${fromBalance.value} ${parsedCurrency.name}`;
+      }
+    }
 
     return errorsValidation;
   };
@@ -530,6 +538,7 @@ const Send = () => {
               variant='amount'
               selectedCurrency={selectedCurrency}
               onChangeHandler={handleAmountChange}
+              label={errors.send_amount}
               valid={isSendAmountValid()}
               value={values.send_amount}
               ref={amountInputRef} name="amount"></Input>

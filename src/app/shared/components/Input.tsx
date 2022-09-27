@@ -47,7 +47,7 @@ const InputStyled = styled.input<InputProps>`
   line-height: 20px;
   border: none;
   font-size: ${({ variant }) => `${variant === 'common' ? '16px' : '36px'}`};
-  color: ${({ variant, valid }) => `${variant === 'common' ? (valid ? 'white' : 'var(--color-red)') : '#da68f5'}`};
+  color: ${({ variant, valid }) => `${valid ? (variant === 'common' ? 'white' : '#da68f5') : 'var(--color-red)'}`};
   background-color: transparent;
   width: ${({ variant }) => `${variant === 'common' ? '100%' : '90%'}`};
   height: 100%;

@@ -82,17 +82,21 @@ const HashLink = styled.a`
 
 const MainPage: React.FC = () => {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const rate = useSelector(selectRate());
   const bridgeTransactions = useSelector(selectTransactions());
   const systemState = useSelector(selectSystemState());
   const isTrInProgress = useSelector(selectIsTrInProgress());
+  const [tableData, setTableData] = useState([]);
 
   useEffect(() => {
-    if (!rate) {
-     // dispatch(loadRate.request());
+    if (bridgeTransactions.length > 0) {
+      const data = bridgeTransactions.map((tr) => {
+        const item = { ...tr };
+        item['isIncome'] = systemState.account === tr.to;
+        return item;
+      });
+      setTableData(data);
     }
-  }, [dispatch, rate]);
+  }, [bridgeTransactions]);
 
   const balance = useSelector(selectBalance());
 
@@ -107,7 +111,7 @@ const MainPage: React.FC = () => {
 
   const TABLE_CONFIG = [
     {
-      name: 'amount',
+      name: 'value',
       title: 'Amount',
       fn: (value: string, tr: any) => {
         const curr = CURRENCIES.find((item) => { 
@@ -120,7 +124,7 @@ const MainPage: React.FC = () => {
       }
     },
     {
-      name: 'date',
+      name: 'timeStamp',
       title: 'Date',
       fn: (value: string, tr: any) => {
         const date = getDate(tr.timeStamp);
@@ -129,16 +133,20 @@ const MainPage: React.FC = () => {
       }
     },
     {
-      name: 'status',
+      name: 'isIncome',
       title: 'Status',
       fn: (value: string, tr: any) => {
         return (<Completed>
-          { systemState.account === tr.to ? 
+          { 
+            tr.isIncome ? 
             <IconConfirm className='icon-receive'/> : 
-            <IconDeposit className='icon-deposit'/> } 
-            {<span className={ systemState.account === tr.to ? 'text-receive' : 'text-deposit' }>
+            <IconDeposit className='icon-deposit'/> 
+          } 
+          { 
+            <span className={ tr.isIncome ? 'text-receive' : 'text-deposit' }>
               completed
-            </span>}
+            </span>
+          }
         </Completed>);
       }
     },
@@ -192,8 +200,8 @@ const MainPage: React.FC = () => {
           ))}
         </Content>
         <StyledTable>
-          <Table config={TABLE_CONFIG} data={bridgeTransactions} keyBy='transactionIndex'/>
-          {bridgeTransactions.length === 0 && <EmptyTableContent>There are no transactions yet</EmptyTableContent>}
+          <Table config={TABLE_CONFIG} data={tableData} keyBy='transactionIndex'/>
+          {tableData.length === 0 && <EmptyTableContent>There are no transactions yet</EmptyTableContent>}
         </StyledTable>
       </Window>
     </>
