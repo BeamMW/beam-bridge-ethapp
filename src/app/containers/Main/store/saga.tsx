@@ -39,6 +39,7 @@ export function* loadParamsSaga(
     for(let curr of CURRENCIES) {
       if (curr.id === ethId) {
         balanceValue = (yield call(callLoadEthBalance, systemState.account)) as number;
+        console.log('eth balance', balanceValue);
         isAllowed = true;
       } else {
         balanceValue = (yield call(callLoadTokenBalance, curr, systemState.account)) as number;

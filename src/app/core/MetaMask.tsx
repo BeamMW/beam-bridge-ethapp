@@ -20,6 +20,7 @@ declare global {
 }
 
 export default class MetaMaskController {
+  isDisabled = true;
   private onboarding = new MetaMaskOnboarding();
 
   private static instance: MetaMaskController;
@@ -39,7 +40,7 @@ export default class MetaMaskController {
 
   async loadEthBalance(address: string) {
     const ethBalance = await this.ethers.getBalance(address);
-    return parseFloat(Number(ethers.utils.formatEther(ethBalance)).toFixed(2))
+    return Number(ethers.utils.formatEther(ethBalance))
   }
 
   async loadTokenBalance(curr: Currency, address: string) {
@@ -96,6 +97,7 @@ export default class MetaMaskController {
 
   async loadEthFee(params: SendParams) {
     const { amount, fee, address, selectedCurrency, account } = params;
+    console.log('params:', params);
     const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals, selectedCurrency.validator_dec);
     const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals, selectedCurrency.validator_dec);
 
@@ -103,11 +105,11 @@ export default class MetaMaskController {
 
     const pipeContract = new ethers.Contract(
       selectedCurrency.ethPipeContract,  
-      EthERC20Pipe.abi,
+      selectedCurrency.id === ethId ? EthPipe.abi : EthERC20Pipe.abi,
       this.ethers
     );
 
-    const gasPrice = await ethers.getDefaultProvider().getGasPrice();
+    const gasPrice = await ethers.getDefaultProvider('goerli', {etherscan: 'S1CQ1TXURAFM8AVVZAP846N5IJ7TEPJRUV'}).getGasPrice();
     const userSigner = pipeContract.connect(this.signer);
     try {
       const feeAmount = await userSigner.estimateGas.sendFunds(
@@ -241,7 +243,7 @@ export default class MetaMaskController {
     return promise;
   }
 
-  async calcSomeFee (rate_id: string) {
+  async calcRelayerFee (rate_id: string) {
     const RELAY_COSTS_IN_GAS = 120000;
     const ETH_RATE_ID = 'ethereum';
 

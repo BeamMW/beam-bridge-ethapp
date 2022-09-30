@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { styled } from '@linaria/react';
-import { Button, Input, Window } from '@app/shared/components';
+import { Button, Input, Window, Rate } from '@app/shared/components';
 import { css } from '@linaria/core';
 import { 
   IconBack,
@@ -18,11 +18,13 @@ import { selectSystemState } from '@app/shared/store/selectors';
 import MetaMaskController  from '@core/MetaMask';
 import { useParams } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { ethId, CURRENCIES } from '@app/shared/constants';
+import { ethId, CURRENCIES, ETH_RATE_ID } from '@app/shared/constants';
 import { selectBalance, selectIsApproveInProgress, selectRate } from '../../store/selectors';
 import { useFormik } from 'formik';
+import { Currency } from '@app/core/types';
 
 const metaMaskController = MetaMaskController.getInstance();
+const BEAM_ADDRESS_LENGTH = 66;
 
 interface SendFormData {
   send_amount: string;
@@ -73,6 +75,11 @@ const FormSubtitle = styled.p`
 `;
 
 const FeeSubtitleClass = css`
+  margin-top: 0 !important;
+`;
+
+const FeeSubtitleWarningClass = css`
+  color: var(--color-red);
   margin-top: 0 !important;
 `;
 
@@ -162,6 +169,18 @@ const FeeContainer = styled.div`
 `;
 
 const FeeItem = styled.div`
+  > .fee-warning{
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-red);
+    font-style: italic;
+    margin-top: 10px;
+  }
+`;
+
+const rateStyle = css`
+  font-size: 12px;
+  align-self: start;
 `;
 
 const FeeValue = styled.div`
@@ -223,20 +242,20 @@ const Send = () => {
   const isApproveInProgress = useSelector(selectIsApproveInProgress());
 
   const [selectedCurrency, setSelectedCurrency] = useState(null);
-  const [feeVal, setFeeVal] = useState('');
+  const [relayerFeeVal, setRelayerFeeVal] = useState(null);
   const [ethFeeVal, setEthFeeVal] = useState(null);
-  const [addressValue, setAddress] = useState('');
-  const [parsedAddressValue, setParsedAddressValue] = useState('');
-  const [isFromParams, setIsFromParams] = useState(false);
-  const [isAdrressValid, setIsAddressValid] = useState(true);
+  const [parsedAddressValue, setParsedAddressValue] = useState(null);
   const [isAllowed, setIsAllowed] = useState(null);
+  const [isNetworkFeeAvailable, setIsNetworkFeeAvailable] = useState(false);
+  
+  let relayerFeeInterval = null;
+
   const [isLoaded, setIsLoaded] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(true);
   const [availableBalance, setAvailableBalance] = useState({
     value: 0,
     rate: 0
   })
-  const { address } = useParams();
+  const { address: addressFromParams } = useParams();
 
   const validate = async (formValues: SendFormData) => {
     const errorsValidation: any = {};
@@ -245,23 +264,48 @@ const Send = () => {
         address
     } = formValues;
 
-    if (Number(send_amount) === 0) {
-      errorsValidation.send_amount = `Invalid amount`;
+    // if (Number(send_amount) === 0) {
+    //   errorsValidation.send_amount = `Incorrect amount`;
+    // }
+
+    let parsedCurrency = addressFromParams ? parseCurrency(addressFromParams) : null;
+    if (!parsedCurrency) {
+      parsedCurrency =  parseCurrency(address);
     }
 
     const regex = new RegExp('^[A-Za-z0-9]+$');
-    const validatedAddr = validateAddress(address);
-    const parsedCurrency =  validatedAddr ? loadCurr(validatedAddr) : null;
-    if (!regex.test(address) || !parsedCurrency) {
+    if (!regex.test(address || addressFromParams) || !parsedCurrency) {
       errorsValidation.address = `Unrecognized address`;
     }
     
-    if (parsedCurrency) {
+    if (parsedCurrency && relayerFeeVal && !metaMaskController.isDisabled) {
+      const sendAmount = Number(send_amount);
       const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id);
-      if (Number(send_amount) > fromBalance.value) {
-        errorsValidation.send_amount = `Insufficient funds to complete the transaction.
-          Maximum amount is ${fromBalance.value} ${parsedCurrency.name}`;
+      const ethBalance = balance.find((item) => item.curr_id === ethId);
+      if (parsedCurrency.id === ethId ? 
+        (sendAmount + relayerFeeVal + ethFeeVal) > fromBalance.value : 
+        (sendAmount + relayerFeeVal) > fromBalance.value) {
+        errorsValidation.send_amount = `Insufficient funds to complete the transaction.`;
+        setIsNetworkFeeAvailable(false);
+      } else {
+        if (sendAmount < relayerFeeVal) {
+          setIsNetworkFeeAvailable(false);
+          errorsValidation.send_amount = `Insufficient funds to pay transaction fee.`;
+        } else {
+          setIsNetworkFeeAvailable((sendAmount + relayerFeeVal) <= fromBalance.value);
+
+          if (parsedCurrency.id === ethId) {
+            if (sendAmount < (relayerFeeVal + ethFeeVal)) {
+              errorsValidation.send_amount = `Insufficient funds to pay transaction fee.`;
+            }
+          } else {
+            if (ethBalance.value < ethFeeVal) {
+              errorsValidation.send_amount = `Insufficient funds to pay transaction fee.`;
+            }
+          }
+        }
       }
+      //Maximum amount is ${fromBalance.value} ${parsedCurrency.name}      
     }
 
     return errorsValidation;
@@ -283,145 +327,110 @@ const Send = () => {
     values, setFieldValue, errors, submitForm, resetForm
   } = formik;
 
+  const isAddressValid = () => !errors.address;
+  const isSendAmountValid = () => !errors.send_amount;
+
   const isFormDisabled = () => {
     if (!formik.isValid) return !formik.isValid;
+    if (metaMaskController.isDisabled) return true;
     return false;
   };
 
   const resetState = () => {
-    setAddress('');
-    setFeeVal('');
-    setParsedAddressValue('');
-    setIsFromParams(false);
-    setIsAddressValid(true);
+    setRelayerFeeVal(null);
+    setParsedAddressValue(null);
     setIsAllowed(null);
     setIsLoaded(false);
-    setIsDisabled(true);
-    setSelectedCurrency(null)
+    setSelectedCurrency(null);
+    metaMaskController.isDisabled = true;
   }
-  
+
+  //balance state
   useEffect(() => {
-    if ((addressValue || address) && balance.length > 0) {
-      const tmpAddress = address ? address : addressValue;
-      const addressValidationRes = validateAddress(tmpAddress);
-      if (addressValidationRes) {
-        const parsedCurrency =  loadCurr(addressValidationRes);
-        if (parsedCurrency) {
-          setSelectedCurrency(parsedCurrency);
-          if (address) {
-            setIsFromParams(true);
-          }
-          setIsAddressValid(true);
-          setAddress(tmpAddress);
-          setFieldValue('address', tmpAddress, true);
-
-          if (parsedCurrency.id !== ethId) {
-            const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
-            setIsAllowed(fromBalance.is_approved);
-
-            // if (isAllowed) {
-            //   calcFee(parsedCurrency);
-            // }
-          } else {
-            setIsAllowed(true);
-            //calcFee(parsedCurrency);
-          }
-          
-          setIsLoaded(true);
-        } else {
-          setIsAddressValid(false);
-        }
-      } else {
-        setIsAddressValid(false);
-      }
-    } else if (!address && balance.length > 0) {
+    if (balance.length > 0) {
       setIsLoaded(true);
+    } else {
+      setIsLoaded(false);
     }
-  }, [address, balance, addressValue]);
+  }, [balance]);
+  
+  //address from params
+  useEffect(() => {
+    if (addressFromParams && isLoaded) {
+      const parsedCurrency = parseCurrency(addressFromParams);
+      if (parsedCurrency) {
+        setSelectedCurrency(parsedCurrency);
+      }
+    }
+  }, [addressFromParams, isLoaded]);
+
+  //is allowed state
+  useEffect(() => {
+    if (selectedCurrency && balance.length > 0) {
+      if (selectedCurrency.id !== ethId) {
+        const fromBalance = balance.find((item) => item.curr_id === selectedCurrency.id)
+        setIsAllowed(fromBalance.is_approved);
+      } else {
+        setIsAllowed(true);
+      }
+    }
+  }, [selectedCurrency, balance]);
 
   const getBalance = (id: number) => {
-    return balance.find((item) => {
-      return item.id === id;
-    }).value;
+    const balanceItem = balance.find((item) => {
+      return item.curr_id === id;
+    });
+    return balanceItem ? balanceItem.value : 0;
   }
 
   useEffect(() => {
-    if (selectedCurrency) {
+    if (selectedCurrency && rates) {
       setAvailableBalance({
-        value: getBalance(selectedCurrency.curr_id),
+        value: getBalance(selectedCurrency.id),
         rate: rates[selectedCurrency.rate_id].usd
       });
-      calcFee(selectedCurrency);
+      if (relayerFeeInterval) {
+        relayerFeeInterval = setInterval(() => calcRelayerFee(selectedCurrency), 5000);
+      }
+      calcRelayerFee(selectedCurrency);
+    } else {
+      clearInterval(relayerFeeInterval);
+      setRelayerFeeVal(null);
     }
-  }, [selectedCurrency])
+  }, [selectedCurrency, rates])
 
-  const validateAddress = (value: string) => {
-    const key = value.slice(-66);
-    let currName = null;
-    if (key.length === 66) {
-      currName = value.slice(1, value.length - 66);
-      setParsedAddressValue(key);
+  const parseCurrency = (value: string):Currency => {
+    const key = value.slice(-BEAM_ADDRESS_LENGTH);
+    if (key.length === BEAM_ADDRESS_LENGTH) {
+      const currName = value.slice(1, value.length - BEAM_ADDRESS_LENGTH);
+      const parsedCurrency = findCurrency(currName);
+      if (parsedCurrency) {
+        setParsedAddressValue(key);
+        return parsedCurrency;
+      }
     }
 
-    return currName;
+    return null;
   }
 
-  const loadCurr = (currName) => {
-    let curr = null;
-    if (currName !== null) {
-      curr = CURRENCIES.find((item) => {
-        return item.name.toLowerCase() === currName;
-      });
-    }
-
-    return curr;
-  }
-
-  const calcFee = (curr) => {
-    getFee(curr).then((data) => {
-      const fixed = data.toFixed(curr.validator_dec);
-      setFeeVal(fixed);
-      setIsDisabled(false)
+  const findCurrency = (currencyName: string) => {
+    return CURRENCIES.find((item) => {
+        return item.name.toLowerCase() === currencyName;
     });
   }
 
-  const inputChange = (event) => {
-    let value = event.target.value;
-    const addressValidationRes = validateAddress(value);
-    if (addressValidationRes) {
-      const parsedCurrency =  loadCurr(addressValidationRes);
-      if (parsedCurrency) {
-        setSelectedCurrency(parsedCurrency);
-
-        setIsAddressValid(true);
-          
-        if (parsedCurrency.id !== ethId) {
-          const fromBalance = balance.find((item) => item.curr_id === parsedCurrency.id)
-          setIsAllowed(fromBalance.is_approved);
-
-          if (fromBalance.is_approved) {
-            calcFee(parsedCurrency);
-          }
-        } else {
-          setIsAllowed(true);
-          calcFee(parsedCurrency);
-        }
-      }
-    } else {
-      setSelectedCurrency(null);
-      setIsAddressValid(false);
-    }
-  };
-
-  const getFee = async (curr) => {
-    return await metaMaskController.calcSomeFee(curr.rate_id);
+  const calcRelayerFee = (curr) => {
+    metaMaskController.calcRelayerFee(curr.rate_id).then((data) => {
+      const fixed = data.toFixed(curr.validator_dec);
+      setRelayerFeeVal(Number(fixed));
+    });
   }
 
   const handleSubmit: React.FormEventHandler<HTMLFormElement> = async event => {
     event.preventDefault();
 
     const data = new FormData(event.currentTarget);
-    let address = isFromParams ? parsedAddressValue : data.get('address') as string;
+    let address = addressFromParams ? parsedAddressValue : data.get('address') as string;
     if (address.length > 66) {
       address = address.slice(-66)
     }
@@ -430,7 +439,7 @@ const Send = () => {
     const sendData = {
       address,
       amount,
-      fee: parseFloat(feeVal),
+      fee: relayerFeeVal,
       selectedCurrency,
       account: systemState.account
     };
@@ -461,25 +470,43 @@ const Send = () => {
   }
 
   const handleAmountChange = (amount: string) => {
+    const amountVal = Number(amount);
+    if (metaMaskController.isDisabled && amountVal > 0) {
+      metaMaskController.isDisabled = false;
+    }
+
     setFieldValue('send_amount', amount, true);
-    getEthFee(amount);
+
+    if (availableBalance.value >= (amountVal + relayerFeeVal) && amountVal > relayerFeeVal) {
+      getEthFee(amount);
+    } else {
+      setEthFeeVal(null);
+    }
   };
 
   const handleAddressChange = (address: string) => {
     setFieldValue('address', address, true);
-    setAddress(address);
+    setFieldValue('send_amount', '', false);
+    const parsedCurrency = parseCurrency(address);
+    if (parsedCurrency) {
+      setSelectedCurrency(parsedCurrency);
+    }
   }
 
   const addMaxClicked = () => {
-    setFieldValue('send_amount', availableBalance.value, true);
-    getEthFee(availableBalance.value);
+    if (metaMaskController.isDisabled) {
+      metaMaskController.isDisabled = false;
+    }
+
+    const maxValue = availableBalance.value - relayerFeeVal;
+    if (maxValue > 0) {
+      setFieldValue('send_amount', availableBalance.value - relayerFeeVal, true);
+      getEthFee(availableBalance.value - relayerFeeVal);
+    }
   }
 
-  const isAddressValid = () => !errors.address;
-  const isSendAmountValid = () => !errors.send_amount;
-
   const getEthFee = async (amount) => {
-    let address = isFromParams ? parsedAddressValue : values.address as string;
+    let address = addressFromParams ? parsedAddressValue : values.address as string;
     if (address.length > 66) {
       address = address.slice(-66)
     }
@@ -487,17 +514,18 @@ const Send = () => {
     const sendData = {
       address,
       amount,
-      fee: parseFloat(feeVal),
+      fee: relayerFeeVal,
       selectedCurrency,
       account: systemState.account
     };
 
     const fee = await metaMaskController.loadEthFee(sendData);
-    setEthFeeVal(fee);
+    console.log('FEE: ', fee)
+    setEthFeeVal(Number(fee));
   }
 
   return (
-    isLoaded ? (<Window>
+    <Window>
       <ControlStyled>
         <BackControl onClick={handleBackClick}>
           <IconBack/>
@@ -509,11 +537,11 @@ const Send = () => {
       <FormStyled autoComplete="off" noValidate onSubmit={handleSubmit}>
         <FormTitle>Ethereum to Beam</FormTitle>
         <FormSubtitle>BEAM BRIDGE ADDRESS</FormSubtitle>
-        { 
-          isFromParams && isAdrressValid
-        ? (<StyledAddressFromParams>{address}</StyledAddressFromParams>)
-        : (<Input placeholder='Paste Beam bridge address here' 
-              onChange={ inputChange }
+        { isLoaded && 
+          <> { 
+            addressFromParams && parsedAddressValue
+            ? (<StyledAddressFromParams>{addressFromParams}</StyledAddressFromParams>)
+            : (<Input placeholder='Paste Beam bridge address here' 
               valid={isAddressValid()}
               variant="common"
               label={errors.address}
@@ -521,18 +549,16 @@ const Send = () => {
               onChangeHandler={handleAddressChange}
               ref={addressInputRef} 
               name="address"/>)
-        }
-        {
-          isAdrressValid && selectedCurrency !== null ? (
-          <>
+          }
+          {
+            selectedCurrency !== null &&
             <AddressType>
               {`${selectedCurrency.name} address`}
             </AddressType>
-          </>) : null
-        }
+          }
         {
-          isAdrressValid && isAllowed 
-          ? (<>
+          isAllowed ? 
+          (<>
             <FormSubtitle>AMOUNT</FormSubtitle>
             <Input 
               variant='amount'
@@ -557,11 +583,20 @@ const Send = () => {
             <FeeContainer>
               <FeeItem>
                 <FormSubtitle className={FeeSubtitleClass}>RELAYER FEE</FormSubtitle>
-                <FeeValue>{feeVal} {selectedCurrency.name}</FeeValue>
+                {relayerFeeVal && <>
+                  <FeeValue>{relayerFeeVal} {selectedCurrency.name}</FeeValue>
+                  <Rate value={parseFloat(relayerFeeVal)} selectedCurrencyId={selectedCurrency.rate_id} className={rateStyle} />
+                </>}
               </FeeItem>
               <FeeItem>
-                <FormSubtitle className={FeeSubtitleClass}>EXPECTED ETHEREUM NETWORK FEE</FormSubtitle>
-                {ethFeeVal ? <FeeValue>{ethFeeVal} ETH</FeeValue> : <></>}
+                <FormSubtitle className={!isNetworkFeeAvailable ? FeeSubtitleWarningClass : FeeSubtitleClass}>
+                  EXPECTED ETHEREUM NETWORK FEE
+                </FormSubtitle>
+                {isNetworkFeeAvailable && ethFeeVal && <>
+                  <FeeValue>{ethFeeVal} ETH</FeeValue>
+                  <Rate value={parseFloat(ethFeeVal)} selectedCurrencyId={ETH_RATE_ID} className={rateStyle} />
+                </>}
+                {!isNetworkFeeAvailable && <div className='fee-warning'>Insufficient funds to calculate.</div>}
               </FeeItem>
             </FeeContainer>
             <Button className={TransferButtonClass}
@@ -571,8 +606,7 @@ const Send = () => {
                     transfer
             </Button>
           </>) 
-          : (selectedCurrency !== null 
-            ? (
+          : (selectedCurrency !== null &&
               <>
                 {ICONS[selectedCurrency.name.toLowerCase()]()}
                 <ApproveDesc>
@@ -586,11 +620,11 @@ const Send = () => {
                     approve token
                 </Button>
               </>)
-            : null)
-        }
+        } 
+        </>}
       </FormStyled>
       { 
-        !isAdrressValid || addressValue.length === 0 
+       values.address.length === 0 
       ? (<InfoContainer>
         <InfoContainerTitle>In order to transfer from Ethereum to Beam network, do the following:</InfoContainerTitle>
         <ul>
@@ -604,7 +638,7 @@ const Send = () => {
         </ul>
       </InfoContainer>)
       : null }
-    </Window>) : (<></>)
+    </Window>
   );
 };
 
