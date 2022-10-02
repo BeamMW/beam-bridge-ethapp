@@ -24,9 +24,6 @@ const initialState: AppStateType = {
 };
 
 const reducer = createReducer<AppStateType, Action>(initialState)
-  .handleAction(actions.setBridgeTransactions, (state, action) => produce(state, (nexState) => {
-    nexState.bridgeTransactions = action.payload;
-  }))
   .handleAction(actions.setIsLoggedIn, (state, action) => produce(state, (nexState) => {
     nexState.isLoggedIn = action.payload;
   }))
@@ -47,12 +44,6 @@ const reducer = createReducer<AppStateType, Action>(initialState)
   }))
   .handleAction(actions.setIsApproveInProgress, (state, action) => produce(state, (nexState) => {
     nexState.isApproveInProgress = action.payload;
-  }))
-  .handleAction(actions.setDonatedBeamx, (state, action) => produce(state, (nexState) => {
-    nexState.donatedBeamX = action.payload;
-  }))
-  .handleAction(actions.setIsInProgress, (state, action) => produce(state, (nexState) => {
-    nexState.isDonateInProgress = action.payload;
   }))
 
 export { reducer as MainReducer };

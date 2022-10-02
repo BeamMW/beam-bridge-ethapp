@@ -97,7 +97,6 @@ export default class MetaMaskController {
 
   async loadEthFee(params: SendParams) {
     const { amount, fee, address, selectedCurrency, account } = params;
-    console.log('params:', params);
     const finalAmount = MetaMaskController.amountToBigInt(amount, selectedCurrency.decimals, selectedCurrency.validator_dec);
     const relayerFee = MetaMaskController.amountToBigInt(fee, selectedCurrency.decimals, selectedCurrency.validator_dec);
 

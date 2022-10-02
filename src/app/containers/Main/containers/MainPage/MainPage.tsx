@@ -3,9 +3,9 @@ import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
 
 import { useNavigate } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { Window, Button, Table, BalanceCard } from '@app/shared/components';
-import { selectAppParams, selectBalance, selectIsTrInProgress, selectRate } from '../../store/selectors';
+import { selectBalance, selectIsTrInProgress } from '../../store/selectors';
 import { IconSend, IconReceive } from '@app/shared/icons';
 import { CURRENCIES, ROUTES } from '@app/shared/constants';
 import { selectSystemState, selectTransactions } from '@app/shared/store/selectors';

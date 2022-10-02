@@ -1,6 +1,5 @@
 import React from 'react';
 import { styled } from '@linaria/react';
-import { css } from '@linaria/core';
 import { useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Button, Window, InstallPopup } from '@app/shared/components';
@@ -27,15 +26,6 @@ const Subtitle = styled.h2`
   text-align: center;
 `;
 
-const connectButtonClass = css`
-  margin-top: 50px !important;
-`;
-
-const ButtonTextClass = css`
-  float: right;
-  margin-top: 10px;
-`;
-
 const Connect: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -56,7 +46,7 @@ const Connect: React.FC = () => {
         localStorage.setItem('wasReloaded', '1');
         window.location.reload();
     }
-}
+  }
 
   return (
     <>

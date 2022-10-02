@@ -33,18 +33,13 @@ export function* loadParamsSaga(
     action: ReturnType<typeof actions.loadAppParams.request>,
   ) : Generator {
     const systemState = (yield select(selectSystemState())) as {account: string};
-    let balances: Balance[] = [];
-    let balanceValue = 0;
-    let isAllowed = false;
+    const balances: Balance[] = [];
+    
     for(let curr of CURRENCIES) {
-      if (curr.id === ethId) {
-        balanceValue = (yield call(callLoadEthBalance, systemState.account)) as number;
-        console.log('eth balance', balanceValue);
-        isAllowed = true;
-      } else {
-        balanceValue = (yield call(callLoadTokenBalance, curr, systemState.account)) as number;
-        isAllowed = (yield call(callLoadAllowance, curr, systemState.account)) as boolean;
-      }
+      const balanceValue = (curr.id === ethId ? 
+        yield call(callLoadEthBalance, systemState.account) :
+        yield call(callLoadTokenBalance, curr, systemState.account)) as number;
+      const isAllowed = curr.id === ethId ? true : (yield call(callLoadAllowance, curr, systemState.account)) as boolean;
       
       balances.push({
         curr_id: curr.id,
