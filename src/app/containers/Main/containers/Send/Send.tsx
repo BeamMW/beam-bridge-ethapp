@@ -413,10 +413,9 @@ const Send = () => {
   };
 
   const calcRelayerFee = (curr) => {
-    metaMaskController.calcRelayerFee(curr.rate_id).then((data) => {
-      const fixed = data.toFixed(curr.validator_dec);
-      setRelayerFeeVal(Number(fixed));
-    });
+    const feeInUsd = rates.beam.usd * 0.02;
+    const feeInEth = feeInUsd / rates[curr.rate_id].usd;
+    setRelayerFeeVal(feeInEth);
   };
 
   const getEthFee = async (amount) => {
@@ -559,7 +558,7 @@ const Send = () => {
               <div className='fee-item'>
                 <FormSubtitle className={FeeSubtitleClass}>RELAYER FEE</FormSubtitle>
                 { relayerFeeVal && <>
-                  <div className='fee-value'>{relayerFeeVal} {selectedCurrency.name}</div>
+                  <div className='fee-value'>{relayerFeeVal.toFixed(12).replace(/\.?0+$/,"")} {selectedCurrency.name}</div>
                   <Rate value={parseFloat(relayerFeeVal)}
                     selectedCurrencyId={selectedCurrency.rate_id}
                     className={RateStyleClass} />
@@ -570,7 +569,7 @@ const Send = () => {
                   EXPECTED ETHEREUM NETWORK FEE
                 </FormSubtitle>
                 {isNetworkFeeAvailable && ethFeeVal && ethFeeVal > 0 && <>
-                  <div className='fee-value'>{ethFeeVal} ETH</div>
+                  <div className='fee-value'>{ethFeeVal.toFixed(12).replace(/\.?0+$/,"")} ETH</div>
                   <Rate value={parseFloat(ethFeeVal)}
                     selectedCurrencyId={ETH_RATE_ID}
                     className={RateStyleClass} />

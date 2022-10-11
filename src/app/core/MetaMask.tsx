@@ -44,10 +44,15 @@ export default class MetaMaskController {
   }
 
   async loadTokenBalance(curr: Currency, address: string) {
-    const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
-    const tokenBalance = await token.balanceOf(address);
-    const tokenBalanceFormatted = parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals));
-    return tokenBalanceFormatted
+    try {
+      const token = new ethers.Contract(curr.ethTokenContract, abi, this.ethers);
+      const tokenBalance = await token.balanceOf(address);
+      const tokenBalanceFormatted = parseFloat(ethers.utils.formatUnits(tokenBalance, curr.decimals));
+      return tokenBalanceFormatted
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   init() {
@@ -79,14 +84,19 @@ export default class MetaMaskController {
   }
 
   async loadAllowance(curr: Currency, address: string) {
-    const tokenContract = new ethers.Contract(
-      curr.ethTokenContract,  
-      abi,
-      this.ethers
-    );
-
-    const allowance = await tokenContract.allowance(address, curr.ethPipeContract);
-    return parseFloat(ethers.utils.formatUnits(allowance)) > 0; //is Allowed
+    try {
+      const tokenContract = new ethers.Contract(
+        curr.ethTokenContract,  
+        abi,
+        this.ethers
+      );
+  
+      const allowance = await tokenContract.allowance(address, curr.ethPipeContract);
+      return parseFloat(ethers.utils.formatUnits(allowance)) > 0;
+    } catch (e) {
+      console.log(e);
+      return null;
+    }
   }
 
   static amountToBigInt(amount, decimals, validDecimals: number) : bigint {

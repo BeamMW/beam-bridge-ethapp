@@ -106,7 +106,7 @@ const MainPage: React.FC = () => {
     const monthString = date.toLocaleDateString(undefined, { month: 'numeric' });
     const dayString = date.toLocaleDateString(undefined, { day: 'numeric' });
     const time = date.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-    return `${dayString}.${'0' + monthString.slice(-2)}.${yearString} ${time}`;
+    return `${dayString}.${monthString.length == 1 ? '0' + monthString.slice(-2) : monthString}.${yearString} ${time}`;
   };
 
   const TABLE_CONFIG = [
@@ -118,7 +118,7 @@ const MainPage: React.FC = () => {
           return item.ethTokenContract.toLowerCase() === tr.contractAddress.toLowerCase()
         });
         if (curr) {
-          const amount = ((parseInt(tr.value) / Math.pow(10, curr.decimals)).toFixed(curr.validator_dec)).replace(/\.0+$/,'');
+          const amount = ((parseInt(tr.value) / Math.pow(10, curr.decimals)).toFixed(curr.validator_dec)).replace(/\.?0+$/,"");
         return `${amount} ${curr.name}`;
         }
       }
@@ -174,13 +174,14 @@ const MainPage: React.FC = () => {
       <Window>
         <StyledControls>
           <Button icon={IconSend}
-            disabled={isTrInProgress}
+            disabled={isTrInProgress || systemState.isCorrectNetwork === false}
             pallete="purple"
             onClick={handleSendClick}>
               ethereum to beam
           </Button>
           <Button icon={IconReceive} 
             className={ReceiveButtonClass} 
+            disabled={systemState.isCorrectNetwork === false}
             pallete="blue" 
             onClick={handleReceiveClick}>
               beam to ethereum

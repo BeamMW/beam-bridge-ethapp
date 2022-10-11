@@ -12,6 +12,7 @@ const initialState: SharedStateType = {
   systemState: {
     account: null,
     chainId: null,
+    isCorrectNetwork: null
   },
   transactions: [],
   isLoaded: false
@@ -26,15 +27,9 @@ const reducer = createReducer<SharedStateType, Action>(initialState)
       ? [...new Map([...state.transactions, ...action.payload].map((item) => [item.txId, item])).values()]
       : action.payload;
   }))
-  // .handleAction(actions.setError, (state, action) => produce(state, (nexState) => {
-  //   nexState.errorMessage = action.payload;
-  // }))
-  // .handleAction(actions.setIsLoaded, (state, action) => produce(state, (nexState) => {
-  //   nexState.isLoaded = action.payload;
-  // }))
-
-
-  
+  .handleAction(actions.setIsCorrectNetwork, (state, action) => produce(state, (nexState) => {
+    nexState.systemState.isCorrectNetwork = action.payload;
+  }))  
   .handleAction(actions.setAccountState, (state, action) => produce(state, (nexState) => {
     nexState.systemState.account = action.payload;
   }));

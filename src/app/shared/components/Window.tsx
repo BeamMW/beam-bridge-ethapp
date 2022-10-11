@@ -24,6 +24,16 @@ const Container = styled.div`
   background-size: cover;
   min-height: 100%;
   padding-bottom: 50px;
+
+  > .wrong-network {
+    height: 40px;
+    background-color: #F0CF0A;
+    width: 100%;
+    font-size: 30px;
+    font-weight: 900;
+    text-align: center;
+    color: #000000;
+  }
 `;
 
 const Title = styled.h1`
@@ -51,6 +61,8 @@ const Window: React.FC<WindowProps> = ({
   
   return (
     <Container ref={rootRef}>
+      { systemState.isCorrectNetwork === false && 
+        <div className='wrong-network'> Wrong network! Change network to Goerli.</div>}
       { state !== "content" ?
       <>  
         {

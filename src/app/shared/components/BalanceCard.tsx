@@ -5,6 +5,7 @@ import { Button } from '.';
 import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/shared/icons';
 import MetaMaskController from '@core/MetaMask';
 import { useSelector } from 'react-redux';
+import { selectSystemState } from '../store/selectors';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -73,6 +74,7 @@ const Card: React.FC<CardProps> = ({
   ...rest
 }) => {
   const rates = useSelector(selectRate());
+  const systemState = useSelector(selectSystemState());
   const currency = type.toUpperCase();
   const isApproveInProgress = useSelector(selectIsApproveInProgress())
 
@@ -91,7 +93,7 @@ const Card: React.FC<CardProps> = ({
       <StyledApproveButton>
         <Button 
           variant='validate'
-          disabled={isApproveInProgress} 
+          disabled={isApproveInProgress || systemState.isCorrectNetwork === false} 
           onClick={()=>approveTokenClicked(curr_id)}>
             approve token
         </Button>

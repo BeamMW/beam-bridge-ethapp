@@ -4,7 +4,7 @@ import {
 
 import { eventChannel, END } from 'redux-saga';
 import { actions as mainActions } from '@app/containers/Main/store/index';
-import { navigate, setAccountState, setNetworkState } from '@app/shared/store/actions';
+import { navigate, setAccountState, setIsCorrectNetwork } from '@app/shared/store/actions';
 import store from '../../../index';
 
 import { actions } from '@app/shared/store/index';
@@ -16,12 +16,6 @@ import { setIsLocked, setIsLoggedIn, setPopupState } from '@app/containers/Main/
 const metaMaskController = MetaMaskController.getInstance();
 
 const GOERLI_CHAIN_ID = '5';
-//window.ethereum.networkVersion === '5'
-
-function isNeededChain(chainId:string) {
-  return chainId &&
-    chainId.toLowerCase() === GOERLI_CHAIN_ID.toLowerCase();
-}
 
 function initApp(account: string) {
   store.dispatch(setAccountState(account));
@@ -33,20 +27,6 @@ function initApp(account: string) {
 
 export function remoteEventChannel() {
   return eventChannel((emitter) => {
-    //emitter(true)
-    // if (MetaMaskOnboarding.isMetaMaskInstalled()) {
-    //   if (this.state.accounts.length > 0) {
-    //     // If the user is connected to MetaMask, stop the onboarding process.
-    //     this.state.onboarding.stopOnboarding()
-    //   }
-    // }
-
-    // if (!MetaMaskOnboarding.isMetaMaskInstalled()) {
-    
-    // } else if (this.state.accounts.length === 0) {
-    
-    // }  else if (!isNeededChain(this.state.chainId)) {
-    // }
     if (MetaMaskOnboarding.isMetaMaskInstalled()) {
       window.ethereum
         .request({ method: 'eth_accounts' })
@@ -54,15 +34,10 @@ export function remoteEventChannel() {
 
       window.ethereum.on('accountsChanged', accounts => emitter({event: 'account_changed', data: accounts}));
 
-      window.ethereum.on('chainChanged', () => emitter({event: 'chain_changed'})); //window.location.reload());
+      window.ethereum.on('chainChanged', () => emitter({event: 'chain_changed'}));
 
       window.ethereum.on('connect', (connectInfo) => {
-        //const chainId = connectInfo.chainId;
         emitter({event: 'connected_chain', data: connectInfo})
-        //this.setState({ chainId })
-        // if (isAvalancheChain(chainId)) {
-        //   this.props.onConnected()
-        // }
       })
     } else {
       setTimeout(()=>emitter({event: 'metamask_not_installed'}), 0)
@@ -109,6 +84,7 @@ function* sharedSaga() {
             }
             yield put(navigate(ROUTES.MAIN.CONNECT));
           } else {
+            store.dispatch(setIsCorrectNetwork(window.ethereum.networkVersion === GOERLI_CHAIN_ID));
             initApp(payload.data[0]);
             yield fork(handleTransactions, payload.data[0]);
           }
@@ -131,6 +107,10 @@ function* sharedSaga() {
           store.dispatch(setPopupState({type: 'install', state: true}));
           yield put(navigate(ROUTES.MAIN.CONNECT));
 
+          break;
+
+        case 'chain_changed':
+          window.location.reload();
           break;
         default:
           break;
