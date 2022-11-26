@@ -12,6 +12,7 @@ import { ROUTES, CURRENCIES, ethId } from '@app/shared/constants';
 import MetaMaskController from '@core/MetaMask';
 import MetaMaskOnboarding from '@metamask/onboarding';
 import { setIsLocked, setIsLoggedIn, setPopupState } from '@app/containers/Main/store/actions';
+import delay from '@redux-saga/delay-p';
 
 const metaMaskController = MetaMaskController.getInstance();
 
@@ -21,7 +22,6 @@ function initApp(account: string) {
   store.dispatch(setAccountState(account));
   store.dispatch(setIsLoggedIn(true));
   metaMaskController.init();
-  store.dispatch(mainActions.loadAppParams.request(null));
   store.dispatch(mainActions.loadRate.request());
 }
 
@@ -52,7 +52,7 @@ export function remoteEventChannel() {
 }
 
 
-export function* handleTransactions(payload) {
+export function* handleTransactions(payload, isTimeout: boolean = false) {
   let result = [];
   for (var item of CURRENCIES) {
     if (item.id !== ethId) {
@@ -61,6 +61,12 @@ export function* handleTransactions(payload) {
     }
   }
   yield put(actions.setTransactions(result));
+  store.dispatch(mainActions.loadAppParams.request(null));
+
+  if (isTimeout) {
+    yield delay(5000);
+    yield call(handleTransactions, payload, true);
+  }
 }
 
 function* sharedSaga() {
@@ -86,7 +92,7 @@ function* sharedSaga() {
           } else {
             store.dispatch(setIsCorrectNetwork(window.ethereum.networkVersion === GOERLI_CHAIN_ID));
             initApp(payload.data[0]);
-            yield fork(handleTransactions, payload.data[0]);
+            yield fork(handleTransactions, payload.data[0], true);
           }
 
           break;

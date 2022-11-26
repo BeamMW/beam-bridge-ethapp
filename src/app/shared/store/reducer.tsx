@@ -24,7 +24,7 @@ const reducer = createReducer<SharedStateType, Action>(initialState)
   }))
   .handleAction(actions.setTransactions, (state, action) => produce(state, (nexState) => {
     nexState.transactions = state.transactions.length
-      ? [...new Map([...state.transactions, ...action.payload].map((item) => [item.txId, item])).values()]
+      ? [...new Map([...state.transactions, ...action.payload].map((item) => [item.hash, item])).values()]
       : action.payload;
   }))
   .handleAction(actions.setIsCorrectNetwork, (state, action) => produce(state, (nexState) => {
