@@ -23,12 +23,6 @@ async function callLoadAllowance(curr: Currency, account: string) {
   return await metaMaskController.loadAllowance(curr, account);
 }
 
-function asyncCallBackUtil(action){
-  if (action.payload && action.payload.callback) {
-      action.payload.callback('Done');
-  }
-}
-
 export function* loadParamsSaga(
     action: ReturnType<typeof actions.loadAppParams.request>,
   ) : Generator {
@@ -49,7 +43,6 @@ export function* loadParamsSaga(
         is_approved: isAllowed
       });
     }
-    asyncCallBackUtil(action);
     yield put(actions.loadAppParams.success(balances));
 }
 

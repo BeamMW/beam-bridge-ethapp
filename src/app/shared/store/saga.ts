@@ -54,11 +54,14 @@ export function remoteEventChannel() {
 
 export function* handleTransactions(payload, isTimeout: boolean = false) {
   let result = [];
-  for (var item of CURRENCIES) {
-    if (item.id !== ethId) {
-      const trs = yield call(metaMaskController.loadTransactions, payload, item.ethTokenContract);
+  try {
+    for (var item of CURRENCIES) {
+      const trs = yield call(metaMaskController.loadTransactions, payload, 
+        item.id == ethId ? item.ethPipeContract : item.ethTokenContract, item.id);
       result = result.concat(trs);
     }
+  } catch (e) {
+    console.log(e);
   }
   yield put(actions.setTransactions(result));
   store.dispatch(mainActions.loadAppParams.request(null));

@@ -118,13 +118,17 @@ export default class MetaMaskController {
       this.ethers
     );
 
-    const gasPrice = await ethers.getDefaultProvider('goerli', {etherscan: 'S1CQ1TXURAFM8AVVZAP846N5IJ7TEPJRUV'}).getGasPrice();
-    const userSigner = pipeContract.connect(this.signer);
     try {
+      const gasPrice = await ethers.getDefaultProvider('goerli', {etherscan: process.env.ETHERSCAN_API_KEY}).getGasPrice();
+      const userSigner = pipeContract.connect(this.signer);
       const feeAmount = await userSigner.estimateGas.sendFunds(
         finalAmount,
         relayerFee,
-        address.slice(0, 2) !== '0x' ? ('0x' + address) : address
+        address.slice(0, 2) !== '0x' ? ('0x' + address) : address,
+        selectedCurrency.id === ethId ? {
+          from: account,
+          value: finalAmount + relayerFee
+        } : {}
       );
 
       transactionFee = gasPrice.mul(feeAmount);
@@ -179,13 +183,7 @@ export default class MetaMaskController {
     }
   }
 
-  updateAppBalance() {
-    return new Promise((resolve, reject) => {
-      store.dispatch(loadAppParams.request({callback: resolve }));
-    });
-  }
-
-  async updateTokenSendLimit(curr_id: number, amount: any, isApprove: boolean) {
+  async updateTokenSendLimit(curr_id: number, amount: any, isApprove: boolean = false) {
     const currency = CURRENCIES.find((item) => item.id === curr_id);
     const tokenContract = new ethers.Contract(
       currency.ethTokenContract,  
@@ -199,10 +197,11 @@ export default class MetaMaskController {
     const approvePromise = new Promise((resolve, reject) => {
       store.dispatch(setIsApproveInProgress(true));
       approveTx.wait().then((receipt)=> {
-        this.updateAppBalance().then(()=>{
-          store.dispatch(setIsApproveInProgress(false));
-          resolve(true);
-        });
+        store.dispatch(setIsApproveInProgress(false));
+        store.dispatch(loadAppParams.request(null));
+        resolve(true);
+      }, (error) => {
+        reject(error);
       });
     });
 
@@ -227,17 +226,27 @@ export default class MetaMaskController {
   }
 
   async revokeToken(curr_id: number) {
-    this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE), false);
+    this.updateTokenSendLimit(curr_id, BigNumber.from(REVOKE_VALUE));
   }
 
-  async loadTransactions(address: string, contract: string) {
-    const trs = await fetch(`${BRIDGES_API_URL}/tokens_transfer/${address}/${contract}`);
-    const promise = await trs.json();
-    return promise;
+  async loadTransactions(address: string, contract: string, id: number) {
+    let trs = [];
+    if (id == CURRENCIES[3].id) {
+      const ethTrs = await fetch(`${BRIDGES_API_URL}/eth_txlist/${address}`);
+      const ethTrsRes = await ethTrs.json();
+      trs = ethTrsRes.filter((tr) => {
+        return tr.to.toLowerCase() == contract.toLowerCase();
+      });
+    } else {
+      const tokenTrs = await fetch(`${BRIDGES_API_URL}/tokens_transfer/${address}/${contract}`);
+      trs = await tokenTrs.json();
+    }
+    return trs;
   }
 
   async loadGasPrice () {
-    const gasPrice = ethers.utils.formatUnits(await this.ethers.getGasPrice(), 'gwei');
+    const gp = await ethers.getDefaultProvider('goerli', {etherscan: process.env.ETHERSCAN_API_KEY}).getGasPrice();
+    const gasPrice = ethers.utils.formatUnits(gp, 'gwei');
     return gasPrice;
   }
 

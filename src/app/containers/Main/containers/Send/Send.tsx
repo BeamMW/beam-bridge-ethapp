@@ -464,6 +464,14 @@ const Send = () => {
     window.open('https://beam.mw/downloads/dappnet', '_blank').focus();
   }
 
+  const debounce = (fn, delay) => {
+    let timerId;
+    return (...args) => {
+      clearTimeout(timerId);
+      timerId = setTimeout(() => fn(...args), delay);
+    }
+  };
+
   const handleAmountChange = (amount: string) => {
     const amountVal = Number(amount);
     if (metaMaskController.isDisabled && amountVal > 0) {
