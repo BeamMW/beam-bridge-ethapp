@@ -119,7 +119,8 @@ export default class MetaMaskController {
     );
 
     try {
-      const gasPrice = await ethers.getDefaultProvider('goerli', {etherscan: process.env.ETHERSCAN_API_KEY}).getGasPrice();
+      const provider = new ethers.providers.EtherscanProvider(process.env.NETWORK, process.env.ETHERSCAN_API_KEY);
+      const gasPrice = await provider.getGasPrice();
       const userSigner = pipeContract.connect(this.signer);
       const feeAmount = await userSigner.estimateGas.sendFunds(
         finalAmount,
@@ -245,7 +246,8 @@ export default class MetaMaskController {
   }
 
   async loadGasPrice () {
-    const gp = await ethers.getDefaultProvider('goerli', {etherscan: process.env.ETHERSCAN_API_KEY}).getGasPrice();
+    const provider = new ethers.providers.EtherscanProvider(process.env.NETWORK, process.env.ETHERSCAN_API_KEY);
+    const gp = await provider.getGasPrice();
     const gasPrice = ethers.utils.formatUnits(gp, 'gwei');
     return gasPrice;
   }

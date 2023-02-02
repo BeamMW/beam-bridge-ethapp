@@ -9,7 +9,8 @@ import MetaMaskController  from '@core/MetaMask';
 const metaMaskController = MetaMaskController.getInstance();
 
 const FETCH_INTERVAL = 310000;
-const API_URL = 'https://api.coingecko.com/api/v3/simple/price';
+const PRICE_API_URL = 'https://api.coingecko.com/api/v3/simple/price';
+const RESERVE_PRICE_API_URL = 'https://explorer-api.beam.mw/bridges/rates';
 
 async function callLoadEthBalance(account: string) {
   return await metaMaskController.loadEthBalance(account);
@@ -47,7 +48,12 @@ export function* loadParamsSaga(
 }
 
 async function loadRatesApiCall(rate_ids) {
-  const response = await fetch(`${API_URL}?ids=${rate_ids.join(',')}&vs_currencies=usd`);
+  let response;
+  try {
+    response = await fetch(`${PRICE_API_URL}?ids=${rate_ids.join(',')}&vs_currencies=usd`);
+  } catch (e) {
+    response = await fetch(RESERVE_PRICE_API_URL);
+  }
   const promise = await response.json();
   return promise;
 }
