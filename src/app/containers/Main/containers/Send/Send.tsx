@@ -461,7 +461,7 @@ const Send = () => {
   };
 
   const handleDownloadClick: React.MouseEventHandler = () => {
-    window.open('https://beam.mw/downloads/dappnet', '_blank').focus();
+    window.open('https://beam.mw/downloads/', '_blank').focus();
   }
 
   const debounce = (fn, delay) => {
@@ -559,7 +559,9 @@ const Send = () => {
                 </span>
               </div>
               <div className='balance'> {availableBalance.value} {selectedCurrency.name} </div>
-              <div className='rate'>{availableBalance.rate} USD</div>
+              <Rate value={availableBalance.value}
+                    selectedCurrencyId={selectedCurrency.rate_id}
+                    className={RateStyleClass} />
             </AvailableContainer>
             <div className='separator'/>
             <FeeContainer>
@@ -616,7 +618,7 @@ const Send = () => {
           </div>
           <ul>
             <li className='info-item'>
-              1.	Download the latest verison of <span className='link' onClick={handleDownloadClick}>Beam Wallet</span> 
+              1.	Download the latest version of <span className='link' onClick={handleDownloadClick}>Beam Wallet</span> 
             </li>
             <li className='info-item'>2.	Launch Bridges DApp from DApp store</li>
             <li className='info-item'>

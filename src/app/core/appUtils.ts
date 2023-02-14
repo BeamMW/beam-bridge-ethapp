@@ -38,11 +38,11 @@ export function truncate(value: string): string {
 }
 
 export function toUSD(amount: number, rate: number): string {
+  const value = amount * rate;
   switch (true) {
     case amount === 0 || Number.isNaN(amount):
       return '0 USD';
-    case amount > 0.011: {
-      const value = amount * rate;
+    case value > 0.011: {
       return `${value.toFixed(2)} USD`;
     }
     default:

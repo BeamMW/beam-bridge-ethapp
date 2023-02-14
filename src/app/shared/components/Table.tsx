@@ -46,7 +46,7 @@ const Column = styled.td`
 `;
 
 const Table: React.FC<TableProps> = ({ keyBy, data, config }) => {
-  const [filterBy, setFilterBy] = useState(0);
+  const [filterBy, setFilterBy] = useState(1);
   let tableData = [...data];
 
   useEffect(() => {

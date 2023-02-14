@@ -235,9 +235,15 @@ export default class MetaMaskController {
     if (id == CURRENCIES[3].id) {
       const ethTrs = await fetch(`${BRIDGES_API_URL}/eth_txlist/${address}`);
       const ethTrsRes = await ethTrs.json();
-      trs = ethTrsRes.filter((tr) => {
+      trs.push(...ethTrsRes.filter((tr) => {
         return tr.to.toLowerCase() == contract.toLowerCase();
-      });
+      }));
+
+      const ethTrsInt = await fetch(`${BRIDGES_API_URL}/eth_txlist_internal/${address}`);
+      const ethTrsIntRes = await ethTrsInt.json();
+      trs.push(...ethTrsIntRes.filter((tr) => {
+        return tr.from.toLowerCase() == contract.toLowerCase();
+      }));
     } else {
       const tokenTrs = await fetch(`${BRIDGES_API_URL}/tokens_transfer/${address}/${contract}`);
       trs = await tokenTrs.json();

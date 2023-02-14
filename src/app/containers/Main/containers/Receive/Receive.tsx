@@ -109,7 +109,7 @@ const Receive = () => {
   };
 
   const handleDownloadClick: React.MouseEventHandler = () => {
-    window.open('https://beam.mw/downloads/dappnet', '_blank').focus();
+    window.open('https://beam.mw/downloads/', '_blank').focus();
   }
 
   return (
@@ -137,7 +137,7 @@ const Receive = () => {
         <InfoContainerTitle>In order to transfer from Beam to Ethereum network, do the following:</InfoContainerTitle>
         <ul>
           <InfoListItem>
-            1.	Download the latest verison of <StyledLink onClick={handleDownloadClick}>Beam Wallet</StyledLink> 
+            1.	Download the latest version of <StyledLink onClick={handleDownloadClick}>Beam Wallet</StyledLink> 
           </InfoListItem>
           <InfoListItem>2.	Launch Bridges DApp from DApp store</InfoListItem>
           <InfoListItem>3.	Select <StyledLine>Beam to Ethereum</StyledLine> and choose currency</InfoListItem>

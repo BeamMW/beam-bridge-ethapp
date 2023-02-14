@@ -144,7 +144,7 @@ const MainPage: React.FC = () => {
           } 
           { 
             <span className={ tr.isIncome ? 'text-receive' : 'text-deposit' }>
-              completed
+              { tr.isIncome ? 'received from Beam' : 'sent to Beam'}
             </span>
           }
         </Completed>);
