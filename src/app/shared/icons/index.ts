@@ -39,8 +39,6 @@ import IconAngleSmallUp from './icon-angle-small-up.svg';
 import IconSort from './icon-sort.svg';
 import IconSearchCancel from './icon-search-cancel.svg';
 
-import IconBeamWithdraw from './beam-withdraw-img.svg';
-import IconBeamDonated from './beam-donated-img.svg';
 import IconFaucetEmpty from './faucet-empty.svg';
 import IconConfirm from './icon-receive-lightblue.svg';
 
@@ -102,8 +100,6 @@ export {
   IconSort,
   IconSearchCancel,
 
-  IconBeamWithdraw,
-  IconBeamDonated,
   IconFaucetEmpty,
   IconConfirm,
 

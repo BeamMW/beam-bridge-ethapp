@@ -2,7 +2,7 @@ import React from 'react';
 import { styled } from '@linaria/react';
 import { selectIsApproveInProgress, selectRate } from '@app/containers/Main/store/selectors';
 import { Button } from '.';
-import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/shared/icons';
+import { IconUsdt, IconWbtc, IconDai, IconEth, IconBeam } from '@app/shared/icons';
 import MetaMaskController from '@core/MetaMask';
 import { useSelector } from 'react-redux';
 import { selectSystemState } from '../store/selectors';
@@ -57,6 +57,7 @@ const StyledApproveButton = styled.span`
 `;
 
 const ICONS = {
+  beam: () => (<IconBeam/>),
   usdt: () => (<IconUsdt/>),
   wbtc: () => (<IconWbtc/>),
   dai: () => (<IconDai/>),

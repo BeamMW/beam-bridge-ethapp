@@ -9,6 +9,7 @@ import {
   IconEthLarge,
   IconUsdtLarge,
   IconWbtcLarge,
+  IconBeam,
   IconCheck,
   IconSendPink
 } from '@app/shared/icons';
@@ -248,6 +249,7 @@ const Send = () => {
   })
   const { address: addressFromParams } = useParams();
   const ICONS = {
+    beam: () => (<IconBeam className={CurrencyIconClass}/>),
     usdt: () => (<IconUsdtLarge className={CurrencyIconClass}/>),
     wbtc: () => (<IconWbtcLarge className={CurrencyIconClass}/>),
     dai: () => (<IconDaiLarge className={CurrencyIconClass}/>),
@@ -395,7 +397,7 @@ const Send = () => {
   const parseCurrency = (value: string):Currency => {
     const key = value.slice(-BEAM_ADDRESS_LENGTH);
     if (key.length === BEAM_ADDRESS_LENGTH) {
-      const currName = value.slice(1, value.length - BEAM_ADDRESS_LENGTH);
+      const currName = value.slice(0, value.length - BEAM_ADDRESS_LENGTH);
       const parsedCurrency = findCurrency(currName);
       if (parsedCurrency) {
         setParsedAddressValue(key);
@@ -408,7 +410,7 @@ const Send = () => {
 
   const findCurrency = (currencyName: string) => {
     return CURRENCIES.find((item) => {
-        return item.name.toLowerCase() === currencyName;
+      return item.name.toLowerCase() === currencyName;
     });
   };
 

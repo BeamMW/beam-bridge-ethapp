@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@linaria/react';
 import { css } from '@linaria/core';
-import { IconWbtc, IconEth, IconDai, IconUsdt } from '@app/shared/icons';
+import { IconWbtc, IconEth, IconDai, IconUsdt, IconBeam } from '@app/shared/icons';
 import { Currency } from '@app/core/types';
 import { Rate } from '.';
 
@@ -127,6 +127,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     const getCurrIcon = (curr) => {
       const ICONS = {
+        beam: () => (<IconBeam/>),
         usdt: () => (<IconUsdt/>),
         wbtc: () => (<IconWbtc/>),
         dai: () => (<IconDai/>),
