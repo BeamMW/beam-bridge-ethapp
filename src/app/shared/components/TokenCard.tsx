@@ -1,7 +1,7 @@
 import React from 'react';
 import { styled } from '@linaria/react';
 import { Button } from '.';
-import { IconUsdt, IconWbtc, IconDai, IconEth } from '@app/shared/icons';
+import { IconUsdt, IconWbtc, IconDai, IconEth, IconBeam } from '@app/shared/icons';
 import MetaMaskController from '@core/MetaMask';
 import { ethId } from '@app/shared/constants';
 import { useSelector } from 'react-redux';
@@ -40,6 +40,7 @@ const StyledApproveButton = styled.span`
 `;
 
 const ICONS = {
+  beam: () => (<IconBeam/>),
   usdt: () => (<IconUsdt/>),
   wbtc: () => (<IconWbtc/>),
   dai: () => (<IconDai/>),

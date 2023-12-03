@@ -223,7 +223,7 @@ export default class MetaMaskController {
   }
 
   async approveToken(curr_id: number) {
-    this.updateTokenSendLimit(curr_id, MAX_ALLOWED_VALUE, true);
+    this.updateTokenSendLimit(curr_id, ethers.constants.MaxUint256, true);
   }
 
   async revokeToken(curr_id: number) {
@@ -232,16 +232,9 @@ export default class MetaMaskController {
 
   async loadTransactions(address: string, contract: string, id: number) {
     let trs = [];
-    if (id == CURRENCIES[3].id) {
-      const ethTrs = await fetch(`${BRIDGES_API_URL}/eth_txlist/${address}`);
-      const ethTrsRes = await ethTrs.json();
-      trs = ethTrsRes.filter((tr) => {
-        return tr.to.toLowerCase() == contract.toLowerCase();
-      });
-    } else {
-      const tokenTrs = await fetch(`${BRIDGES_API_URL}/tokens_transfer/${address}/${contract}`);
-      trs = await tokenTrs.json();
-    }
+    const tokenTrs = await fetch(`${BRIDGES_API_URL}/tokens_transfer/${address}/${contract}`);
+    trs = await tokenTrs.json();
+    
     return trs;
   }
 

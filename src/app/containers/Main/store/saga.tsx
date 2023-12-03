@@ -64,7 +64,6 @@ export function* loadRate() {
     for (let curr of CURRENCIES) {
       rate_ids.push(curr.rate_id);
     }
-    rate_ids.push('beam');
     const result = yield call(loadRatesApiCall, rate_ids);
 
     yield put(actions.loadRate.success(result));

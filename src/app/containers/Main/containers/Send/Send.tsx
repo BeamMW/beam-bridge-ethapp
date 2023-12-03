@@ -463,7 +463,7 @@ const Send = () => {
   };
 
   const handleDownloadClick: React.MouseEventHandler = () => {
-    window.open('https://beam.mw/downloads/dappnet', '_blank').focus();
+    window.open('https://beam.mw/downloads', '_blank').focus();
   }
 
   const debounce = (fn, delay) => {

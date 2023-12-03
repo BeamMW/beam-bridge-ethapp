@@ -24,7 +24,7 @@ css`
 
       --color-disabled: #8da1ad;
 
-      --color-usdt-from: rgba(80, 175, 149, .3);
+      --color-beam-from: rgba(80, 175, 149, .3);
       --color-eth-from: rgba(94, 123, 242, .3);
       --color-wbtc-from: rgba(247, 147, 26, .3);
       --color-dai-from: rgba(245, 172, 55, .3);

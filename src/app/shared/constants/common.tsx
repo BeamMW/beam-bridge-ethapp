@@ -15,8 +15,8 @@ export const CURRENCIES = [
         id: 1,
         decimals: 8,
         validator_dec: 8,
-        ethTokenContract: '0x073A4409eFb1b3DAf244123DB0450643726dE7B0',
-        ethPipeContract: '0x41962c547A9D834ab06492A02691fe2c8a9Da86C',       
+        ethTokenContract: '0xE5AcBB03D73267c03349c76EaD672Ee4d941F499',
+        ethPipeContract: '0x6063024646E8A1561970840a4b0e0f1082f5a670',       
     },
     {
         name: 'ETH',
